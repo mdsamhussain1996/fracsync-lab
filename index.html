@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FracSync Lab — Fractional-Order Network Synchronization</title>
+  <meta name="description" content="Every chaotic network is a lock. Every controller is a key. Interactive laboratory for drive–response synchronization of fractional-order dynamical systems.">
+  <meta property="og:title" content="FracSync Lab — Drive–Response Synchronization">
+  <meta property="og:description" content="Interactive browser simulation bench for drive–response synchronization of fractional-order chaotic networks and neural systems.">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=IBM+Plex+Mono:wght@400;500&family=STIX+Two+Text:ital,wght@0,400;0,600;1,400&display=swap">
+  <style>
+/* Layout: a locksmith's bench. Pick a lock, cut a key, turn it on the bench, then read the drawing (math) and the key-cutting program (Python) side by side. */
+:root{
+ --bg:#EDF0F5; --surface:#F8FAFD; --surface2:#E2E8F2; --ink:#12203B; --muted:#54658A; --line:#C3CDDF;
+ --brass:#C4901F; --brass-edge:#7A5208; --glyph:#5A3C05; --acc:#8A5A06; --steel:#7383A1; --hole:#1B2740;
+ --drive:#2D4FA1; --resp:#B9750A; --ok:#1E8A4B; --bad:#C0392B; --code:#F0F3F9; --onbrass:#20160A;
+ --fd:'Archivo',system-ui,-apple-system,'Segoe UI',sans-serif;
+ --fm:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+ --fx:'STIX Two Text','Cambria Math',Georgia,serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+ --bg:#0B1424; --surface:#111C31; --surface2:#182642; --ink:#E8EEF9; --muted:#93A3C2; --line:#25375A;
+ --brass:#E2A83B; --brass-edge:#F5D391; --glyph:#3A2703; --acc:#EBB250; --steel:#A9B8D3; --hole:#0B1424;
+ --drive:#86A9FF; --resp:#E2A83B; --ok:#4CCB84; --bad:#F27A6C; --code:#0D172B; --onbrass:#20160A; color-scheme:dark}}
+:root[data-theme="dark"]{
+ --bg:#0B1424; --surface:#111C31; --surface2:#182642; --ink:#E8EEF9; --muted:#93A3C2; --line:#25375A;
+ --brass:#E2A83B; --brass-edge:#F5D391; --glyph:#3A2703; --acc:#EBB250; --steel:#A9B8D3; --hole:#0B1424;
+ --drive:#86A9FF; --resp:#E2A83B; --ok:#4CCB84; --bad:#F27A6C; --code:#0D172B; --onbrass:#20160A; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0}
+body{background:var(--bg);color:var(--ink);font:400 15px/1.55 var(--fd)}
+.wrap{max-width:1160px;margin:0 auto;padding-inline:clamp(16px,4vw,32px);padding-block:28px 56px;display:flex;flex-direction:column;gap:36px}
+h1,h2,h4{font-family:var(--fd);margin:0;text-wrap:balance}
+h1{font-stretch:72%;font-weight:800;font-size:clamp(2.6rem,8vw,4.6rem);line-height:.95;letter-spacing:.01em;text-transform:uppercase}
+h2{font-stretch:88%;font-weight:700;font-size:1.3rem;display:flex;align-items:center;gap:12px}
+.eyebrow{font:500 .75rem var(--fm);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+.lede{max-width:62ch;font-size:1.06rem;margin:14px 0 0;color:var(--ink)}
+.sub{margin:6px 0 0;color:var(--muted);max-width:64ch}
+.step{display:inline-grid;place-items:center;width:30px;height:30px;border:2px solid var(--brass);border-radius:50%;font:500 .85rem var(--fm);color:var(--acc);flex:none}
+section{display:flex;flex-direction:column;gap:14px;min-width:0}
+.pick{display:grid;gap:12px}
+.pick-lock{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.pick-key{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+.card{font:inherit;color:inherit;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;cursor:pointer;display:flex;gap:14px;min-width:0;transition:border-color .15s,background .15s}
+.card:hover{border-color:var(--steel)}
+.card[aria-pressed="true"]{border-color:var(--brass);box-shadow:inset 0 0 0 1px var(--brass);background:var(--surface2)}
+.card:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--drive);outline-offset:2px}
+.lockcard{align-items:center}
+.keycard{flex-direction:column;gap:8px}
+.ct{display:flex;flex-direction:column;gap:2px;min-width:0}
+.ct strong{font-weight:700;font-stretch:90%}
+.ct span,.ct code{font-size:.82rem;color:var(--muted)}
+.ct code{font-family:var(--fm);font-size:.74rem;overflow-wrap:anywhere}
+.locksvg{width:58px;height:72px;flex:none}
+.keycard .keysvg{width:100%;height:auto;display:block}
+.keysvg{overflow:visible}
+.lk-body,.ky{fill:var(--brass);stroke:var(--brass-edge);stroke-width:1.4}
+.lk-sh{fill:none;stroke:var(--steel);stroke-width:9;stroke-linecap:round}
+.lk-hole{fill:var(--hole)}
+.glyph{fill:none;stroke:var(--glyph);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.gd{fill:var(--glyph);stroke:none}
+.gtext{fill:var(--glyph);font:600 11px var(--fm)}
+.bench{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:18px;align-items:start}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;min-width:0}
+.stagewrap{padding:14px;display:flex;flex-direction:column;gap:12px}
+#stage{width:100%;height:auto;display:block}
+#stage .lab{font:500 11px var(--fm);letter-spacing:.08em;fill:var(--muted)}
+#keyShake{transform-box:fill-box;transform-origin:100% 50%}
+.jam{animation:jam .45s 2}
+@keyframes jam{0%,100%{transform:rotate(0)}25%{transform:rotate(-2.5deg)}75%{transform:rotate(2.5deg)}}
+.stagebar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px}
+.btn{font:600 .9rem var(--fd);border-radius:8px;border:1px solid var(--line);background:var(--surface2);color:var(--ink);padding:9px 14px;cursor:pointer;transition:filter .15s}
+.btn.primary{background:var(--brass);border-color:var(--brass-edge);color:var(--onbrass)}
+.btn:hover{filter:brightness(1.06)}
+.pill{font:500 .8rem var(--fm);padding:4px 10px;border-radius:99px;border:1px solid var(--line);color:var(--muted)}
+.pill.turn{color:var(--acc);border-color:var(--brass)}
+.pill.ok{color:var(--ok);border-color:var(--ok)}
+.pill.bad{color:var(--bad);border-color:var(--bad)}
+.scrub{display:flex;align-items:center;gap:10px;flex:1 1 220px;min-width:0}
+.scrub input{flex:1;min-width:0}
+.scrub output{font:.8rem var(--fm);color:var(--muted);min-width:5.5ch;text-align:right;font-variant-numeric:tabular-nums}
+input[type=range]{accent-color:var(--brass);width:100%}
+.reads{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0}
+.reads div{border-top:1px solid var(--line);padding-top:8px}
+.reads dt{font:500 .7rem var(--fm);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.reads dd{margin:2px 0 0;font:500 1.15rem var(--fm);font-variant-numeric:tabular-nums}
+.teeth{padding:16px;display:flex;flex-direction:column;gap:14px}
+.teeth h3{margin:0;font:700 1rem var(--fd);font-stretch:90%}
+.ctl{display:flex;flex-direction:column;gap:2px}
+.cl{display:flex;justify-content:space-between;align-items:baseline}
+.sym{font:italic 400 1.1rem var(--fx)}
+.cl output{font:500 .85rem var(--fm);font-variant-numeric:tabular-nums}
+.grp{display:flex;flex-direction:column;gap:12px;padding-top:12px;border-top:1px solid var(--line)}
+.chk{display:flex;gap:10px;align-items:flex-start;font-size:.88rem;cursor:pointer}
+.chk input{margin-top:4px;accent-color:var(--brass)}
+.hint{font-size:.8rem;color:var(--muted);margin:0}
+.plots{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px}
+.plots figure{margin:0;padding:12px 12px 8px;min-width:0}
+.plots figcaption{font:500 .72rem var(--fm);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+canvas{width:100%;height:210px;display:block}
+.hood{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:start}
+.math{padding:16px 18px;font-family:var(--fx);font-size:1.05rem;line-height:1.5}
+.math h4{font:600 .72rem var(--fm);letter-spacing:.08em;text-transform:uppercase;color:var(--acc);margin:18px 0 6px}
+.math h4:first-child{margin-top:0}
+.eq{overflow-x:auto;padding:3px 0;white-space:nowrap}
+.eq i,.note i{font-style:italic}
+.op sup.pre{font-size:.6em;margin-right:1px}
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;font-size:.9em;line-height:1.1;margin:0 2px}
+.frac span:first-child{border-bottom:1px solid currentColor;padding:0 3px}
+.note{font-size:.92rem;color:var(--muted);margin:4px 0 0;font-family:var(--fd)}
+.mat{border-collapse:collapse;margin:4px 0;font-family:var(--fm);font-size:.85rem;border-left:2px solid var(--steel);border-right:2px solid var(--steel)}
+.mat td{padding:1px 10px;text-align:right}
+.codebox{overflow:hidden}
+.codehead{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line)}
+.codehead span{font:500 .72rem var(--fm);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+pre#code{margin:0;padding:14px 16px;background:var(--code);font:400 .78rem/1.55 var(--fm);overflow:auto;max-height:720px;tab-size:4}
+pre#code .k{color:var(--drive)}
+pre#code .n{color:var(--acc)}
+pre#code .c{color:var(--muted)}
+.foot{font-size:.85rem;color:var(--muted);max-width:80ch;border-top:1px solid var(--line);padding-top:16px;margin:0}
+.foot a{color:var(--drive);text-decoration:none;font-weight:600}
+.foot a:hover{text-decoration:underline}
+@media (max-width:900px){.bench,.hood{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:520px){.reads dd{font-size:1rem}}
+@media (prefers-reduced-motion:reduce){.jam{animation:none}.card{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+ <header>
+  <p class="eyebrow">Fractional-order networks &middot; drive&ndash;response synchronization</p>
+  <h1>FracSync Lab</h1>
+  <p class="lede">Every chaotic network is a lock. Every controller is a key. Cut a key, turn it, and see whether the response system falls into step with the drive. The equations and the Python behind each turn sit further down this page.</p>
+ </header>
+ <section aria-labelledby="h-lock">
+  <div><h2 id="h-lock"><span class="step">1</span>Choose a lock</h2>
+  <p class="sub">A lock is the network you want to synchronize. The drive runs freely. The response starts from a different state.</p></div>
+  <div class="pick pick-lock" id="locks"></div>
+ </section>
+ <section aria-labelledby="h-key">
+  <div><h2 id="h-key"><span class="step">2</span>Cut a key</h2>
+  <p class="sub">A key is a controller acting on the response. Taller teeth mean larger gains.</p></div>
+  <div class="pick pick-key" id="keys"></div>
+ </section>
+ <section aria-labelledby="h-turn">
+  <h2 id="h-turn"><span class="step">3</span>Turn the key</h2>
+  <div class="bench">
+   <div class="panel stagewrap">
+    <svg id="stage" viewBox="0 0 640 250" role="img" aria-label="A key approaching a padlock. The padlock opens as the error shrinks."></svg>
+    <div class="stagebar">
+     <button type="button" class="btn primary" id="play">Turn the key</button>
+     <span class="pill" id="pill">Locked</span>
+     <div class="scrub"><input type="range" id="scrub" min="0" max="15" step="0.05" value="15" aria-label="Time"><output id="tval">15.0 s</output></div>
+    </div>
+    <dl class="reads">
+     <div><dt>Settling time</dt><dd id="r-settle">&ndash;</dd></div>
+     <div><dt>Final error</dt><dd id="r-final">&ndash;</dd></div>
+     <div><dt>Peak error</dt><dd id="r-peak">&ndash;</dd></div>
+    </dl>
+   </div>
+   <form class="panel teeth" id="teethForm" onsubmit="return false">
+    <h3>Cut the teeth</h3>
+    <div id="gains" style="display:flex;flex-direction:column;gap:12px"></div>
+    <div class="grp">
+     <label class="ctl" for="s-alpha"><span class="cl"><span class="sym">&alpha; <span style="font:400 .8rem var(--fd);color:var(--muted)">fractional order</span></span><output id="o-alpha">0.95</output></span>
+      <input type="range" id="s-alpha" min="0.7" max="1" step="0.01" value="0.95"></label>
+     <label class="chk" for="s-ff"><input type="checkbox" id="s-ff"><span>Compensate the nonlinear terms<br><span class="hint">Adds &lambda;f(x) &minus; f(y) to the input, so the key only has to shape the error.</span></span></label>
+     <label class="ctl" for="s-lam"><span class="cl"><span class="sym">&lambda; <span style="font:400 .8rem var(--fd);color:var(--muted)">projective factor</span></span><output id="o-lam">1</output></span>
+      <input type="range" id="s-lam" min="-2" max="2" step="0.1" value="1" disabled></label>
+     <p class="hint">&lambda; other than 1 needs compensation on, because the response then follows &lambda;x instead of x.</p>
+     <button type="button" class="btn" id="reset">Reset the teeth</button>
+    </div>
+   </form>
+  </div>
+ </section>
+ <section class="plots" aria-label="Simulation plots">
+  <figure class="panel"><figcaption>Synchronization error &#8214;e&#8214;</figcaption><canvas id="c-err" role="img" aria-label="Error norm against time on a log scale"></canvas></figure>
+  <figure class="panel"><figcaption id="cap-state">First state</figcaption><canvas id="c-state" role="img" aria-label="Drive and response first state against time"></canvas></figure>
+  <figure class="panel"><figcaption id="cap-phase">Phase portrait</figcaption><canvas id="c-phase" role="img" aria-label="Phase portrait of drive and response"></canvas></figure>
+ </section>
+ <section aria-labelledby="h-hood">
+  <div><h2 id="h-hood">Under the hood</h2>
+  <p class="sub" id="hoodSub">The same lock and key, written as mathematics and as a Python script. Both follow the teeth you cut above.</p></div>
+  <div class="hood">
+   <div class="panel math" id="math"></div>
+   <div class="panel codebox">
+    <div class="codehead"><span>fracsync.py</span><button type="button" class="btn" id="copy">Copy code</button></div>
+    <pre id="code" tabindex="0"></pre>
+   </div>
+  </div>
+ </section>
+ <p class="foot">The simulations use the Gr&uuml;nwald&ndash;Letnikov scheme for the Caputo derivative, with step h = 0.005 over t from 0 to 15. A lock counts as open when the error norm stays below 0.01 for the rest of the run. Settling times are measured on these runs and are not analytical bounds. The generated Python reproduces the numbers on this page up to floating-point rounding.</p>
+ <p class="foot" style="margin-top:-20px;border-top:none;padding-top:0;">Developed by <a href="https://mdsamhussain1996.github.io/" target="_blank">Dr. Md Samshad Hussain Ansari</a> &middot; <a href="https://github.com/mdsamhussain1996/fracsync-lab" target="_blank">GitHub Repository</a></p>
+</div>
+<script>
+var FS=(function(){
+const qmul=(a,b)=>[a[0]*b[0]-a[1]*b[1]-a[2]*b[2]-a[3]*b[3],
+ a[0]*b[1]+a[1]*b[0]+a[2]*b[3]-a[3]*b[2],
+ a[0]*b[2]-a[1]*b[3]+a[2]*b[0]+a[3]*b[1],
+ a[0]*b[3]+a[1]*b[2]-a[2]*b[1]+a[3]*b[0]];
+const CH={a:35,b:3,c:28};
+const HW=[[2,-1.2,0],[1.9995,1.71,1.15],[0,-4.75,1.1]];
+const QP={d:1,A:[[[2,-0.5,0.3,0],[-1.5,1,0,0.5]],[[1.8,0.4,-0.6,0.2],[1.6,-0.7,0.5,-0.3]]]};
+const SYS={
+ chen:{name:'Chen system',cls:'chen',n:3,x0:[-3,2,20],y0:[4,-6,12],proj:[0,2],pl:['x₁','x₃'],meta:'3 states, chaotic attractor',
+  f(x){return [CH.a*(x[1]-x[0]),(CH.c-CH.a)*x[0]-x[0]*x[2]+CH.c*x[1],x[0]*x[1]-CH.b*x[2]];}},
+ hopfield:{name:'Hopfield network',cls:'net',n:3,x0:[0.2,0.1,-0.1],y0:[-0.3,0.4,0.2],proj:[0,1],pl:['x₁','x₂'],meta:'3 neurons, tanh activation',
+  f(x){const t=x.map(Math.tanh);return [0,1,2].map(i=>-x[i]+HW[i][0]*t[0]+HW[i][1]*t[1]+HW[i][2]*t[2]);}},
+ quat:{name:'Quaternion network',cls:'net',n:8,x0:[0.3,-0.2,0.1,0.4,-0.1,0.2,0.3,-0.3],y0:[-0.4,0.3,-0.2,0.1,0.3,-0.3,0.1,0.2],proj:[0,1],pl:['Re q₁','i-part q₁'],meta:'2 neurons in ℍ, 8 real states',
+  f(x){const t=x.map(Math.tanh),out=[];for(let i=0;i<2;i++){const s=[0,0,0,0];for(let j=0;j<2;j++){const m=qmul(QP.A[i][j],t.slice(4*j,4*j+4));for(let c=0;c<4;c++)s[c]+=m[c];}
+   for(let c=0;c<4;c++)out.push(-QP.d*x[4*i+c]+s[c]);}return out;}}
+};
+const RANGES={
+ linear:{k:{chen:[0,80,30,1],net:[0,8,2,0.1]}},
+ fixedtime:{k1:{chen:[0,40,10,0.5],net:[0,8,2,0.1]},k2:{chen:[0,6,2,0.1],net:[0,4,1,0.1]},p:{chen:[0.2,0.9,0.5,0.05],net:[0.2,0.9,0.5,0.05]},q:{chen:[1.1,2,1.5,0.05],net:[1.1,2,1.5,0.05]}},
+ sliding:{k:{chen:[0,80,30,1],net:[0,8,1.5,0.1]},eta:{chen:[0,30,10,0.5],net:[0,4,1,0.1]},eps:{chen:[0.02,0.5,0.1,0.01],net:[0.02,0.5,0.1,0.01]}},
+ adaptive:{k0:{chen:[0,10,1,0.1],net:[0,2,0.1,0.05]},gamma:{chen:[0,60,20,1],net:[0,20,5,0.5]}},
+ impulsive:{dt:{chen:[0.01,0.4,0.02,0.01],net:[0.01,0.4,0.1,0.01]},mu:{chen:[0,1,0.6,0.05],net:[0,1,0.5,0.05]}}
+};
+const CTRL={
+ linear:{name:'Linear feedback',law:'u = −k e',syms:{k:'k'}},
+ fixedtime:{name:'Fixed-time',law:'u = −k₁ sig(e)^p − k₂ sig(e)^q',syms:{k1:'k₁',k2:'k₂',p:'p',q:'q'}},
+ sliding:{name:'Sliding mode',law:'u = −k e − η tanh(e/ε)',syms:{k:'k',eta:'η',eps:'ε'}},
+ adaptive:{name:'Adaptive gain',law:'u = −κ(t) e,  κ̇ = γ‖e‖²',syms:{k0:'κ₀',gamma:'γ'}},
+ impulsive:{name:'Impulsive',law:'e(tₘ⁺) = (1−μ) e(tₘ⁻)',syms:{dt:'Δ',mu:'μ'}}
+};
+function defaults(sys,ctrl){const o={},cls=SYS[sys].cls;for(const id in RANGES[ctrl])o[id]=RANGES[ctrl][id][cls][2];return o;}
+function range(sys,ctrl,id){return RANGES[ctrl][id][SYS[sys].cls];}
+const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+function teeth(sys,ctrl,g){const cls=SYS[sys].cls;
+ const v=id=>{const r=RANGES[ctrl][id][cls];return clamp(0.1+0.9*(g[id]-r[0])/(r[1]-r[0]),0.1,1);};
+ let t;
+ if(ctrl==='linear'){const k=v('k');t=[k*.6,k,k*.8,k*.95,k*.7];}
+ else if(ctrl==='fixedtime')t=[v('k1'),v('k2'),v('p'),v('q'),(v('k1')+v('k2'))/2];
+ else if(ctrl==='sliding')t=[v('k'),v('eta'),v('eps'),(v('k')+v('eta'))/2,v('k')*.8];
+ else if(ctrl==='adaptive')t=[v('k0'),v('gamma'),(v('k0')+v('gamma'))/2,v('gamma')*.8,v('k0')];
+ else{const d=1.1-v('dt'),m=v('mu');t=[d,m,d,m*.9,(d+m)/2];}
+ return t.map(x=>clamp(x,0.1,1));}
+function simulate(cfg){
+ const S=SYS[cfg.system],n=S.n,al=cfg.alpha,h=cfg.h,N=Math.round(cfg.T/h);
+ const ha=Math.pow(h,al),c=new Float64Array(N+1);c[0]=1;for(let j=1;j<=N;j++)c[j]=(1-(1+al)/j)*c[j-1];
+ const X=[],Y=[];for(let i=0;i<n;i++){X.push(new Float64Array(N+1));Y.push(new Float64Array(N+1));X[i][0]=S.x0[i];Y[i][0]=S.y0[i];}
+ const lam=cfg.lam===undefined?1:cfg.lam,ff=cfg.ff,g=cfg.g||{},err=new Float64Array(N+1);
+ let kad=g.k0||0,diverged=null;
+ const sp=(v,p)=>Math.sign(v)*Math.pow(Math.abs(v),p);
+ const en=k=>{let s=0;for(let i=0;i<n;i++){const e=Y[i][k]-lam*X[i][k];s+=e*e;}return Math.sqrt(s);};
+ err[0]=en(0);
+ const every=cfg.ctrl==='impulsive'?Math.max(1,Math.round(g.dt/h)):0;
+ let kEnd=N;
+ for(let k=1;k<=N;k++){
+  const x=new Array(n),y=new Array(n);for(let i=0;i<n;i++){x[i]=X[i][k-1];y[i]=Y[i][k-1];}
+  const fx=S.f(x),fy=S.f(y),e=y.map((v,i)=>v-lam*x[i]),u=new Array(n).fill(0);
+  if(cfg.ctrl==='linear'){for(let i=0;i<n;i++)u[i]=-g.k*e[i];}
+  else if(cfg.ctrl==='fixedtime'){for(let i=0;i<n;i++)u[i]=-g.k1*sp(e[i],g.p)-g.k2*sp(e[i],g.q);}
+  else if(cfg.ctrl==='sliding'){for(let i=0;i<n;i++)u[i]=-g.k*e[i]-g.eta*Math.tanh(e[i]/g.eps);}
+  else if(cfg.ctrl==='adaptive'){let e2=0;for(let i=0;i<n;i++){u[i]=-kad*e[i];e2+=e[i]*e[i];}kad+=h*g.gamma*e2;}
+  if(ff)for(let i=0;i<n;i++)u[i]+=lam*fx[i]-fy[i];
+  for(let i=0;i<n;i++){let sx=0,sy=0;const a0=S.x0[i],b0=S.y0[i],Xi=X[i],Yi=Y[i];
+   for(let j=1;j<=k;j++){sx+=c[j]*(Xi[k-j]-a0);sy+=c[j]*(Yi[k-j]-b0);}
+   Xi[k]=a0+ha*fx[i]-sx;Yi[k]=b0+ha*(fy[i]+u[i])-sy;}
+  if(every&&k%every===0){for(let i=0;i<n;i++){const e_=Y[i][k]-lam*X[i][k];Y[i][k]-=g.mu*e_;}}
+  err[k]=en(k);
+  if(!isFinite(err[k])||err[k]>1e6){diverged=k*h;kEnd=k-1;for(let j=k;j<=N;j++){err[j]=err[k-1];for(let i=0;i<n;i++){X[i][j]=X[i][k-1];Y[i][j]=Y[i][k-1];}}break;}
+ }
+ return {N,h,X,Y,err,diverged};
+}
+function stats(r,tol){let last=-1,peak=0;for(let k=0;k<=r.N;k++){if(r.err[k]>=tol)last=k;if(r.err[k]>peak)peak=r.err[k];}
+ return {settle:(r.diverged!==null||last===r.N)?null:(last+1)*r.h,final:r.err[r.N],peak};}
+const fmt=v=>String(+(+v).toFixed(4));
+function pyLock(sys){
+ if(sys==='chen')return `# The lock: Chen system, D^alpha x = f(x)
+a, b, c = ${CH.a}, ${CH.b}, ${CH.c}
+def f(x):
+    return np.array([a*(x[1] - x[0]),
+                     (c - a)*x[0] - x[0]*x[2] + c*x[1],
+                     x[0]*x[1] - b*x[2]])
+x0 = np.array([${SYS.chen.x0.map(v=>v.toFixed(1)).join(', ')}])   # drive initial state
+y0 = np.array([${SYS.chen.y0.map(v=>v.toFixed(1)).join(', ')}])   # response initial state`;
+ if(sys==='hopfield')return `# The lock: 3-neuron Hopfield network, D^alpha x = -x + W tanh(x)
+W = np.array([[${HW[0].join(', ')}],
+              [${HW[1].join(', ')}],
+              [${HW[2].join(', ')}]])
+def f(x):
+    return -x + W @ np.tanh(x)
+x0 = np.array([${SYS.hopfield.x0.join(', ')}])   # drive initial state
+y0 = np.array([${SYS.hopfield.y0.join(', ')}])   # response initial state`;
+ const A=QP.A.map(r=>'    ['+r.map(q=>'np.array(['+q.join(', ')+'])').join(', ')+']').join(',\n');
+ return `# The lock: 2-neuron quaternion network, D^alpha q_i = -d q_i + sum_j A_ij * tanh(q_j)
+# state = [q1 (4 reals), q2 (4 reals)], "*" is the Hamilton product
+def qmul(p, q):
+    return np.array([p[0]*q[0] - p[1]*q[1] - p[2]*q[2] - p[3]*q[3],
+                     p[0]*q[1] + p[1]*q[0] + p[2]*q[3] - p[3]*q[2],
+                     p[0]*q[2] - p[1]*q[3] + p[2]*q[0] + p[3]*q[1],
+                     p[0]*q[3] + p[1]*q[2] - p[2]*q[1] + p[3]*q[0]])
+d = ${QP.d}
+A = [
+${A}
+]
+def f(x):
+    t = np.tanh(x).reshape(2, 4)
+    out = [-d*x[4*i:4*i+4] + sum(qmul(A[i][j], t[j]) for j in range(2)) for i in range(2)]
+    return np.concatenate(out)
+x0 = np.array([${SYS.quat.x0.join(', ')}])   # drive initial state
+y0 = np.array([${SYS.quat.y0.join(', ')}])   # response initial state`;
+}
+function pyKey(ctrl,g){
+ if(ctrl==='linear')return `# The key: linear feedback  u = -k e
+k = ${fmt(g.k)}
+def control(e):
+    return -k*e`;
+ if(ctrl==='fixedtime')return `# The key: fixed-time feedback  u = -k1 sig(e)^p - k2 sig(e)^q,  p < 1 < q
+k1, k2, p, q = ${fmt(g.k1)}, ${fmt(g.k2)}, ${fmt(g.p)}, ${fmt(g.q)}
+def sig(e, r):
+    return np.sign(e)*np.abs(e)**r
+def control(e):
+    return -k1*sig(e, p) - k2*sig(e, q)`;
+ if(ctrl==='sliding')return `# The key: sliding mode with boundary layer  u = -k e - eta tanh(e/eps)
+k, eta, eps = ${fmt(g.k)}, ${fmt(g.eta)}, ${fmt(g.eps)}
+def control(e):
+    return -k*e - eta*np.tanh(e/eps)`;
+ if(ctrl==='adaptive')return `# The key: adaptive gain  u = -kappa(t) e,  d(kappa)/dt = gamma |e|^2
+kappa, gamma = ${fmt(g.k0)}, ${fmt(g.gamma)}      # kappa starts at kappa_0
+def control(e):
+    return -kappa*e`;
+ return `# The key: impulsive control  e(t_m+) = (1 - mu) e(t_m-)  at t_m = m * Delta
+Delta, mu = ${fmt(g.dt)}, ${fmt(g.mu)}
+every = max(1, round(Delta/h))           # impulse every "every" steps
+def control(e):
+    return np.zeros_like(e)              # no continuous input between impulses`;
+}
+function codegen(cfg){
+ const {system:sys,ctrl,alpha,h,T,ff,lam,g,tol}=cfg;
+ const isA=ctrl==='adaptive',isI=ctrl==='impulsive';
+ const step=`    u = control(e)`+(isA?`\n    kappa += h*gamma*(e @ e)               # gain grows while the error is nonzero`:'')+`
+    if feedforward:
+        u = u + lam*fx - fy                    # nonlinear compensation`;
+ const imp=isI?`\n    if m % every == 0:                         # impulse: pull the response toward lam * drive\n        Y[m] = Y[m] - mu*(Y[m] - lam*X[m])`:'';
+ return `# FracSync Lab: ${SYS[sys].name} (lock) + ${CTRL[ctrl].name.toLowerCase()} (key)
+# Caputo derivative of order alpha, Grünwald–Letnikov scheme. Needs numpy and matplotlib.
+import numpy as np
+import matplotlib.pyplot as plt
+
+alpha, h, T = ${fmt(alpha)}, ${h}, ${T}
+lam = ${fmt(lam)}                 # projective factor: response follows lam * drive
+feedforward = ${ff?'True':'False'}        # add the compensation term lam*f(x) - f(y)?
+tol = ${tol}
+
+${pyLock(sys)}
+
+${pyKey(ctrl,g)}
+
+# The solver: x_m = x0 + h^alpha F(x_{m-1}) - sum_j c_j (x_{m-j} - x0)
+N = int(round(T/h))
+gl = np.ones(N + 1)                      # Grünwald–Letnikov weights c_j
+for j in range(1, N + 1):
+    gl[j] = (1 - (1 + alpha)/j) * gl[j-1]
+
+X = np.zeros((N + 1, len(x0))); Y = np.zeros((N + 1, len(y0)))
+X[0], Y[0] = x0, y0
+err = np.zeros(N + 1); err[0] = np.linalg.norm(Y[0] - lam*X[0])
+
+for m in range(1, N + 1):
+    x, y = X[m-1], Y[m-1]
+    fx, fy = f(x), f(y)
+    e = y - lam*x
+${step}
+    memx = np.tensordot(gl[1:m+1], X[m-1::-1] - x0, axes=1)
+    memy = np.tensordot(gl[1:m+1], Y[m-1::-1] - y0, axes=1)
+    X[m] = x0 + h**alpha*fx - memx
+    Y[m] = y0 + h**alpha*(fy + u) - memy${imp}
+    err[m] = np.linalg.norm(Y[m] - lam*X[m])
+
+above = np.where(err >= tol)[0]
+if above.size == 0:
+    settle = 0.0
+elif above[-1] == N:
+    settle = None
+else:
+    settle = float((above[-1] + 1)*h)
+print("settling time:", settle, "| final error:", float(err[-1]))
+
+t = np.arange(N + 1)*h
+fig, ax = plt.subplots(1, 2, figsize=(10, 3.4))
+ax[0].semilogy(t, np.maximum(err, 1e-12)); ax[0].axhline(tol, ls="--", c="gray")
+ax[0].set(xlabel="t", ylabel="||e(t)||", title="error")
+ax[1].plot(t, X[:, 0], label="drive"); ax[1].plot(t, Y[:, 0], label="response")
+ax[1].set(xlabel="t", title="first state"); ax[1].legend()
+plt.tight_layout(); plt.show()
+`;
+}
+const D='<span class="op"><sup class="pre">C</sup>D<sup>α</sup></span>',I=s=>'<i>'+s+'</i>',sb=s=>'<sub>'+s+'</sub>';
+const eq=s=>'<div class="eq">'+s+'</div>';
+const fr=(a,b)=>'<span class="frac"><span>'+a+'</span><span>'+b+'</span></span>';
+function mathHTML(cfg){
+ const {system:sys,ctrl,g,ff,lam,alpha,h}=cfg;let s='';
+ s+='<h4>The lock: drive system</h4>';
+ if(sys==='chen'){
+  s+=eq(D+I('x')+sb(1)+' = '+I('a')+'('+I('x')+sb(2)+' − '+I('x')+sb(1)+')');
+  s+=eq(D+I('x')+sb(2)+' = ('+I('c')+' − '+I('a')+')'+I('x')+sb(1)+' − '+I('x')+sb(1)+I('x')+sb(3)+' + '+I('c')+I('x')+sb(2));
+  s+=eq(D+I('x')+sb(3)+' = '+I('x')+sb(1)+I('x')+sb(2)+' − '+I('b')+I('x')+sb(3));
+  s+='<p class="note">'+I('a')+' = 35, '+I('b')+' = 3, '+I('c')+' = 28. Chaotic for orders near 1.</p>';
+ }else if(sys==='hopfield'){
+  s+=eq(D+I('x')+' = −'+I('x')+' + '+I('W')+' tanh('+I('x')+'),  '+I('x')+' ∈ ℝ³');
+  s+='<table class="mat"><tbody>'+HW.map(r=>'<tr>'+r.map(v=>'<td>'+v+'</td>').join('')+'</tr>').join('')+'</tbody></table>';
+  s+='<p class="note">'+I('W')+' is the connection matrix above.</p>';
+ }else{
+  s+=eq(D+I('q')+sb(I('i'))+' = −'+I('d')+' '+I('q')+sb(I('i'))+' + Σ'+sb(I('j'))+' '+I('A')+sb(I('ij'))+' ⊗ tanh('+I('q')+sb(I('j'))+'),  '+I('i')+' = 1, 2');
+  s+=eq(I('q')+sb(I('i'))+' = '+I('q')+sb(I('i'))+'⁰ + '+I('q')+sb(I('i'))+'¹ '+I('i')+' + '+I('q')+sb(I('i'))+'² '+I('j')+' + '+I('q')+sb(I('i'))+'³ '+I('k')+' ∈ ℍ');
+  const qs=q=>q.map((v,i)=>(i?(v<0?' − ':' + '):(v<0?'−':''))+Math.abs(v)+['','i','j','k'][i]).join('');
+  s+='<p class="note">'+I('d')+' = 1, ⊗ is the Hamilton product, tanh acts on each of the four parts.<br>'+
+   QP.A.map((r,i)=>r.map((q,j)=>I('A')+sb((i+1)+''+(j+1))+' = '+qs(q)).join('<br>')).join('<br>')+'</p>';
+ }
+ s+='<h4>The error</h4>';
+ s+=eq(I('e')+' = '+I('y')+' − '+(lam===1?'':fmt(lam)+' ')+I('x')+',   '+D+I('y')+' = '+I('f')+'('+I('y')+') + '+I('u'));
+ if(ff){s+=eq(I('u')+' = '+I('v')+'('+I('e')+') + '+(lam===1?'':fmt(lam)+' ')+I('f')+'('+I('x')+') − '+I('f')+'('+I('y')+')');
+  s+=eq(D+I('e')+' = '+I('v')+'('+I('e')+')');
+  s+='<p class="note">With compensation the nonlinear terms cancel, so the key '+I('v')+' alone decides whether the lock opens.</p>';}
+ else{s+=eq(D+I('e')+' = '+I('f')+'('+I('y')+') − '+I('f')+'('+I('x')+') + '+I('u')+'('+I('e')+')');
+  s+='<p class="note">Without compensation the key has to overpower the growth of '+I('f')+'('+I('y')+') − '+I('f')+'('+I('x')+'). Weak teeth leave the lock shut.</p>';}
+ s+='<h4>The key: '+CTRL[ctrl].name.toLowerCase()+'</h4>';
+ if(ctrl==='linear'){s+=eq(I('u')+' = −'+I('k')+' '+I('e')+',   '+I('k')+' = '+fmt(g.k));
+  s+='<p class="note">Typical sufficient condition: '+I('k')+' exceeds the Lipschitz constant '+I('L')+' of '+I('f')+' on the attractor. The error then decays like a Mittag-Leffler function, which is algebraic in '+I('t')+', not exponential, when α &lt; 1.</p>';}
+ else if(ctrl==='fixedtime'){s+=eq(I('u')+sb(I('i'))+' = −'+I('k')+sb(1)+' sig('+I('e')+sb(I('i'))+')<sup>'+I('p')+'</sup> − '+I('k')+sb(2)+' sig('+I('e')+sb(I('i'))+')<sup>'+I('q')+'</sup>');
+  s+=eq('sig('+I('z')+')<sup>'+I('r')+'</sup> = sign('+I('z')+') |'+I('z')+'|<sup>'+I('r')+'</sup>,   0 &lt; '+I('p')+' &lt; 1 &lt; '+I('q'));
+  s+='<p class="note">'+I('k')+sb(1)+' = '+fmt(g.k1)+', '+I('k')+sb(2)+' = '+fmt(g.k2)+', '+I('p')+' = '+fmt(g.p)+', '+I('q')+' = '+fmt(g.q)+'. The '+I('p')+'-term wins near zero, the '+I('q')+'-term far from it. Here the settling time is measured on the simulation, not bounded analytically.</p>';}
+ else if(ctrl==='sliding'){s+=eq(I('u')+' = −'+I('k')+' '+I('e')+' − η tanh('+I('e')+'/ε)');
+  s+='<p class="note">'+I('k')+' = '+fmt(g.k)+', η = '+fmt(g.eta)+', ε = '+fmt(g.eps)+'. tanh(·/ε) is a smooth stand-in for sign(·); ε sets the boundary layer that removes chatter.</p>';}
+ else if(ctrl==='adaptive'){s+=eq(I('u')+' = −κ('+I('t')+') '+I('e')+',   dκ/d'+I('t')+' = γ ‖'+I('e')+'‖²,   κ(0) = κ₀');
+  s+='<p class="note">κ₀ = '+fmt(g.k0)+', γ = '+fmt(g.gamma)+'. The teeth cut themselves: κ rises while the error is nonzero and stops when the lock opens.</p>';}
+ else{s+=eq(I('e')+'('+I('t')+sb(I('m'))+'⁺) = (1 − μ) '+I('e')+'('+I('t')+sb(I('m'))+'⁻),   '+I('t')+sb(I('m'))+' = '+I('m')+'Δ');
+  s+='<p class="note">Δ = '+fmt(g.dt)+', μ = '+fmt(g.mu)+'. No input between impulses; at each '+I('t')+sb(I('m'))+' the response is pulled a fraction μ of the way to the drive.</p>';}
+ s+='<h4>The solver</h4>';
+ s+=eq(I('x')+sb(I('m'))+' = '+I('x')+sb(0)+' + '+I('h')+'<sup>α</sup> '+I('F')+'('+I('x')+sb(I('m')+'−1')+') − Σ'+sb(I('j')+'=1')+'<sup>'+I('m')+'</sup> '+I('c')+sb(I('j'))+' ('+I('x')+sb(I('m')+'−'+I('j'))+' − '+I('x')+sb(0)+')');
+ s+=eq(I('c')+sb(0)+' = 1,   '+I('c')+sb(I('j'))+' = (1 − '+fr('1 + α',I('j'))+') '+I('c')+sb(I('j')+'−1'));
+ s+='<p class="note">α = '+fmt(alpha)+', '+I('h')+' = '+h+'. Every past step enters the sum, which is the memory of a fractional derivative. The lock opens when ‖'+I('e')+'‖ &lt; 0.01 for all later times.</p>';
+ return s;
+}
+function keySVG(ctrl,tv,attrs){
+ const bows={
+  linear:'<path class="ky" fill-rule="evenodd" d="M26 8a22 22 0 1 0 0.1 0zM26 22a8 8 0 1 1-0.1 0z"/>',
+  fixedtime:'<path class="ky" fill-rule="evenodd" d="M26 6 48 30 26 54 4 30zM26 20 36 30 26 40 16 30z"/>',
+  sliding:'<path class="ky" fill-rule="evenodd" d="M6 10h40a4 4 0 0 1 4 4v32a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V14a4 4 0 0 1 4-4zM17 21h18v18H17z"/>',
+  adaptive:'<path class="ky" fill-rule="evenodd" d="M26 4 46 15.500V38.500L26 50 6 38.500V15.500zM26 20a8 8 0 1 0 0.1 0z"/>',
+  impulsive:'<path class="ky" fill-rule="evenodd" d="M26 4 50 50H2zM26 26 34 42H18z"/>'};
+ let tt='';const xs=[112,128,144,160,176];
+ for(let i=0;i<5;i++){const ht=6+22*tv[i];tt+='<rect class="ky" x="'+xs[i]+'" y="33" width="10" height="'+ht.toFixed(1)+'" rx="1.5"/>';}
+ return '<svg viewBox="0 0 200 62" class="keysvg" '+(attrs||'')+' role="img" aria-label="'+CTRL[ctrl].name+' key">'+bows[ctrl]+'<rect class="ky" x="48" y="26" width="142" height="8" rx="2"/>'+tt+'</svg>';
+}
+function lockSVG(sys,o){
+ const glyph={
+  chen:'<path class="glyph" d="M44 118C44 106 58 106 60 118 62 130 76 130 76 118 76 106 62 106 60 118 58 130 44 130 44 118Z"/>',
+  hopfield:'<g class="glyph"><path d="M46 126 74 126 60 106Z"/><circle cx="46" cy="126" r="3.2" class="gd"/><circle cx="74" cy="126" r="3.2" class="gd"/><circle cx="60" cy="106" r="3.2" class="gd"/></g>',
+  quat:'<text class="gtext" x="60" y="124" text-anchor="middle">i · j · k</text>'}[sys];
+ return '<g class="lockg"><g class="shackle" transform="translate('+(0).toFixed(1)+','+(-16*o).toFixed(1)+') rotate('+(-38*o).toFixed(1)+' 85 60)"><path class="lk-sh" d="M35 62V40a25 25 0 0 1 50 0V62"/></g><rect class="lk-body" x="15" y="60" width="90" height="76" rx="10"/><circle class="lk-hole" cx="60" cy="84" r="8"/><path class="lk-hole" d="M56 88h8l3 12H53z"/>'+glyph+'</g>';
+}
+return {SYS,CTRL,RANGES,defaults,range,teeth,simulate,stats,codegen,mathHTML,keySVG,lockSVG,fmt};
+})();
+</script>
+<script>
+(function(){
+'use strict';
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const st={sys:'chen',ctrl:'linear',alpha:0.95,ff:false,lamUser:1,lam:1,gs:{},T:15,h:0.005,tol:0.01,playT:15,dock:1};
+const reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+let R=null,S=null,raf=0,anim=0,codeText='',keyMove,shackle,keyShake;
+function resetGains(){st.gs={};for(const c in FS.CTRL)st.gs[c]=FS.defaults(st.sys,c);}
+resetGains();
+const cfg=()=>({system:st.sys,alpha:st.alpha,h:st.h,T:st.T,ctrl:st.ctrl,ff:st.ff,lam:st.lam,g:st.gs[st.ctrl],tol:st.tol});
+function recompute(){R=FS.simulate(cfg());S=FS.stats(R,st.tol);}
+
+function buildLocks(){
+ $('#locks').innerHTML=Object.keys(FS.SYS).map(k=>'<button type="button" class="card lockcard" data-sys="'+k+'" aria-pressed="'+(k===st.sys)+'"><svg viewBox="0 0 120 150" class="locksvg" aria-hidden="true">'+FS.lockSVG(k,0)+'</svg><span class="ct"><strong>'+FS.SYS[k].name+'</strong><span>'+FS.SYS[k].meta+'</span></span></button>').join('');
+}
+function buildKeys(){
+ $('#keys').innerHTML=Object.keys(FS.CTRL).map(c=>'<button type="button" class="card keycard" data-ctrl="'+c+'" aria-pressed="'+(c===st.ctrl)+'">'+FS.keySVG(c,FS.teeth(st.sys,c,st.gs[c]))+'<span class="ct"><strong>'+FS.CTRL[c].name+'</strong><code>'+esc(FS.CTRL[c].law)+'</code></span></button>').join('');
+}
+function buildGains(){
+ const c=st.ctrl;
+ $('#gains').innerHTML=Object.keys(FS.RANGES[c]).map(id=>{const r=FS.range(st.sys,c,id);
+  return '<label class="ctl" for="g-'+id+'"><span class="cl"><span class="sym">'+FS.CTRL[c].syms[id]+'</span><output id="o-g-'+id+'">'+FS.fmt(st.gs[c][id])+'</output></span><input type="range" id="g-'+id+'" data-id="'+id+'" min="'+r[0]+'" max="'+r[1]+'" step="'+r[3]+'" value="'+st.gs[c][id]+'"></label>';}).join('');
+}
+function syncGeneral(){
+ $('#s-alpha').value=st.alpha;$('#o-alpha').textContent=FS.fmt(st.alpha);
+ $('#s-ff').checked=st.ff;$('#s-lam').disabled=!st.ff;$('#s-lam').value=st.ff?st.lamUser:1;$('#o-lam').textContent=FS.fmt(st.lam);
+}
+function buildStage(){
+ const tv=FS.teeth(st.sys,st.ctrl,st.gs[st.ctrl]);
+ $('#stage').innerHTML='<g id="keyMove"><g id="keyShake">'+FS.keySVG(st.ctrl,tv,'x="0" y="0" width="250" height="78"')+'</g></g><g transform="translate(410,8) scale(1.55)">'+FS.lockSVG(st.sys,0)+'</g><text class="lab" x="10" y="242">KEY · '+esc(FS.CTRL[st.ctrl].name.toUpperCase())+'</text><text class="lab" x="630" y="242" text-anchor="end">LOCK · '+esc(FS.SYS[st.sys].name.toUpperCase())+'</text>';
+ keyMove=$('#keyMove');shackle=$('#stage .shackle');keyShake=$('#keyShake');
+}
+function updateHood(){
+ const c=cfg();
+ $('#math').innerHTML=FS.mathHTML(c);
+ codeText=FS.codegen(c);
+ $('#code').innerHTML=hl(codeText);
+ $('#hoodSub').textContent='Lock: '+FS.SYS[st.sys].name+'. Key: '+FS.CTRL[st.ctrl].name.toLowerCase()+'. The mathematics and the Python follow the teeth you cut above.';
+}
+function hl(code){
+ return code.split('\n').map(line=>{
+  const i=line.indexOf('#');let cm='';if(i>=0){cm=line.slice(i);line=line.slice(0,i);}
+  const s=esc(line).replace(/\b(import|as|def|return|for|in|if|elif|else|print|range|None|True|False)\b/g,'<span class="k">$1</span>').replace(/\b(\d+\.?\d*(?:e-?\d+)?)\b/g,'<span class="n">$1</span>');
+  return s+(cm?'<span class="c">'+esc(cm)+'</span>':'');}).join('\n');
+}
+const ease=t=>1-Math.pow(1-t,3);
+function openness(k){
+ const lt=Math.log10(Math.max(R.err[k],1e-6)),l1=Math.log10(st.tol),l0=Math.log10(Math.max(S.peak,st.tol*10));
+ return Math.min(1,Math.max(0,(l0-lt)/(l0-l1)));
+}
+function render(){
+ if(!R)return;
+ const k=Math.min(R.N,Math.round(st.playT/st.h));
+ const kx=10+(192-10)*ease(st.dock);
+ keyMove.setAttribute('transform','translate('+kx.toFixed(1)+',100)');
+ const o=st.dock<1?0:openness(k);
+ shackle.setAttribute('transform','translate(0,'+(-16*o).toFixed(1)+') rotate('+(-38*o).toFixed(1)+' 85 60)');
+ const atEnd=st.playT>=st.T-1e-9&&st.dock>=1;
+ const jam=atEnd&&S.settle===null;
+ keyShake.classList.toggle('jam',jam&&!reduce);
+ const pill=$('#pill');let cls='pill',txt;
+ if(R.diverged!==null&&atEnd){cls+=' bad';txt='Jammed: numerical blow-up at t = '+R.diverged.toFixed(2);}
+ else if(S.settle!==null&&st.playT>=S.settle){cls+=' ok';txt='Unlocked, settled at t = '+S.settle.toFixed(2);}
+ else if(jam){cls+=' bad';txt='Jammed: error stays at '+S.final.toExponential(1);}
+ else if(st.playT<=0){txt='Locked';}
+ else{cls+=' turn';txt='Turning, ‖e‖ = '+R.err[k].toExponential(1);}
+ pill.className=cls;pill.textContent=txt;
+ $('#scrub').value=st.playT;$('#tval').textContent=st.playT.toFixed(1)+' s';
+ $('#r-settle').textContent=S.settle===null?'not reached':S.settle.toFixed(2)+' s';
+ $('#r-final').textContent=S.final.toExponential(1);
+ $('#r-peak').textContent=S.peak.toFixed(S.peak<10?2:1);
+ drawPlots(k);
+}
+/* ---------- plots ---------- */
+const SUP={'-':'⁻','0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
+const sup=v=>'10'+String(v).replace(/./g,c=>SUP[c]||c);
+function niceTicks(lo,hi,n){const span=hi-lo||1,s0=span/(n||5),mag=Math.pow(10,Math.floor(Math.log10(s0))),f=s0/mag,step=(f<1.5?1:f<3?2:f<7?5:10)*mag,out=[];
+ for(let v=Math.ceil(lo/step-1e-9)*step;v<=hi+step*1e-6;v+=step)out.push(+v.toPrecision(10));return {ticks:out,step};}
+const tf=v=>String(+v.toPrecision(3));
+function frame(cv,xr,yr,xt,yt,xf,yf,C){
+ const dpr=window.devicePixelRatio||1,w=cv.clientWidth,h=cv.clientHeight;
+ if(cv.width!==Math.round(w*dpr)||cv.height!==Math.round(h*dpr)){cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);}
+ const ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
+ const m={l:44,r:10,t:8,b:24},pw=w-m.l-m.r,ph=h-m.t-m.b;
+ const X=v=>m.l+(v-xr[0])/(xr[1]-xr[0])*pw,Y=v=>m.t+ph-(v-yr[0])/(yr[1]-yr[0])*ph;
+ ctx.font='11px '+C.fm;ctx.lineWidth=1;ctx.strokeStyle=C.line;ctx.fillStyle=C.mut;
+ ctx.textAlign='right';ctx.textBaseline='middle';
+ for(const t of yt){const y=Y(t);ctx.globalAlpha=.7;ctx.beginPath();ctx.moveTo(m.l,y);ctx.lineTo(w-m.r,y);ctx.stroke();ctx.globalAlpha=1;ctx.fillText(yf(t),m.l-6,y);}
+ ctx.textAlign='center';ctx.textBaseline='top';
+ for(const t of xt){const x=X(t);ctx.globalAlpha=.7;ctx.beginPath();ctx.moveTo(x,m.t);ctx.lineTo(x,m.t+ph);ctx.stroke();ctx.globalAlpha=1;ctx.fillText(xf(t),x,m.t+ph+6);}
+ return {ctx,X,Y,m,pw,ph,w,h};
+}
+function line(ctx,X,Y,arr,x0,x1,step,col,lw){ctx.strokeStyle=col;ctx.lineWidth=lw;ctx.beginPath();for(let k=x0;k<=x1;k++){const px=X(k*step),py=Y(arr(k));if(k===x0)ctx.moveTo(px,py);else ctx.lineTo(px,py);}ctx.stroke();}
+function drawPlots(k){
+ const css=getComputedStyle(document.documentElement),g=n=>css.getPropertyValue(n).trim();
+ const C={ink:g('--ink'),mut:g('--muted'),line:g('--line'),drive:g('--drive'),resp:g('--resp'),ok:g('--ok'),bad:g('--bad'),fm:g('--fm')};
+ const T=st.T,h=st.h,N=R.N,curX=st.playT;
+ /* error */
+ {const top=Math.max(1,Math.ceil(Math.log10(Math.max(S.peak,1)))),yr=[-4,top],yt=[];for(let v=-4;v<=top;v+=2)yt.push(v);
+  const f=frame($('#c-err'),[0,T],yr,[0,5,10,15],yt,v=>String(v),sup,C),ctx=f.ctx;
+  ctx.setLineDash([5,4]);ctx.strokeStyle=C.ok;ctx.lineWidth=1.2;ctx.beginPath();const yy=f.Y(Math.log10(st.tol));ctx.moveTo(f.m.l,yy);ctx.lineTo(f.w-f.m.r,yy);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle=C.ok;ctx.textAlign='right';ctx.textBaseline='bottom';ctx.fillText('tolerance 0.01',f.w-f.m.r-4,yy-3);
+  line(ctx,f.X,f.Y,i=>Math.log10(Math.max(R.err[i],1e-4)),0,k,h,C.ink,1.8);
+  if(S.settle!==null&&curX>=S.settle){const x=f.X(S.settle);ctx.setLineDash([2,3]);ctx.strokeStyle=C.ok;ctx.beginPath();ctx.moveTo(x,f.m.t);ctx.lineTo(x,f.m.t+f.ph);ctx.stroke();ctx.setLineDash([]);
+   ctx.fillStyle=C.ok;ctx.textAlign=S.settle>T*0.7?'right':'left';ctx.textBaseline='top';ctx.fillText('t = '+S.settle.toFixed(2),x+(S.settle>T*0.7?-5:5),f.m.t+3);}
+  if(curX<T-1e-9){const x=f.X(curX);ctx.strokeStyle=C.mut;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x,f.m.t);ctx.lineTo(x,f.m.t+f.ph);ctx.stroke();}
+ }
+ /* first state */
+ {const S0=FS.SYS[st.sys];let lo=Infinity,hi=-Infinity;for(let i=0;i<=N;i++){const a=R.X[0][i],b=R.Y[0][i];if(a<lo)lo=a;if(a>hi)hi=a;if(b<lo)lo=b;if(b>hi)hi=b;}
+  if(!isFinite(lo)||hi-lo<1e-9){lo-=1;hi+=1;}const pad=(hi-lo)*.06;lo-=pad;hi+=pad;const nt=niceTicks(lo,hi,4);
+  const f=frame($('#c-state'),[0,T],[lo,hi],[0,5,10,15],nt.ticks,v=>String(v),tf,C),ctx=f.ctx;
+  line(ctx,f.X,f.Y,i=>R.X[0][i],0,k,h,C.drive,1.6);line(ctx,f.X,f.Y,i=>R.Y[0][i],0,k,h,C.resp,1.6);
+  if(curX<T-1e-9){const x=f.X(curX);ctx.strokeStyle=C.mut;ctx.beginPath();ctx.moveTo(x,f.m.t);ctx.lineTo(x,f.m.t+f.ph);ctx.stroke();}
+  ctx.font='11px '+C.fm;ctx.textAlign='left';ctx.textBaseline='top';ctx.fillStyle=C.drive;ctx.fillText('● drive',f.m.l+8,f.m.t+4);ctx.fillStyle=C.resp;ctx.fillText('● response',f.m.l+72,f.m.t+4);
+  $('#cap-state').textContent='First state, drive and response';
+ }
+ /* phase portrait */
+ {const S0=FS.SYS[st.sys],a=S0.proj[0],b=S0.proj[1];let xl=Infinity,xh=-Infinity,yl=Infinity,yh=-Infinity;
+  for(let i=0;i<=N;i++){for(const A of [R.X,R.Y]){const u=A[a][i],v=A[b][i];if(u<xl)xl=u;if(u>xh)xh=u;if(v<yl)yl=v;if(v>yh)yh=v;}}
+  if(!isFinite(xl)||xh-xl<1e-9){xl-=1;xh+=1;}if(!isFinite(yl)||yh-yl<1e-9){yl-=1;yh+=1;}
+  const px=(xh-xl)*.06,py=(yh-yl)*.06;xl-=px;xh+=px;yl-=py;yh+=py;
+  const tx=niceTicks(xl,xh,4),ty=niceTicks(yl,yh,4);
+  const f=frame($('#c-phase'),[xl,xh],[yl,yh],tx.ticks,ty.ticks,tf,tf,C),ctx=f.ctx;
+  const path=(A,col,lw)=>{ctx.strokeStyle=col;ctx.lineWidth=lw;ctx.beginPath();for(let i=0;i<=k;i++){const X=f.X(A[a][i]),Y=f.Y(A[b][i]);if(i===0)ctx.moveTo(X,Y);else ctx.lineTo(X,Y);}ctx.stroke();};
+  path(R.X,C.drive,1.2);path(R.Y,C.resp,1.2);
+  for(const [A,col] of [[R.X,C.drive],[R.Y,C.resp]]){ctx.fillStyle=col;ctx.beginPath();ctx.arc(f.X(A[a][k]),f.Y(A[b][k]),3.5,0,7);ctx.fill();}
+  $('#cap-phase').textContent='Phase portrait, '+S0.pl[0]+' against '+S0.pl[1];
+ }
+}
+/* ---------- actions ---------- */
+function stopAnim(){cancelAnimationFrame(anim);}
+function play(){
+ stopAnim();
+ if(reduce){st.playT=st.T;st.dock=1;render();return;}
+ const t0=performance.now(),DOCK=650,RUN=5200;st.playT=0;st.dock=0;
+ (function tick(now){const el=now-t0;st.dock=Math.min(1,el/DOCK);st.playT=st.T*Math.min(1,Math.max(0,(el-DOCK)/RUN));render();
+  if(el<DOCK+RUN)anim=requestAnimationFrame(tick);else{st.playT=st.T;st.dock=1;render();}})(t0);
+}
+function refreshAll(animate){
+ stopAnim();recompute();buildLocks();buildKeys();buildGains();syncGeneral();buildStage();updateHood();
+ if(animate)play();else{st.playT=st.T;st.dock=1;render();}
+}
+function scheduleRun(){
+ stopAnim();cancelAnimationFrame(raf);
+ raf=requestAnimationFrame(()=>{recompute();buildKeys();buildStage();updateHood();st.playT=st.T;st.dock=1;render();});
+}
+$('#locks').addEventListener('click',e=>{const b=e.target.closest('[data-sys]');if(!b||b.dataset.sys===st.sys)return;st.sys=b.dataset.sys;resetGains();refreshAll(true);});
+$('#keys').addEventListener('click',e=>{const b=e.target.closest('[data-ctrl]');if(!b||b.dataset.ctrl===st.ctrl)return;st.ctrl=b.dataset.ctrl;refreshAll(true);});
+$('#gains').addEventListener('input',e=>{const i=e.target.closest('input[data-id]');if(!i)return;const id=i.dataset.id;st.gs[st.ctrl][id]=parseFloat(i.value);$('#o-g-'+id).textContent=FS.fmt(st.gs[st.ctrl][id]);scheduleRun();});
+$('#s-alpha').addEventListener('input',e=>{st.alpha=parseFloat(e.target.value);$('#o-alpha').textContent=FS.fmt(st.alpha);scheduleRun();});
+$('#s-ff').addEventListener('change',e=>{st.ff=e.target.checked;st.lam=st.ff?st.lamUser:1;syncGeneral();scheduleRun();});
+$('#s-lam').addEventListener('input',e=>{st.lamUser=parseFloat(e.target.value);st.lam=st.lamUser;$('#o-lam').textContent=FS.fmt(st.lam);scheduleRun();});
+$('#reset').addEventListener('click',()=>{st.gs[st.ctrl]=FS.defaults(st.sys,st.ctrl);st.alpha=0.95;st.ff=false;st.lamUser=1;st.lam=1;refreshAll(false);});
+$('#play').addEventListener('click',play);
+$('#scrub').addEventListener('input',e=>{stopAnim();st.dock=1;st.playT=parseFloat(e.target.value);render();});
+$('#copy').addEventListener('click',async()=>{
+ const b=$('#copy');
+ try{await navigator.clipboard.writeText(codeText);b.textContent='Copied';}
+ catch(_){const r=document.createRange();r.selectNodeContents($('#code'));const s=getSelection();s.removeAllRanges();s.addRange(r);b.textContent='Selected, press Ctrl or Cmd + C';}
+ setTimeout(()=>{b.textContent='Copy code';},2200);
+});
+window.addEventListener('resize',()=>{if(R)render();});
+try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{if(R)render();});}catch(_){}
+new MutationObserver(()=>{if(R)render();}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+refreshAll(true);
+})();
+</script>
+</body>
+</html>
