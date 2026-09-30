@@ -16,7 +16,7 @@
 **FracSync Lab** is an interactive, browser-native research and visualization laboratory designed for exploring **drive–response synchronization in fractional-order nonlinear dynamical systems**. It models the synchronization problem through the tangible metaphor of a locksmith’s bench:
 - **The Lock:** The driving nonlinear dynamical network (chaotic attractor or neural network).
 - **The Key:** The control law applied to the response system, whose teeth heights correspond directly to controller gains.
-- **The Turn:** Turning the key simulates the coupled system over time via the **Grünwald–Letnikov scheme** for the Caputo fractional derivative. If the synchronization error $\|e(t)\|$ decays below tolerance ($\varepsilon = 0.01$), the padlock opens; if gains are insufficient or diverge, the lock jams.
+- **The Turn:** Turning the key simulates the coupled system over time via the **Adams–Bashforth–Moulton predictor–corrector scheme** (Diethelm, Ford, Freed) for the Caputo fractional derivative. If the synchronization error $\|e(t)\|$ decays below tolerance ($\varepsilon = 0.01$), the padlock opens; if gains are insufficient or diverge, the lock jams.
 
 ---
 
@@ -26,11 +26,16 @@
 For fractional order $\alpha \in (0, 1]$, the Caputo derivative of a state $x(t)$ with starting time $t_0=0$ is defined as:
 $${}^C\!D^\alpha x(t) = \frac{1}{\Gamma(1 - \alpha)} \int_0^t (t - \tau)^{-\alpha} x'(\tau) \, d\tau$$
 
-### 2. Grünwald–Letnikov Numerical Integration
-The simulator integrates the memory of the fractional derivative using the discretized Grünwald–Letnikov approximation with time step $h = 0.005$:
-$$x_m = x_0 + h^\alpha F(x_{m-1}) - \sum_{j=1}^{m} c_j \left(x_{m-j} - x_0\right)$$
-where the memory weights $c_j$ satisfy the recurrence relation:
-$$c_0 = 1, \quad c_j = \left(1 - \frac{1 + \alpha}{j}\right) c_{j-1}$$
+### 2. Adams–Bashforth–Moulton (ABM) Predictor–Corrector Numerical Integration
+The simulator implements the predictor–corrector scheme by Kai Diethelm, Neville J. Ford, and Alan D. Freed (2002), which achieves $O(h^{\min(2, 1+\alpha)})$ accuracy for the Caputo fractional derivative:
+
+**Predictor (Adams–Bashforth step):**
+$$x_{m+1}^P = x_0 + \sum_{j=0}^{m} w_{m+1-j}^p F(x_j), \quad w_k^p = \frac{h^\alpha}{\Gamma(\alpha + 1)} \left[ k^\alpha - (k-1)^\alpha \right]$$
+
+**Corrector (Adams–Moulton step):**
+$$x_{m+1} = x_0 + \frac{h^\alpha}{\Gamma(\alpha + 2)} \left[ F(x_{m+1}^P) + w_0(m) F(x_0) + \sum_{j=1}^{m} w_{m-j}^c F(x_j) \right]$$
+where the corrector weights are:
+$$w_k^c = (k + 2)^{\alpha + 1} + k^{\alpha + 1} - 2(k + 1)^{\alpha + 1}, \quad w_0(m) = m^{\alpha + 1} - (m - \alpha)(m + 1)^\alpha$$
 
 ### 3. Drive–Response Synchronization
 Let the drive system be:

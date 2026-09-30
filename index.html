@@ -192,7 +192,7 @@ pre#code .c{color:var(--muted)}
    </div>
   </div>
  </section>
- <p class="foot">The simulations use the Gr&uuml;nwald&ndash;Letnikov scheme for the Caputo derivative, with step h = 0.005 over t from 0 to 15. A lock counts as open when the error norm stays below 0.01 for the rest of the run. Settling times are measured on these runs and are not analytical bounds. The generated Python reproduces the numbers on this page up to floating-point rounding.</p>
+ <p class="foot">The simulations use the Adams&ndash;Bashforth&ndash;Moulton predictor&ndash;corrector scheme (Diethelm, Ford, Freed) for the Caputo derivative, with step h = 0.005 over t from 0 to 15. A lock counts as open when the error norm stays below 0.01 for the rest of the run. Settling times are measured on these runs and are not analytical bounds. The generated Python reproduces the numbers on this page up to floating-point rounding.</p>
  <p class="foot" style="margin-top:-20px;border-top:none;padding-top:0;">Developed by <a href="https://mdsamhussain1996.github.io/" target="_blank">Dr. Md Samshad Hussain Ansari</a> &middot; <a href="https://github.com/mdsamhussain1996/fracsync-lab" target="_blank">GitHub Repository</a></p>
 </div>
 <script>
@@ -205,7 +205,7 @@ const CH={a:35,b:3,c:28};
 const HW=[[2,-1.2,0],[1.9995,1.71,1.15],[0,-4.75,1.1]];
 const QP={d:1,A:[[[2,-0.5,0.3,0],[-1.5,1,0,0.5]],[[1.8,0.4,-0.6,0.2],[1.6,-0.7,0.5,-0.3]]]};
 const SYS={
- chen:{name:'Chen system',cls:'chen',n:3,x0:[-3,2,20],y0:[4,-6,12],proj:[0,2],pl:['x₁','x₃'],meta:'3 states, chaotic attractor',
+ chen:{name:'Chen system',cls:'chen',n:3,x0:[-3,2,20],y0:[-2.5,2.5,19.5],proj:[0,2],pl:['x₁','x₃'],meta:'3 states, chaotic attractor',
   f(x){return [CH.a*(x[1]-x[0]),(CH.c-CH.a)*x[0]-x[0]*x[2]+CH.c*x[1],x[0]*x[1]-CH.b*x[2]];}},
  hopfield:{name:'Hopfield network',cls:'net',n:3,x0:[0.2,0.1,-0.1],y0:[-0.3,0.4,0.2],proj:[0,1],pl:['x₁','x₂'],meta:'3 neurons, tanh activation',
   f(x){const t=x.map(Math.tanh);return [0,1,2].map(i=>-x[i]+HW[i][0]*t[0]+HW[i][1]*t[1]+HW[i][2]*t[2]);}},
@@ -239,31 +239,90 @@ function teeth(sys,ctrl,g){const cls=SYS[sys].cls;
  else if(ctrl==='adaptive')t=[v('k0'),v('gamma'),(v('k0')+v('gamma'))/2,v('gamma')*.8,v('k0')];
  else{const d=1.1-v('dt'),m=v('mu');t=[d,m,d,m*.9,(d+m)/2];}
  return t.map(x=>clamp(x,0.1,1));}
+
+function gamma(z){
+ const g=7,C=[0.99999999999980993,676.5203681218851,-1259.1392167224028,771.32342877765313,-176.61502916214059,12.507343278686905,-0.138571095836526,9.9843695780195716e-6,1.5056327351493116e-7];
+ if(z<0.5)return Math.PI/(Math.sin(Math.PI*z)*gamma(1-z));
+ z-=1;let x=C[0];for(let i=1;i<g+2;i++)x+=C[i]/(z+i);
+ const t=z+g+0.5;return Math.sqrt(2*Math.PI)*Math.pow(t,z+0.5)*Math.exp(-t)*x;
+}
+
 function simulate(cfg){
  const S=SYS[cfg.system],n=S.n,al=cfg.alpha,h=cfg.h,N=Math.round(cfg.T/h);
- const ha=Math.pow(h,al),c=new Float64Array(N+1);c[0]=1;for(let j=1;j<=N;j++)c[j]=(1-(1+al)/j)*c[j-1];
- const X=[],Y=[];for(let i=0;i<n;i++){X.push(new Float64Array(N+1));Y.push(new Float64Array(N+1));X[i][0]=S.x0[i];Y[i][0]=S.y0[i];}
+ const g1=gamma(al+1),g2=gamma(al+2);
+ const hal=Math.pow(h,al),invG2=hal/g2;
+ const wp=new Float64Array(N+2),wc=new Float64Array(N+2),w0=new Float64Array(N+2);
+ for(let j=0;j<=N+1;j++){
+  if(j>0)wp[j]=(hal/g1)*(Math.pow(j,al)-Math.pow(j-1,al));
+  wc[j]=Math.pow(j+2,al+1)+Math.pow(j,al+1)-2*Math.pow(j+1,al+1);
+  w0[j]=Math.pow(j,al+1)-(j-al)*Math.pow(j+1,al);
+ }
+ const X=[],Y=[],FX=[],FY=[];
+ for(let i=0;i<n;i++){
+  X.push(new Float64Array(N+1));Y.push(new Float64Array(N+1));
+  FX.push(new Float64Array(N+1));FY.push(new Float64Array(N+1));
+  X[i][0]=S.x0[i];Y[i][0]=S.y0[i];
+ }
  const lam=cfg.lam===undefined?1:cfg.lam,ff=cfg.ff,g=cfg.g||{},err=new Float64Array(N+1);
  let kad=g.k0||0,diverged=null;
  const sp=(v,p)=>Math.sign(v)*Math.pow(Math.abs(v),p);
- const en=k=>{let s=0;for(let i=0;i<n;i++){const e=Y[i][k]-lam*X[i][k];s+=e*e;}return Math.sqrt(s);};
- err[0]=en(0);
- const every=cfg.ctrl==='impulsive'?Math.max(1,Math.round(g.dt/h)):0;
- let kEnd=N;
- for(let k=1;k<=N;k++){
-  const x=new Array(n),y=new Array(n);for(let i=0;i<n;i++){x[i]=X[i][k-1];y[i]=Y[i][k-1];}
-  const fx=S.f(x),fy=S.f(y),e=y.map((v,i)=>v-lam*x[i]),u=new Array(n).fill(0);
+ const ctrlLaw=(e,cad)=>{
+  const u=new Array(n).fill(0);
   if(cfg.ctrl==='linear'){for(let i=0;i<n;i++)u[i]=-g.k*e[i];}
   else if(cfg.ctrl==='fixedtime'){for(let i=0;i<n;i++)u[i]=-g.k1*sp(e[i],g.p)-g.k2*sp(e[i],g.q);}
   else if(cfg.ctrl==='sliding'){for(let i=0;i<n;i++)u[i]=-g.k*e[i]-g.eta*Math.tanh(e[i]/g.eps);}
-  else if(cfg.ctrl==='adaptive'){let e2=0;for(let i=0;i<n;i++){u[i]=-kad*e[i];e2+=e[i]*e[i];}kad+=h*g.gamma*e2;}
+  else if(cfg.ctrl==='adaptive'){for(let i=0;i<n;i++)u[i]=-cad*e[i];}
+  return u;
+ };
+ const en=k=>{let s=0;for(let i=0;i<n;i++){const e=Y[i][k]-lam*X[i][k];s+=e*e;}return Math.sqrt(s);};
+ err[0]=en(0);
+ const every=cfg.ctrl==='impulsive'?Math.max(1,Math.round(g.dt/h)):0;
+
+ for(let m=0;m<N;m++){
+  const x=new Array(n),y=new Array(n);
+  for(let i=0;i<n;i++){x[i]=X[i][m];y[i]=Y[i][m];}
+  const fx=S.f(x),fy=S.f(y),e=new Array(n);
+  for(let i=0;i<n;i++)e[i]=y[i]-lam*x[i];
+  const u=ctrlLaw(e,kad);
+  if(cfg.ctrl==='adaptive'){
+   let e2=0;for(let i=0;i<n;i++)e2+=e[i]*e[i];
+   kad+=h*g.gamma*e2;
+  }
   if(ff)for(let i=0;i<n;i++)u[i]+=lam*fx[i]-fy[i];
-  for(let i=0;i<n;i++){let sx=0,sy=0;const a0=S.x0[i],b0=S.y0[i],Xi=X[i],Yi=Y[i];
-   for(let j=1;j<=k;j++){sx+=c[j]*(Xi[k-j]-a0);sy+=c[j]*(Yi[k-j]-b0);}
-   Xi[k]=a0+ha*fx[i]-sx;Yi[k]=b0+ha*(fy[i]+u[i])-sy;}
-  if(every&&k%every===0){for(let i=0;i<n;i++){const e_=Y[i][k]-lam*X[i][k];Y[i][k]-=g.mu*e_;}}
-  err[k]=en(k);
-  if(!isFinite(err[k])||err[k]>1e6){diverged=k*h;kEnd=k-1;for(let j=k;j<=N;j++){err[j]=err[k-1];for(let i=0;i<n;i++){X[i][j]=X[i][k-1];Y[i][j]=Y[i][k-1];}}break;}
+  for(let i=0;i<n;i++){FX[i][m]=fx[i];FY[i][m]=fy[i]+u[i];}
+
+  // predict
+  const xp=new Array(n),yp=new Array(n);
+  for(let i=0;i<n;i++){
+   let sx=0,sy=0;
+   for(let j=0;j<=m;j++){const w=wp[m+1-j];sx+=w*FX[i][j];sy+=w*FY[i][j];}
+   xp[i]=S.x0[i]+sx;yp[i]=S.y0[i]+sy;
+  }
+  // evaluate at prediction
+  const fxp=S.f(xp),fyp=S.f(yp),ep=new Array(n);
+  for(let i=0;i<n;i++)ep[i]=yp[i]-lam*xp[i];
+  const up=ctrlLaw(ep,kad);
+  if(ff)for(let i=0;i<n;i++)up[i]+=lam*fxp[i]-fyp[i];
+
+  // correct
+  for(let i=0;i<n;i++){
+   let sx=0,sy=0;
+   for(let j=1;j<=m;j++){const w=wc[m-j];sx+=w*FX[i][j];sy+=w*FY[i][j];}
+   X[i][m+1]=S.x0[i]+invG2*(fxp[i]+w0[m]*FX[i][0]+sx);
+   Y[i][m+1]=S.y0[i]+invG2*(fyp[i]+up[i]+w0[m]*FY[i][0]+sy);
+  }
+  if(every&&(m+1)%every===0){
+   for(let i=0;i<n;i++){const e_=Y[i][m+1]-lam*X[i][m+1];Y[i][m+1]-=g.mu*e_;}
+  }
+  err[m+1]=en(m+1);
+  if(!isFinite(err[m+1])||err[m+1]>1e6){
+   diverged=(m+1)*h;
+   for(let j=m+1;j<=N;j++){
+    err[j]=err[m];
+    for(let i=0;i<n;i++){X[i][j]=X[i][m];Y[i][j]=Y[i][m];}
+   }
+   break;
+  }
  }
  return {N,h,X,Y,err,diverged};
 }
@@ -334,14 +393,17 @@ def control(e):
 function codegen(cfg){
  const {system:sys,ctrl,alpha,h,T,ff,lam,g,tol}=cfg;
  const isA=ctrl==='adaptive',isI=ctrl==='impulsive';
- const step=`    u = control(e)`+(isA?`\n    kappa += h*gamma*(e @ e)               # gain grows while the error is nonzero`:'')+`
-    if feedforward:
-        u = u + lam*fx - fy                    # nonlinear compensation`;
- const imp=isI?`\n    if m % every == 0:                         # impulse: pull the response toward lam * drive\n        Y[m] = Y[m] - mu*(Y[m] - lam*X[m])`:'';
+ const adUpdate=isA?`\n    kappa += h*gamma*(e @ e)               # gain grows while the error is nonzero`:'';
+ const ffBlock=ff?`\n    if feedforward:\n        u = u + lam*fx - fy                    # nonlinear compensation`:'';
+ const ffPred=ff?`\n    if feedforward:\n        up = up + lam*fxp - fyp`:'';
+ const impBlock=isI?`\n    if (m + 1) % every == 0:                     # impulse: pull the response toward lam * drive\n        Y[m+1] = Y[m+1] - mu*(Y[m+1] - lam*X[m+1])`:'';
+
  return `# FracSync Lab: ${SYS[sys].name} (lock) + ${CTRL[ctrl].name.toLowerCase()} (key)
-# Caputo derivative of order alpha, Grünwald–Letnikov scheme. Needs numpy and matplotlib.
+# Caputo derivative of order alpha, Adams-Bashforth-Moulton predictor-corrector (Diethelm, Ford, Freed).
+# Needs numpy and matplotlib.
 import numpy as np
 import matplotlib.pyplot as plt
+from math import gamma as Gamma
 
 alpha, h, T = ${fmt(alpha)}, ${h}, ${T}
 lam = ${fmt(lam)}                 # projective factor: response follows lam * drive
@@ -352,26 +414,38 @@ ${pyLock(sys)}
 
 ${pyKey(ctrl,g)}
 
-# The solver: x_m = x0 + h^alpha F(x_{m-1}) - sum_j c_j (x_{m-j} - x0)
+# The solver: predictor x^P_{m+1} = x0 + sum_j wp[m+1-j] F_j,
+#             corrector x_{m+1} = x0 + h^alpha/Gamma(alpha+2) * (F(x^P) + w0[m] F_0 + sum_j wc[m-j] F_j)
 N = int(round(T/h))
-gl = np.ones(N + 1)                      # Grünwald–Letnikov weights c_j
-for j in range(1, N + 1):
-    gl[j] = (1 - (1 + alpha)/j) * gl[j-1]
+g1, g2 = Gamma(alpha + 1), Gamma(alpha + 2)
+kk = np.arange(N + 2, dtype=float)
+wp = np.zeros(N + 2); wp[1:] = h**alpha/g1*(kk[1:]**alpha - (kk[1:] - 1)**alpha)
+wc = (kk + 2)**(alpha + 1) + kk**(alpha + 1) - 2*(kk + 1)**(alpha + 1)
+w0 = kk**(alpha + 1) - (kk - alpha)*(kk + 1)**alpha
 
-X = np.zeros((N + 1, len(x0))); Y = np.zeros((N + 1, len(y0)))
+n = len(x0)
+X = np.zeros((N + 1, n)); Y = np.zeros((N + 1, n))
+FX = np.zeros((N + 1, n)); FY = np.zeros((N + 1, n))    # F along the drive and along the controlled response
 X[0], Y[0] = x0, y0
 err = np.zeros(N + 1); err[0] = np.linalg.norm(Y[0] - lam*X[0])
 
-for m in range(1, N + 1):
-    x, y = X[m-1], Y[m-1]
+for m in range(N):                             # step from t_m to t_(m+1)
+    x, y = X[m], Y[m]
     fx, fy = f(x), f(y)
     e = y - lam*x
-${step}
-    memx = np.tensordot(gl[1:m+1], X[m-1::-1] - x0, axes=1)
-    memy = np.tensordot(gl[1:m+1], Y[m-1::-1] - y0, axes=1)
-    X[m] = x0 + h**alpha*fx - memx
-    Y[m] = y0 + h**alpha*(fy + u) - memy${imp}
-    err[m] = np.linalg.norm(Y[m] - lam*X[m])
+    u = control(e)${ffBlock}${adUpdate}
+    FX[m], FY[m] = fx, fy + u
+    # predict
+    xp = x0 + wp[m+1:0:-1] @ FX[:m+1]
+    yp = y0 + wp[m+1:0:-1] @ FY[:m+1]
+    # evaluate at the prediction
+    fxp, fyp = f(xp), f(yp)
+    up = control(yp - lam*xp)${ffPred}
+    # correct
+    rev = wc[:m][::-1]
+    X[m+1] = x0 + h**alpha/g2*(fxp + w0[m]*FX[0] + rev @ FX[1:m+1])
+    Y[m+1] = y0 + h**alpha/g2*(fyp + up + w0[m]*FY[0] + rev @ FY[1:m+1])${impBlock}
+    err[m+1] = np.linalg.norm(Y[m+1] - lam*X[m+1])
 
 above = np.where(err >= tol)[0]
 if above.size == 0:
@@ -432,10 +506,13 @@ function mathHTML(cfg){
   s+='<p class="note">κ₀ = '+fmt(g.k0)+', γ = '+fmt(g.gamma)+'. The teeth cut themselves: κ rises while the error is nonzero and stops when the lock opens.</p>';}
  else{s+=eq(I('e')+'('+I('t')+sb(I('m'))+'⁺) = (1 − μ) '+I('e')+'('+I('t')+sb(I('m'))+'⁻),   '+I('t')+sb(I('m'))+' = '+I('m')+'Δ');
   s+='<p class="note">Δ = '+fmt(g.dt)+', μ = '+fmt(g.mu)+'. No input between impulses; at each '+I('t')+sb(I('m'))+' the response is pulled a fraction μ of the way to the drive.</p>';}
- s+='<h4>The solver</h4>';
- s+=eq(I('x')+sb(I('m'))+' = '+I('x')+sb(0)+' + '+I('h')+'<sup>α</sup> '+I('F')+'('+I('x')+sb(I('m')+'−1')+') − Σ'+sb(I('j')+'=1')+'<sup>'+I('m')+'</sup> '+I('c')+sb(I('j'))+' ('+I('x')+sb(I('m')+'−'+I('j'))+' − '+I('x')+sb(0)+')');
- s+=eq(I('c')+sb(0)+' = 1,   '+I('c')+sb(I('j'))+' = (1 − '+fr('1 + α',I('j'))+') '+I('c')+sb(I('j')+'−1'));
- s+='<p class="note">α = '+fmt(alpha)+', '+I('h')+' = '+h+'. Every past step enters the sum, which is the memory of a fractional derivative. The lock opens when ‖'+I('e')+'‖ &lt; 0.01 for all later times.</p>';
+ s+='<h4>The solver: predictor–corrector</h4>';
+ s+=eq(I('x')+sb(I('m')+'⁺¹')+'<sup>P</sup> = '+I('x')+sb(0)+' + Σ'+sb(I('j')+'=0')+'<sup>'+I('m')+'</sup> '+I('w')+sb(I('m')+'⁺¹⁻'+I('j'))+'<sup>p</sup> '+I('F')+'('+I('x')+sb(I('j'))+')');
+ s+=eq(I('w')+sb(I('k'))+'<sup>p</sup> = '+fr(I('h')+'<sup>α</sup>','Γ(α+1)')+' ['+I('k')+'<sup>α</sup> − ('+I('k')+'−1)<sup>α</sup>]');
+ s+=eq(I('x')+sb(I('m')+'⁺¹')+' = '+I('x')+sb(0)+' + '+fr(I('h')+'<sup>α</sup>','Γ(α+2)')+' ['+I('F')+'('+I('x')+sb(I('m')+'⁺¹')+'<sup>P</sup>) + '+I('w')+sb(0)+'('+I('m')+') '+I('F')+'('+I('x')+sb(0)+') + Σ'+sb(I('j')+'=1')+'<sup>'+I('m')+'</sup> '+I('w')+sb(I('m')+'⁻'+I('j'))+'<sup>c</sup> '+I('F')+'('+I('x')+sb(I('j'))+')]');
+ s+=eq(I('w')+sb(I('k'))+'<sup>c</sup> = ('+I('k')+'+2)<sup>α+1</sup> + '+I('k')+'<sup>α+1</sup> − 2('+I('k')+'+1)<sup>α+1</sup>');
+ s+=eq(I('w')+sb(0)+'('+I('m')+') = '+I('m')+'<sup>α+1</sup> − ('+I('m')+'−α)('+I('m')+'+1)<sup>α</sup>');
+ s+='<p class="note">Adams–Bashforth–Moulton predictor–corrector scheme (Diethelm, Ford, Freed) with order <i>O</i>(<i>h</i><sup>min(2, 1+α)</sup>) for the Caputo fractional derivative. α = '+fmt(alpha)+', <i>h</i> = '+h+'. The lock opens when ‖'+I('e')+'‖ &lt; 0.01 for all later times.</p>';
  return s;
 }
 function keySVG(ctrl,tv,attrs){
