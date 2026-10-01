@@ -144,11 +144,15 @@ python3 fracsync.py --system hopfield --control sliding --alpha 0.92
 
 ```
 fracsync-lab/
-├── index.html         # Main GitHub Pages entry point (interactive workbench + Web Worker)
-├── fracsync-lab.html  # Standalone single-file interactive simulator
-├── fracsync.py        # Standalone Python simulation CLI
-├── README.md          # Full documentation, mathematical models & verification matrix
-└── LICENSE            # MIT License
+├── index.html            # Main GitHub Pages entry point (interactive workbench + Web Worker)
+├── fracsync-lab.html     # Standalone single-file interactive simulator
+├── research-demos.html   # Interactive companion verifying 3 published peer-reviewed papers
+├── research-demos/       # Route redirect ensuring clean URL /research-demos resolves on GitHub Pages
+│   └── index.html
+├── fracsync-core.js      # Shared ABM numerical engine & Hamilton quaternion algebra
+├── fracsync.py           # Standalone Python simulation CLI
+├── README.md             # Full documentation, mathematical models & verification matrix
+└── LICENSE               # MIT License
 ```
 
 ---
