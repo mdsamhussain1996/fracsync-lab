@@ -923,6 +923,13 @@ canvas {
             </div>
             <input type="range" id="rng-a-gam" min="0.5" max="10" step="0.5" value="5.0">
           </div>
+          <div class="ctl" id="grp-a-alpha">
+            <div class="cl">
+              <span class="sym">Fractional order α</span>
+              <output id="out-a-alpha">0.90</output>
+            </div>
+            <input type="range" id="rng-a-alpha" min="0.50" max="1.00" step="0.01" value="0.90">
+          </div>
         </div>
       </div>
     </div>
@@ -1203,6 +1210,13 @@ canvas {
             </div>
             <input type="range" id="rng-b-eta" min="1" max="20" step="0.5" value="5.0">
           </div>
+          <div class="ctl" id="grp-b-beta">
+            <div class="cl">
+              <span class="sym">Fractional order β</span>
+              <output id="out-b-beta">0.97</output>
+            </div>
+            <input type="range" id="rng-b-beta" min="0.50" max="1.00" step="0.01" value="0.97">
+          </div>
         </div>
       </div>
     </div>
@@ -1271,11 +1285,11 @@ canvas {
       <!-- Canvases -->
       <div class="plots">
         <figure>
-          <figcaption>Error norm ||ω(τ)|| + ||ϖ(τ)|| (log scale)</figcaption>
+          <figcaption id="cap-b-err">Error norm ||ω(τ)|| + ||ϖ(τ)|| (log scale)</figcaption>
           <canvas id="cv-b-err"></canvas>
         </figure>
         <figure>
-          <figcaption>STM tracking: θ₁ᴿ(τ) vs γ₁ r₁ᴿ(τ) (matching Fig. 3/9)</figcaption>
+          <figcaption id="cap-b-state">STM tracking: θ₁ᴿ(τ) vs γ₁ r₁ᴿ(τ) (matching Fig. 3/9)</figcaption>
           <canvas id="cv-b-state"></canvas>
         </figure>
         <figure>
@@ -1480,6 +1494,13 @@ canvas {
             </div>
             <input type="range" id="rng-c-lam" min="-2.0" max="2.0" step="0.2" value="1.0">
           </div>
+          <div class="ctl" id="grp-c-alpha">
+            <div class="cl">
+              <span class="sym">Fractional order α</span>
+              <output id="out-c-alpha">0.89</output>
+            </div>
+            <input type="range" id="rng-c-alpha" min="0.50" max="1.00" step="0.01" value="0.89">
+          </div>
         </div>
       </div>
     </div>
@@ -1548,11 +1569,11 @@ canvas {
       <!-- Canvases -->
       <div class="plots">
         <figure>
-          <figcaption>Error norm ||e(ς)|| + ||z(ς)|| (matching Fig. 2/11)</figcaption>
+          <figcaption id="cap-c-err">Error norm ||e(ς)|| + ||z(ς)|| (matching Fig. 2/11)</figcaption>
           <canvas id="cv-c-err"></canvas>
         </figure>
         <figure>
-          <figcaption>Position tracking: y₁ᴿ(ς) vs γ₁ x₁ᴿ(ς) (matching Fig. 3a/6)</figcaption>
+          <figcaption id="cap-c-state">Position tracking: y₁ᴿ(ς) vs γ₁ x₁ᴿ(ς) (matching Fig. 3a/6)</figcaption>
           <canvas id="cv-c-state"></canvas>
         </figure>
         <figure>
@@ -1692,6 +1713,10 @@ canvas {
 
   const qmul = FracSyncCore.qmul;
   const abmWeights = FracSyncCore.abmWeights;
+
+  const debouncedRunA = debounce(runDemoA, 60);
+  const debouncedRunB = debounce(runDemoB, 60);
+  const debouncedRunC = debounce(runDemoC, 60);
   const computeStats = FracSyncCore.computeStats;
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -2056,7 +2081,7 @@ canvas {
     const isAAPS = (cfg.mode === 'AAPS');
 
     // Projective scaling vector
-    const gam = isAAPS ? [1.0, 2.0] : [1.0, -1.0];
+    const gam = isAAPS ? [cfg.gam ? cfg.gam[0] : 1.0, 2.0] : [cfg.gam ? cfg.gam[0] : 1.0, -1.0];
 
     // States: Drive (R[2][4], H[2][4]), Response (TH[2][4], W[2][4])
     const R = Array.from({length: 2}, () => Array.from({length: 4}, () => new Float64Array(N + 1)));
@@ -2469,7 +2494,15 @@ canvas {
     };
   }
 
-  function drawErrorPlot(cv, err, h, tol = 0.01) {
+  function debounce(fn, ms) {
+    let t;
+    return function(...args) {
+      clearTimeout(t);
+      t = setTimeout(() => fn.apply(this, args), ms);
+    };
+  }
+
+  function drawErrorPlot(cv, err, h, tol = 0.01, maxN) {
     if (!cv) return;
     const ctx = cv.getContext('2d');
     const dpr = window.devicePixelRatio || 1;
@@ -2526,7 +2559,8 @@ canvas {
     }
 
     // Curve
-    const N = err.length - 1;
+    const totalN = err.length - 1;
+    const N = (maxN && maxN < totalN && maxN > 1) ? maxN : totalN;
     const step = Math.max(1, Math.floor(N / 1200));
     ctx.strokeStyle = c.resp;
     ctx.lineWidth = 1.8;
@@ -2542,7 +2576,7 @@ canvas {
     ctx.stroke();
   }
 
-  function drawComparisonPlot(cv, driveSeries, respSeries, driveLbl, respLbl) {
+  function drawComparisonPlot(cv, driveSeries, respSeries, driveLbl, respLbl, maxN) {
     if (!cv) return;
     const ctx = cv.getContext('2d');
     const dpr = window.devicePixelRatio || 1;
@@ -2560,7 +2594,8 @@ canvas {
     const pW = W - padL - padR, pH = H - padT - padB;
 
     let minV = Infinity, maxV = -Infinity;
-    const N = driveSeries.length - 1;
+    const totalN = driveSeries.length - 1;
+    const N = (maxN && maxN < totalN && maxN > 1) ? maxN : totalN;
     for (let i = 0; i <= N; i++) {
       const vx = driveSeries[i], vy = respSeries[i];
       if (vx < minV) minV = vx; if (vx > maxV) maxV = vx;
@@ -2631,7 +2666,7 @@ canvas {
     '#E11D48'  // rose (K3)
   ];
 
-  function drawMultiSeriesPlot(cv, seriesList) {
+  function drawMultiSeriesPlot(cv, seriesList, maxN) {
     if (!cv) return;
     const ctx = cv.getContext('2d');
     const dpr = window.devicePixelRatio || 1;
@@ -2692,7 +2727,8 @@ canvas {
     // Draw lines
     seriesList.forEach(s => {
       const arr = s.data;
-      const N = arr.length - 1;
+      const totalN = arr.length - 1;
+      const N = (maxN && maxN < totalN && maxN > 1) ? maxN : totalN;
       const step = Math.max(1, Math.floor(N / 1200));
       ctx.strokeStyle = s.color;
       ctx.lineWidth = 1.6;
@@ -2746,7 +2782,9 @@ canvas {
   // ═══════════════════════════════════════════════════════════════════════════
 
   // ── Article A Handlers
-  function drawPlotsA(res) {
+  function drawPlotsA(res, scrubFrac = 1.0) {
+    if (!res) return;
+    const maxN = (scrubFrac < 1.0 && scrubFrac > 0) ? Math.max(2, Math.round(res.N * scrubFrac)) : res.N;
     const isSMC = (A_STATE.mode === 'SMC');
     const isEX52 = (A_STATE.mode === 'EX52');
     const nR = res.nR || 2;
@@ -2771,7 +2809,7 @@ canvas {
       else if (isSMC) capErr.textContent = 'Figure 2: Errors under slide mode control (Ex. 5.1, 8 channels)';
       else capErr.textContent = 'Figure 1: Errors without control (divergent trajectories)';
     }
-    drawMultiSeriesPlot(document.getElementById('cv-a-err'), errSeries);
+    drawMultiSeriesPlot(document.getElementById('cv-a-err'), errSeries, maxN);
 
     const sigSeries = [];
     const allSigLabels = [
@@ -2792,7 +2830,7 @@ canvas {
         'Sliding surface trajectories (Ex. 5.2, 12 channels s_q^θ(t))' :
         'Figure 3: Sliding surface trajectories (Ex. 5.1, 8 channels s_q^θ(t))';
     }
-    drawMultiSeriesPlot(document.getElementById('cv-a-phase'), sigSeries);
+    drawMultiSeriesPlot(document.getElementById('cv-a-phase'), sigSeries, maxN);
 
     const colors = getCanvasColors();
     const capState = document.getElementById('cap-a-state');
@@ -2813,7 +2851,7 @@ canvas {
         { name: '‖e₁‖₂', data: norms[0], color: colors.drive },
         { name: '‖e₂‖₂', data: norms[1], color: colors.resp, dashed: true },
         { name: '‖e₃‖₂', data: norms[2], color: colors.ok }
-      ]);
+      ], maxN);
     } else {
       if (capState) capState.textContent = 'Figure 4: Norm of error ||e₁||₂ & ||e₂||₂ (settles at t ≤ 0.78s)';
       const norm1 = new Float64Array(res.N + 1);
@@ -2832,7 +2870,7 @@ canvas {
       drawMultiSeriesPlot(document.getElementById('cv-a-state'), [
         { name: '‖e₁‖₂', data: norm1, color: colors.drive },
         { name: '‖e₂‖₂', data: norm2, color: colors.resp, dashed: true }
-      ]);
+      ], maxN);
     }
   }
 
@@ -2864,6 +2902,10 @@ canvas {
       }
 
       drawPlotsA(res);
+      const scA = document.getElementById('scrub-a');
+      if (scA) scA.value = '1';
+      const scoA = document.getElementById('scrub-out-a');
+      if (scoA) scoA.textContent = A_STATE.T.toFixed(2) + 's';
     }, 20);
   }
 
@@ -2906,17 +2948,41 @@ canvas {
     badge1.className = 'check-badge ' + (pass1 ? 'pass' : 'fail');
     badge1.innerHTML = pass1 ? '&check;' : '&times;';
     document.getElementById('sub-a-cond1').textContent = `Current: k = ${A_STATE.k.toFixed(1)} ${pass1 ? '≥ 14.85 (Satisfied)' : '< 14.85'}`;
+    debouncedRunA();
   });
+  document.getElementById('rng-a-k').addEventListener('change', runDemoA);
+
   document.getElementById('rng-a-l').addEventListener('input', e => {
     A_STATE.l = parseFloat(e.target.value);
     document.getElementById('out-a-l').textContent = A_STATE.l.toFixed(1);
     document.getElementById('tooth-a2').setAttribute('height', (6 + A_STATE.l * 0.8).toFixed(0));
+    debouncedRunA();
   });
+  document.getElementById('rng-a-l').addEventListener('change', runDemoA);
+
   document.getElementById('rng-a-gam').addEventListener('input', e => {
     A_STATE.gam = parseFloat(e.target.value);
     document.getElementById('out-a-gam').textContent = A_STATE.gam.toFixed(1);
     document.getElementById('tooth-a3').setAttribute('height', (6 + A_STATE.gam * 0.8).toFixed(0));
+    debouncedRunA();
   });
+  document.getElementById('rng-a-gam').addEventListener('change', runDemoA);
+
+  document.getElementById('rng-a-alpha').addEventListener('input', e => {
+    A_STATE.alpha = parseFloat(e.target.value);
+    document.getElementById('out-a-alpha').textContent = A_STATE.alpha.toFixed(2);
+    debouncedRunA();
+  });
+  document.getElementById('rng-a-alpha').addEventListener('change', runDemoA);
+
+  const scrubA = document.getElementById('scrub-a');
+  if (scrubA) {
+    scrubA.addEventListener('input', e => {
+      const frac = parseFloat(e.target.value);
+      document.getElementById('scrub-out-a').textContent = (A_STATE.T * frac).toFixed(2) + 's';
+      if (A_STATE.result) drawPlotsA(A_STATE.result, frac);
+    });
+  }
 
   document.querySelectorAll('.t-btn-a').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -2937,7 +3003,9 @@ canvas {
   });
 
   // ── Article B Handlers
-  function drawPlotsB(res) {
+  function drawPlotsB(res, scrubFrac = 1.0) {
+    if (!res) return;
+    const maxN = (scrubFrac < 1.0 && scrubFrac > 0) ? Math.max(2, Math.round(res.N * scrubFrac)) : res.N;
     const isAAPS = (B_STATE.mode === 'AAPS');
     const isFTPS = (B_STATE.mode === 'FTPS');
     const gam = res.gam;
@@ -2959,7 +3027,7 @@ canvas {
       'Figure 2(a): STM projective error under adaptive control (10)' :
       (isFTPS ? 'Figure 8(a): STM projective error under finite-time control (18)' :
        'Figure 1(a): STM error without controller');
-    drawMultiSeriesPlot(document.getElementById('cv-b-err'), errSeries);
+    drawMultiSeriesPlot(document.getElementById('cv-b-err'), errSeries, maxN);
 
     // 2. Adaptive gains or LTM errors
     const capPhase = document.getElementById('cap-b-phase');
@@ -2970,7 +3038,7 @@ canvas {
         { name: 'λ₂', data: res.gainLam[1], color: MATLAB_COLORS[1] },
         { name: 'δ₁', data: res.gainDel[0], color: MATLAB_COLORS[4], dashed: true },
         { name: 'δ₂', data: res.gainDel[1], color: MATLAB_COLORS[6], dashed: true }
-      ]);
+      ], maxN);
     } else {
       if (capPhase) capPhase.textContent = isFTPS ?
         'Figure 8(b): LTM projective error under finite-time control (18)' :
@@ -2986,14 +3054,14 @@ canvas {
           lIdx++;
         }
       }
-      drawMultiSeriesPlot(document.getElementById('cv-b-phase'), ltmSeries);
+      drawMultiSeriesPlot(document.getElementById('cv-b-phase'), ltmSeries, maxN);
     }
 
     // 3. STM state tracking
     const capState = document.getElementById('cap-b-state');
     if (capState) capState.textContent = 'Figure 3/9: STM State Tracking: Response θ₁ᴿ vs Scaled Drive γ₁·r₁ᴿ';
     const gam_r1 = res.R[0][0].map(v => gam[0] * v);
-    drawComparisonPlot(document.getElementById('cv-b-state'), gam_r1, res.TH[0][0], `Drive γ₁·r₁ᴿ (γ₁=${gam[0]})`, 'Response θ₁ᴿ');
+    drawComparisonPlot(document.getElementById('cv-b-state'), gam_r1, res.TH[0][0], `Drive γ₁·r₁ᴿ (γ₁=${gam[0]})`, 'Response θ₁ᴿ', maxN);
   }
 
   function runDemoB() {
@@ -3024,6 +3092,10 @@ canvas {
       }
 
       drawPlotsB(res);
+      const scB = document.getElementById('scrub-b');
+      if (scB) scB.value = '1';
+      const scoB = document.getElementById('scrub-out-b');
+      if (scoB) scoB.textContent = B_STATE.T.toFixed(2) + 's';
     }, 20);
   }
 
@@ -3043,6 +3115,7 @@ canvas {
     document.getElementById('out-b-eta').textContent = '5.0';
     document.getElementById('rng-b-lam').value = '1.0';
     document.getElementById('out-b-lam').textContent = '1.0';
+    B_STATE.gam = [1.0, 2.0];
     runDemoB();
   });
   document.getElementById('tab-b-ftps').addEventListener('click', () => {
@@ -3059,6 +3132,7 @@ canvas {
     document.getElementById('out-b-eta').textContent = '10.0';
     document.getElementById('rng-b-lam').value = '1.0';
     document.getElementById('out-b-lam').textContent = '1.0';
+    B_STATE.gam = [1.0, -1.0];
     runDemoB();
   });
   document.getElementById('tab-b-uncontrolled').addEventListener('click', () => {
@@ -3073,19 +3147,44 @@ canvas {
   document.getElementById('rng-b-lam').addEventListener('input', e => {
     const val = parseFloat(e.target.value);
     document.getElementById('out-b-lam').textContent = val.toFixed(2);
+    B_STATE.gam[0] = val;
+    debouncedRunB();
   });
+  document.getElementById('rng-b-lam').addEventListener('change', runDemoB);
+
   document.getElementById('rng-b-k').addEventListener('input', e => {
     const val = parseFloat(e.target.value);
     document.getElementById('out-b-k').textContent = val.toFixed(1);
     if (B_STATE.mode === 'AAPS') B_STATE.lam_hat = val;
     else B_STATE.eta_ftps = val;
+    debouncedRunB();
   });
+  document.getElementById('rng-b-k').addEventListener('change', runDemoB);
+
   document.getElementById('rng-b-eta').addEventListener('input', e => {
     const val = parseFloat(e.target.value);
     document.getElementById('out-b-eta').textContent = val.toFixed(1);
     if (B_STATE.mode === 'AAPS') B_STATE.delta_hat = val;
     else B_STATE.nu_ftps = val;
+    debouncedRunB();
   });
+  document.getElementById('rng-b-eta').addEventListener('change', runDemoB);
+
+  document.getElementById('rng-b-beta').addEventListener('input', e => {
+    B_STATE.beta = parseFloat(e.target.value);
+    document.getElementById('out-b-beta').textContent = B_STATE.beta.toFixed(2);
+    debouncedRunB();
+  });
+  document.getElementById('rng-b-beta').addEventListener('change', runDemoB);
+
+  const scrubB = document.getElementById('scrub-b');
+  if (scrubB) {
+    scrubB.addEventListener('input', e => {
+      const frac = parseFloat(e.target.value);
+      document.getElementById('scrub-out-b').textContent = (B_STATE.T * frac).toFixed(2) + 's';
+      if (B_STATE.result) drawPlotsB(B_STATE.result, frac);
+    });
+  }
 
   document.querySelectorAll('.t-btn-b').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -3106,7 +3205,9 @@ canvas {
   });
 
   // ── Article C Handlers
-  function drawPlotsC(res) {
+  function drawPlotsC(res, scrubFrac = 1.0) {
+    if (!res) return;
+    const maxN = (scrubFrac < 1.0 && scrubFrac > 0) ? Math.max(2, Math.round(res.N * scrubFrac)) : res.N;
     const isMLPS = (C_STATE.mode === 'MLPS');
     const isAAPS = (C_STATE.mode === 'AAPS');
     const gam = res.gam;
@@ -3128,7 +3229,7 @@ canvas {
       'Figure 2(a): Position errors under MLPS controller (13)' :
       (isAAPS ? 'Figure 11(a): Position errors under AAPS controller (21)' :
        'Figure 1(a): Position errors without control');
-    drawMultiSeriesPlot(document.getElementById('cv-c-err'), errSeries);
+    drawMultiSeriesPlot(document.getElementById('cv-c-err'), errSeries, maxN);
 
     // 2. Adaptive velocity gains or velocity errors
     const capPhase = document.getElementById('cap-c-phase');
@@ -3137,7 +3238,7 @@ canvas {
       drawMultiSeriesPlot(document.getElementById('cv-c-phase'), [
         { name: 'l₁(ς)', data: res.gainL[0], color: MATLAB_COLORS[0] },
         { name: 'l₂(ς)', data: res.gainL[1], color: MATLAB_COLORS[6], dashed: true }
-      ]);
+      ], maxN);
     } else {
       if (capPhase) capPhase.textContent = isMLPS ?
         'Figure 2(b): Velocity errors z_q^M(ς) under MLPS' :
@@ -3153,14 +3254,14 @@ canvas {
           vIdx++;
         }
       }
-      drawMultiSeriesPlot(document.getElementById('cv-c-phase'), velSeries);
+      drawMultiSeriesPlot(document.getElementById('cv-c-phase'), velSeries, maxN);
     }
 
     // 3. Position tracking
     const capState = document.getElementById('cap-c-state');
     if (capState) capState.textContent = 'Figure 3(a): Position tracking: Response y₁ᴿ vs Scaled Drive γ₁·x₁ᴿ';
     const gam_x1 = res.X[0][0].map(v => gam[0] * v);
-    drawComparisonPlot(document.getElementById('cv-c-state'), gam_x1, res.Y[0][0], `Drive γ₁·x₁ᴿ (γ₁=${gam[0]})`, 'Response y₁ᴿ');
+    drawComparisonPlot(document.getElementById('cv-c-state'), gam_x1, res.Y[0][0], `Drive γ₁·x₁ᴿ (γ₁=${gam[0]})`, 'Response y₁ᴿ', maxN);
   }
 
   function runDemoC() {
@@ -3191,6 +3292,10 @@ canvas {
       }
 
       drawPlotsC(res);
+      const scC = document.getElementById('scrub-c');
+      if (scC) scC.value = '1';
+      const scoC = document.getElementById('scrub-out-c');
+      if (scoC) scoC.textContent = C_STATE.T.toFixed(2) + 's';
     }, 20);
   }
 
@@ -3235,18 +3340,42 @@ canvas {
     document.getElementById('out-c-k').textContent = val.toFixed(1);
     if (C_STATE.mode === 'MLPS') C_STATE.k_gain = val;
     else { C_STATE.k_hat[0] = val; C_STATE.k_hat[1] = val; }
+    debouncedRunC();
   });
+  document.getElementById('rng-c-k').addEventListener('change', runDemoC);
+
   document.getElementById('rng-c-l').addEventListener('input', e => {
     const val = parseFloat(e.target.value);
     document.getElementById('out-c-l').textContent = val.toFixed(1);
     if (C_STATE.mode === 'MLPS') C_STATE.l_gain = val;
     else { C_STATE.l_hat[0] = val; C_STATE.l_hat[1] = val; }
+    debouncedRunC();
   });
+  document.getElementById('rng-c-l').addEventListener('change', runDemoC);
+
   document.getElementById('rng-c-lam').addEventListener('input', e => {
     const val = parseFloat(e.target.value);
     document.getElementById('out-c-lam').textContent = val.toFixed(2);
     C_STATE.gam[0] = val;
+    debouncedRunC();
   });
+  document.getElementById('rng-c-lam').addEventListener('change', runDemoC);
+
+  document.getElementById('rng-c-alpha').addEventListener('input', e => {
+    C_STATE.alpha = parseFloat(e.target.value);
+    document.getElementById('out-c-alpha').textContent = C_STATE.alpha.toFixed(2);
+    debouncedRunC();
+  });
+  document.getElementById('rng-c-alpha').addEventListener('change', runDemoC);
+
+  const scrubC = document.getElementById('scrub-c');
+  if (scrubC) {
+    scrubC.addEventListener('input', e => {
+      const frac = parseFloat(e.target.value);
+      document.getElementById('scrub-out-c').textContent = (C_STATE.T * frac).toFixed(2) + 's';
+      if (C_STATE.result) drawPlotsC(C_STATE.result, frac);
+    });
+  }
 
   document.querySelectorAll('.t-btn-c').forEach(btn => {
     btn.addEventListener('click', () => {
