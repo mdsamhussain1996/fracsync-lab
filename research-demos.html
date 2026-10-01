@@ -711,35 +711,47 @@ canvas {
   margin: 14px 0 6px;
 }
 .math-panel h4:first-child { margin-top: 0; }
-.codebox {
+/* ── Theorem & Comparison Panels ── */
+.theorem-panel {
   background: var(--surface2);
   border: 1px solid var(--line);
   border-radius: 12px;
-  overflow: hidden;
+  padding: 16px 18px;
+  font-family: var(--fx);
+  font-size: .95rem;
+  line-height: 1.55;
 }
-.codehead {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
-  border-bottom: 1px solid var(--line);
-  background: var(--surface);
-}
-.codehead span {
-  font: 600 .72rem var(--fm);
-  letter-spacing: .06em;
+.theorem-panel h4 {
+  font: 600 .74rem var(--fm);
+  letter-spacing: .08em;
   text-transform: uppercase;
-  color: var(--muted);
+  color: var(--acc);
+  margin: 14px 0 6px;
 }
-pre.codeblock {
-  margin: 0;
-  padding: 14px 16px;
-  background: var(--code);
-  font: 400 .76rem/1.52 var(--fm);
-  overflow: auto;
-  max-height: 520px;
-  tab-size: 4;
+.theorem-panel h4:first-child { margin-top: 0; }
+.paper-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--fm);
+  font-size: .78rem;
+  margin: 10px 0 14px;
+}
+.paper-table th, .paper-table td {
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  text-align: left;
+}
+.paper-table th {
+  background: var(--surface);
+  color: var(--acc);
+  font-weight: 600;
+}
+.paper-table tr:nth-child(even) {
+  background: rgba(0, 0, 0, 0.02);
+}
+.paper-table td.highlight {
+  font-weight: 600;
+  color: var(--ok);
 }
 
 /* View switcher tabs */
@@ -883,8 +895,9 @@ pre.codeblock {
         <!-- Mode switcher for Demo A -->
         <div>
           <div class="view-tabs" role="tablist">
-            <button class="view-tab active" id="tab-a-smc" role="tab" aria-selected="true">1. Slide Mode Control (Ex. 5.1)</button>
-            <button class="view-tab" id="tab-a-uncontrolled" role="tab" aria-selected="false">2. Uncontrolled / Divergent (Fig. 1)</button>
+            <button class="view-tab active" id="tab-a-smc" role="tab" aria-selected="true">1. SMC (Ex. 5.1: 2-Neuron, 8D)</button>
+            <button class="view-tab" id="tab-a-ex52" role="tab" aria-selected="false">2. SMC (Ex. 5.2: 3-Neuron, 24D)</button>
+            <button class="view-tab" id="tab-a-uncontrolled" role="tab" aria-selected="false">3. Uncontrolled / Divergent (Fig. 1)</button>
           </div>
         </div>
 
@@ -978,16 +991,16 @@ pre.codeblock {
       <!-- Canvases -->
       <div class="plots">
         <figure>
-          <figcaption>Error norm ||e(t)|| (matching Fig. 4)</figcaption>
+          <figcaption id="cap-a-err">Figure 2: Errors under slide mode control (8 channels e_q^θ(t))</figcaption>
           <canvas id="cv-a-err"></canvas>
         </figure>
         <figure>
-          <figcaption>State synchrony: x₁ᴿ(t) vs y₁ᴿ(t) (matching Fig. 6a)</figcaption>
-          <canvas id="cv-a-state"></canvas>
+          <figcaption id="cap-a-phase">Figure 3: Sliding surface trajectories (8 channels s_q^θ(t))</figcaption>
+          <canvas id="cv-a-phase"></canvas>
         </figure>
         <figure>
-          <figcaption>Sliding manifold: σ₁ᴿ(t) &amp; σ₂ᴿ(t) (matching Fig. 3)</figcaption>
-          <canvas id="cv-a-phase"></canvas>
+          <figcaption id="cap-a-state">Figure 4: Norm of error ||e₁||₂ &amp; ||e₂||₂ (settles at t ≤ 0.78s)</figcaption>
+          <canvas id="cv-a-state"></canvas>
         </figure>
       </div>
     </div>
@@ -1032,7 +1045,7 @@ pre.codeblock {
       Exact 2-neuron 8-dimensional quaternion network parameters, self-feedback $a_1=1, a_2=1.9$, coupling matrix $(b_{rs})_{2\times 2}$, time-varying trigonometric uncertainties $\Delta b_{rs}(t)$, initial conditions $x(0), y(0)$, and sliding mode reaching gains ($k=16, l=5, \gamma=5, \mu=\nu=0.7$) are 100% mathematically aligned with published numerical simulation results.
     </div>
 
-    <!-- Under the Hood Math & Python -->
+    <!-- Under the Hood Mathematical Formulation & Theorems -->
     <div class="hood">
       <div class="math-panel">
         <h4>1. Fractional Sliding Surface in Quaternion Field</h4>
@@ -1047,52 +1060,45 @@ pre.codeblock {
         <p>with μ = ν = 0.7, k<sub>r</sub> = 16, l<sub>r</sub> = 5, γ<sub>r</sub> = 5, the error trajectories reach the surface in time t<sub>σ</sub> and vanish at t<sub>ε</sub> = 0.78s.</p>
       </div>
 
-      <div class="codebox">
-        <div class="codehead">
-          <span>Python (Numpy + Matplotlib)</span>
-          <button class="btn btn-sm" id="btn-copy-py-a">Copy Code</button>
-        </div>
-        <pre class="codeblock" id="code-a"># FracSync Lab Research Demo A: Finite-Time Slide Mode Control
-# Paper: Ansari & Malik, Int. J. Comput. Math. 101(7), 750-767 (2024), Example 5.1
-import numpy as np
-import matplotlib.pyplot as plt
-from math import gamma as Gamma
+      <div class="theorem-panel">
+        <h4>3. Finite Settling Time &amp; Comparative Analysis (Table 1)</h4>
+        <p>By applying the fractional Lyapunov direct method with candidate <i>V</i><sub>2</sub>(<i>t</i>) = ½ ∑ ε<sub><i>r</i></sub> ε̄<sub><i>r</i></sub>, the derivative satisfies <sup><i>C</i></sup><sub>0</sub><i>D</i><sub><i>t</i></sub><sup>α</sup> <i>V</i><sub>2</sub>(<i>t</i>) ≤ −2<sup>(μ+1)/2</sup> π <i>V</i><sub>2</sub><sup>(μ+1)/2</sup>(<i>t</i>). Theorem 4.3 guarantees synchronization within analytical bound <i>t</i><sub>ε</sub> = 0.78s.</p>
 
-alpha, h, T = 0.9, 0.005, 5.0
-N = int(round(T / h))
-tol = 0.01
+        <table class="paper-table">
+          <thead>
+            <tr>
+              <th>Method / Literature Reference</th>
+              <th>Settling Time <i>t</i><sub>ε</sub></th>
+              <th>Approach Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="highlight">Theorem 4.3 (Ansari &amp; Malik, IJCM 2024)</td>
+              <td class="highlight">0.780 s</td>
+              <td>Fractional SMC directly in ℍ (non-separation)</td>
+            </tr>
+            <tr>
+              <td>Shang et al. [43] (AMC 2023)</td>
+              <td>1.428 s</td>
+              <td>Separation into real-valued subsystems</td>
+            </tr>
+            <tr>
+              <td>Xiao et al. [48] (Inf. Sci. 2020)</td>
+              <td>2.000 s</td>
+              <td>Fractional Mittag-Leffler decomposition</td>
+            </tr>
+            <tr>
+              <td>Yan et al. [51] (NCA 2022)</td>
+              <td>10.450 s</td>
+              <td>Linear matrix inequality (LMI) delay bounds</td>
+            </tr>
+          </tbody>
+        </table>
 
-def qmul(a, b):
-    return np.array([
-        a[0]*b[0] - a[1]*b[1] - a[2]*b[2] - a[3]*b[3],
-        a[0]*b[1] + a[1]*b[0] + a[2]*b[3] - a[3]*b[2],
-        a[0]*b[2] - a[1]*b[3] + a[2]*b[0] + a[3]*b[1],
-        a[0]*b[3] + a[1]*b[2] - a[2]*b[1] + a[3]*b[0]
-    ])
-
-# Network parameters: Example 5.1
-a = np.array([1.0, 1.9])
-b = np.array([
-    [[0.1, 1.0, 1.5, 2.0], [-1.1, -1.0, -0.5, -0.2]],
-    [[-1.2, 2.0, -1.0, -2.0], [1.5, 1.7, -1.0, -0.3]]
-])
-
-def delta_b(t):
-    st, ct = np.sin(t), np.cos(t)
-    return np.array([
-        [[0.5*st, -0.75*ct, -0.5*ct, 0.5*st], [0.5*ct, 0.5*st, -0.75*st, -0.5*st]],
-        [[0.5*ct, -0.5*ct, 0.5*st, -0.75*ct], [0.75*st, 0.75*ct, 0.5*st, -0.5*ct]]
-    ])
-
-x0 = np.array([[-1.0, 0.5, 0.1, 1.0], [1.0, -0.5, -2.0, -1.0]])
-y0 = np.array([[0.5, 2.5, 2.1, -1.5], [-1.5, 1.5, 1.1, 0.5]])
-
-k_gain, l_gain, gam_gain = 16.0, 5.0, 5.0
-mu, nu = 0.7, 0.7
-
-# Theoretical settling time (Theorem 4.3): t_eps = 0.78s
-print("Theorem 4.3 upper bound: t_eps = 0.78s")
-# Run ABM fractional predictor-corrector scheme...</pre>
+        <h4>4. System Assumptions &amp; Verification</h4>
+        <p><b>Assumption (A1):</b> Uncertainty parameter Δ<i>b</i><sub><i>rs</i></sub>(<i>t</i>) = <i>b̂</i><sub><i>rs</i></sub> Θ<sub><i>rs</i></sub>(<i>t</i>) satisfies ‖Θ<sub><i>rs</i></sub>(<i>t</i>)‖ ≤ 1.<br>
+        <b>Assumption (A2):</b> Split activation ϖ(<i>q</i>) = tanh(<i>q</i><sup><i>R</i></sup>) + <i>i</i> tanh(<i>q</i><sup><i>I</i></sup>) + <i>j</i> tanh(<i>q</i><sup><i>J</i></sup>) + <i>k</i> tanh(<i>q</i><sup><i>K</i></sup>) is Lipschitz with <i>L</i><sub>1</sub> = <i>L</i><sub>2</sub> = 1.</p>
       </div>
     </div>
   </section>
@@ -1319,7 +1325,7 @@ print("Theorem 4.3 upper bound: t_eps = 0.78s")
       Full 16-dimensional coupled STM–LTM quaternion dynamics, time-varying parameter uncertainties $\Delta c_{qp}(\tau)$, initial values, and both AAPS adaptive feedback laws ($\hat{\lambda}=14, \hat{\delta}=5$) and FTPS finite-time reaching laws ($\eta=20, \nu=10, \mu=0.5, T_{settle} \le 7.71s$) are fully verified.
     </div>
 
-    <!-- Under the Hood Math & Python -->
+    <!-- Under the Hood Mathematical Formulation & Theorems -->
     <div class="hood">
       <div class="math-panel">
         <h4>1. Coupled STM–LTM Quaternion Dynamics</h4>
@@ -1333,40 +1339,42 @@ print("Theorem 4.3 upper bound: t_eps = 0.78s")
         <div class="eq">u<sub>2q</sub> = −ε η<sub>q</sub> ω<sub>q</sub> − ε ω<sub>q</sub> ‖ω<sub>q</sub>‖<sup>2(μ−1)}, &emsp; k<sub>2q</sub> = −ν<sub>q</sub> ϖ<sub>q</sub> − ϖ<sub>q</sub> ‖ϖ<sub>q</sub>‖<sup>2(μ−1)}</div>
       </div>
 
-      <div class="codebox">
-        <div class="codehead">
-          <span>Python (Numpy + Matplotlib)</span>
-          <button class="btn btn-sm" id="btn-copy-py-b">Copy Code</button>
-        </div>
-        <pre class="codeblock" id="code-b"># FracSync Lab Research Demo B: Projective Synchronization of Competitive Networks
-# Paper: Ansari & Malik, Chinese Journal of Physics 88, 740-755 (2024), Example 4.1
-import numpy as np
-import matplotlib.pyplot as plt
-from math import gamma as Gamma
+      <div class="theorem-panel">
+        <h4>3. Synchronization Theorems &amp; Stability Criteria (CJP 88)</h4>
+        <p><b>Theorem 5 (AAPS Adaptive Synchronization):</b> Guaranteed when Π = min{Π₁, Π₂} &gt; 0, where Π₁ governs STM decay and Π₂ governs LTM synaptic convergence under update laws <sup><i>C</i></sup><i>D</i><sup>β</sup> λ<sub><i>q</i></sub> = ‖ω<sub><i>q</i></sub>‖<sup>2</sup> and <sup><i>C</i></sup><i>D</i><sup>β</sup> δ<sub><i>q</i></sub> = ‖ϖ<sub><i>q</i></sub>‖<sup>2</sup>.</p>
+        <p><b>Theorem 6 (FTPS Finite-Time Synchronization):</b> With non-smooth reaching laws (μ = 0.5), error states collapse to zero in finite settling time:</p>
+        <div class="eq"><i>T</i> = [ (β / 2<sup>μ</sup>) <i>V</i><sup>β−μ</sup>(0) <i>B</i>(β, 1 − μ) ]<sup>1/β</sup> &le; 7.71s</div>
 
-beta, h, T = 0.97, 0.005, 15.0
-eps_scale = 1.0
-d = np.array([2.0, 2.0])
-alpha_decay = np.array([1.0, 1.0])
-rho_stim = np.array([1.0, 2.2])
-s_stim = np.array([1.3, 1.0])
-
-c_mat = np.array([
-    [[2.1, 2.0, 2.0, 2.0], [-0.1, -0.1, -0.1, -0.1]],
-    [[-2.1, 3.0, -2.0, -3.0], [1.0, 1.0, 1.0, 1.0]]
-])
-
-def delta_c(t):
-    st, ct = np.sin(t), np.cos(t)
-    return 0.25 * np.array([
-        [[st, st, st, st], [ct, ct, st, st]],
-        [[ct, st, ct, st], [ct, ct, ct, ct]]
-    ])
-
-# AAPS: gam1 = 1, gam2 = 2; FTPS: gam1 = 1, gam2 = -1
-gam = np.array([1.0, 2.0])
-lam_hat, delta_hat = 14.0, 5.0
-# Run ABM scheme with adaptive feedback...</pre>
+        <table class="paper-table">
+          <thead>
+            <tr>
+              <th>Controller Strategy</th>
+              <th>Projective Scaling γ</th>
+              <th>Control Parameters (Example 4.1)</th>
+              <th>Paper Demonstration</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="highlight">AAPS (Theorem 5)</td>
+              <td class="highlight">γ₁ = 1, γ₂ = 2</td>
+              <td>λ̂ = 14, δ̂ = 5, λ(0) = δ(0) = 1</td>
+              <td>Figs. 2, 3, 4, 5, 6, 7</td>
+            </tr>
+            <tr>
+              <td class="highlight">FTPS (Theorem 6)</td>
+              <td class="highlight">γ₁ = 1, γ₂ = −1</td>
+              <td>η = 20, ν = 10, μ = 0.5 (<i>T</i> ≤ 7.71s)</td>
+              <td>Figs. 8, 9, 10, 11, 12</td>
+            </tr>
+            <tr>
+              <td>Uncontrolled</td>
+              <td>γ₁ = 1, γ₂ = 1</td>
+              <td><i>U</i><sub><i>q</i></sub> = 0, <i>K</i><sub><i>q</i></sub> = 0</td>
+              <td>Fig. 1 (Divergent oscillations)</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </section>
@@ -1594,7 +1602,7 @@ lam_hat, delta_hat = 14.0, 5.0
       The complete 16-dimensional fractional inertial quaternion network with non-zero cross-terms $(c_\rho - (a_\rho - \theta_\rho)\theta_\rho = 21)$, exact variable substitution $(\theta_1=\theta_2=5)$, projective scaling $(\gamma_1=1, \gamma_2=-1)$, and both MLPS and AAPS control laws are mathematically validated against published results.
     </div>
 
-    <!-- Under the Hood Math & Python -->
+    <!-- Under the Hood Mathematical Formulation & Theorems -->
     <div class="hood">
       <div class="math-panel">
         <h4>1. First-Order Variable Substitution</h4>
@@ -1608,37 +1616,41 @@ lam_hat, delta_hat = 14.0, 5.0
         <p><b>AAPS Law (Eq. 21):</b> u<sub>ρ</sub> = −(l<sub>ρ</sub>(ς) + l̂<sub>ρ</sub>) z<sub>ρ</sub> + k̂<sub>ρ</sub> e<sub>ρ</sub> + u<sub>comp</sub> with <sup>C</sup>D<sup>α</sup> l<sub>ρ</sub> = ‖z<sub>ρ</sub>‖<sup>2</sup>.</p>
       </div>
 
-      <div class="codebox">
-        <div class="codehead">
-          <span>Python (Numpy + Matplotlib)</span>
-          <button class="btn btn-sm" id="btn-copy-py-c">Copy Code</button>
-        </div>
-        <pre class="codeblock" id="code-c"># FracSync Lab Research Demo C: Inertial Network MLPS & AAPS
-# Paper: Ansari, Malik & Nieto, Eur. Phys. J. Plus 140(9), 903 (2025), Example 4.1
-import numpy as np
-import matplotlib.pyplot as plt
-from math import gamma as Gamma
+      <div class="theorem-panel">
+        <h4>3. Synchronization Theorems &amp; Invariance (EPJ Plus 140)</h4>
+        <p><b>Theorem 1 (MLPS Mittag–Leffler Synchronization):</b> Satisfied when feedback gains ensure Λ = max{Λ₁, Λ₂} &lt; 0. Error norms decay bounded by Mittag–Leffler function <i>E</i><sub>α</sub>(−πς<sup>α</sup>).</p>
+        <p><b>Theorem 2 (AAPS Adaptive Synchronization):</b> Autonomous tuning of velocity feedback gains guarantees asymptotic convergence without knowledge of uncertainty bounds.</p>
 
-alpha, h, T = 0.89, 0.005, 20.0
-theta_sub = 5.0
-a_inert, c_inert = 1.0, 1.0
-gam_proj = np.array([1.0, -1.0])
-
-b_mat = np.array([
-    [[1.1, 1.0, 2.0, 1.0], [-1.0, -2.0, 1.0, -1.0]],
-    [[-2.5, 3.0, -1.0, 3.0], [2.0, 1.0, 1.0, 1.0]]
-])
-
-def delta_b(t):
-    st, ct = np.sin(t), np.cos(t)
-    return 0.25 * np.array([
-        [[st, ct, -st, ct], [ct, -st, -ct, st]],
-        [[ct, -ct, -st, -st], [-st, ct, ct, st]]
-    ])
-
-# MLPS gains: l = [10, 12], k = [24, 24]
-# AAPS baseline: l_hat = [10, 16], k_hat = [25, 25]
-# Run simulation using ABM scheme...</pre>
+        <table class="paper-table">
+          <thead>
+            <tr>
+              <th>Controller Strategy</th>
+              <th>Projective Scaling γ</th>
+              <th>Control Parameters (Example 4.1)</th>
+              <th>Paper Demonstration</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="highlight">MLPS (Theorem 1)</td>
+              <td class="highlight">γ₁ = 1, γ₂ = −1</td>
+              <td><i>l</i>₁ = 10, <i>l</i>₂ = 12, <i>k</i>₁ = <i>k</i>₂ = 24</td>
+              <td>Figs. 2, 3–10 (Mittag-Leffler decay)</td>
+            </tr>
+            <tr>
+              <td class="highlight">AAPS (Theorem 2)</td>
+              <td class="highlight">γ₁ = 1, γ₂ = −1</td>
+              <td><i>l̂</i> = [10, 16], <i>k̂</i> = [25, 25], <sup><i>C</i></sup><i>D</i><sup>α</sup> <i>l</i> = ‖<i>z</i>‖²</td>
+              <td>Figs. 11, 12 (Adaptive gain tuning)</td>
+            </tr>
+            <tr>
+              <td>Uncontrolled</td>
+              <td>γ₁ = 1, γ₂ = −1</td>
+              <td><i>u</i>₁ = <i>u</i>₂ = 0</td>
+              <td>Fig. 1 (Divergent oscillations)</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </section>
@@ -1700,6 +1712,7 @@ def delta_b(t):
     busy: false
   };
 
+  // Example 5.1 (2-neuron, 8-dimensional)
   const a_a = [1.0, 1.9];
   const b_mat_a = [
     [[0.1, 1.0, 1.5, 2.0], [-1.1, -1.0, -0.5, -0.2]],
@@ -1729,6 +1742,46 @@ def delta_b(t):
     [-1.5, 1.5, 1.1, 0.5]
   ];
 
+  // Example 5.2 (3-neuron, 24-dimensional)
+  const a_a_52 = [1.0, 1.9, 0.9];
+  const b_mat_a_52 = [
+    [[0.1, 1.0, 1.5, 2.0], [-1.1, -1.0, -0.5, -0.2], [-1.0, 0.5, -0.5, 1.0]],
+    [[-1.2, 2.0, -1.0, -2.0], [1.5, 1.7, -1.0, -0.3], [0.2, 1.1, -1.5, -1.0]],
+    [[-1.0, 0.5, -0.5, 1.0], [0.5, 0.9, -1.1, -1.2], [-0.2, -1.1, 1.5, 1.0]]
+  ];
+
+  function delta_b_a_52(t) {
+    const st = Math.sin(t), ct = Math.cos(t);
+    return [
+      [
+        [0.5*st, -0.75*ct, -0.5*ct, 0.5*st],
+        [0.5*ct, 0.5*st, -0.75*st, -0.5*st],
+        [0.5*st, 0.5*ct, 0.5*st, 0.5*ct]
+      ],
+      [
+        [0.5*ct, -0.5*ct, 0.5*st, -0.75*ct],
+        [0.75*st, 0.75*ct, 0.5*st, -0.5*ct],
+        [0.5*ct, 0.5*ct, 0.5*ct, 0.5*ct]
+      ],
+      [
+        [0.5*st, -0.5*st, 0.5*st, 0.5*st],
+        [0.5*ct, 0.5*st, 0.5*ct, 0.5*st],
+        [0.5*st, 0.5*st, 0.5*ct, 0.5*ct]
+      ]
+    ];
+  }
+
+  const x0_a_52 = [
+    [-1.0, 0.5, 0.1, 1.0],
+    [1.0, -0.5, -2.0, -1.0],
+    [0.4, 0.7, 0.4, -0.5]
+  ];
+  const y0_a_52 = [
+    [0.5, 2.5, 2.1, -1.5],
+    [-1.5, 1.5, 1.1, 0.5],
+    [1.2, -0.5, -0.4, -0.7]
+  ];
+
   function qTanh(q) {
     return [Math.tanh(q[0]), Math.tanh(q[1]), Math.tanh(q[2]), Math.tanh(q[3])];
   }
@@ -1750,50 +1803,55 @@ def delta_b(t):
     const alpha = cfg.alpha, h = cfg.h, T = cfg.T;
     const N = Math.round(T / h);
     const { wp, wc, w0, invG2 } = abmWeights(N, alpha, h);
-    const isControlled = (cfg.mode === 'SMC');
+    const isControlled = (cfg.mode !== 'UNCONTROLLED');
+    const isEX52 = (cfg.mode === 'EX52');
+    const nR = isEX52 ? 3 : 2;
+    const a_curr = isEX52 ? a_a_52 : a_a;
+    const b_curr = isEX52 ? b_mat_a_52 : b_mat_a;
+    const db_fn = isEX52 ? delta_b_a_52 : delta_b_a;
+    const x0_curr = isEX52 ? x0_a_52 : x0_a;
+    const y0_curr = isEX52 ? y0_a_52 : y0_a;
+    const k_vec = isEX52 ? [16.0, 16.0, 20.0] : [cfg.k, cfg.k];
+    const l_vec = isEX52 ? [10.0, 10.0, 10.0] : [cfg.l, cfg.l];
+    const gam_vec = isEX52 ? [5.0, 5.0, 5.0] : [cfg.gam, cfg.gam];
 
-    // 2 neurons, each 4 quaternion components -> 8 states for drive, 8 for response
-    // Represented as X[r][c][m]
-    const X = Array.from({length: 2}, () => Array.from({length: 4}, () => new Float64Array(N + 1)));
-    const Y = Array.from({length: 2}, () => Array.from({length: 4}, () => new Float64Array(N + 1)));
-    const FX = Array.from({length: 2}, () => Array.from({length: 4}, () => new Float64Array(N + 1)));
-    const FY = Array.from({length: 2}, () => Array.from({length: 4}, () => new Float64Array(N + 1)));
-    const sigma = Array.from({length: 2}, () => Array.from({length: 4}, () => new Float64Array(N + 1)));
+    const X = Array.from({length: nR}, () => Array.from({length: 4}, () => new Float64Array(N + 1)));
+    const Y = Array.from({length: nR}, () => Array.from({length: 4}, () => new Float64Array(N + 1)));
+    const FX = Array.from({length: nR}, () => Array.from({length: 4}, () => new Float64Array(N + 1)));
+    const FY = Array.from({length: nR}, () => Array.from({length: 4}, () => new Float64Array(N + 1)));
+    const sigma = Array.from({length: nR}, () => Array.from({length: 4}, () => new Float64Array(N + 1)));
     const err = new Float64Array(N + 1);
 
-    // Initial states
     let e0_sq = 0;
-    for (let r = 0; r < 2; r++) {
+    for (let r = 0; r < nR; r++) {
       for (let c = 0; c < 4; c++) {
-        X[r][c][0] = x0_a[r][c];
-        Y[r][c][0] = y0_a[r][c];
+        X[r][c][0] = x0_curr[r][c];
+        Y[r][c][0] = y0_curr[r][c];
         const diff = Y[r][c][0] - X[r][c][0];
-        sigma[r][c][0] = diff; // at t=0, integral is 0
+        sigma[r][c][0] = diff;
         e0_sq += diff * diff;
       }
     }
     err[0] = Math.sqrt(e0_sq);
 
-    // Memory for RL fractional integral integrand: [e_r]*||e_r||^mu
-    const integHist = Array.from({length: 2}, () => Array.from({length: 4}, () => new Float64Array(N + 1)));
+    const integHist = Array.from({length: nR}, () => Array.from({length: 4}, () => new Float64Array(N + 1)));
 
     const pStep = Math.max(50, Math.round(N / 40));
 
     for (let m = 0; m < N; m++) {
       if (onProgress && m % pStep === 0) onProgress(m / N);
       const t_m = m * h;
-      const db = delta_b_a(t_m);
+      const db = db_fn(t_m);
 
       // Current states
-      const xr = [[X[0][0][m], X[0][1][m], X[0][2][m], X[0][3][m]], [X[1][0][m], X[1][1][m], X[1][2][m], X[1][3][m]]];
-      const yr = [[Y[0][0][m], Y[0][1][m], Y[0][2][m], Y[0][3][m]], [Y[1][0][m], Y[1][1][m], Y[1][2][m], Y[1][3][m]]];
-      const er = [
-        [yr[0][0] - xr[0][0], yr[0][1] - xr[0][1], yr[0][2] - xr[0][2], yr[0][3] - xr[0][3]],
-        [yr[1][0] - xr[1][0], yr[1][1] - xr[1][1], yr[1][2] - xr[1][2], yr[1][3] - xr[1][3]]
-      ];
+      const xr = Array.from({length: nR}, (_, r) => [X[r][0][m], X[r][1][m], X[r][2][m], X[r][3][m]]);
+      const yr = Array.from({length: nR}, (_, r) => [Y[r][0][m], Y[r][1][m], Y[r][2][m], Y[r][3][m]]);
+      const er = Array.from({length: nR}, (_, r) => [
+        yr[r][0] - xr[r][0], yr[r][1] - xr[r][1], yr[r][2] - xr[r][2], yr[r][3] - xr[r][3]
+      ]);
 
       // Update sliding surface & integrand history at step m
-      for (let r = 0; r < 2; r++) {
+      for (let r = 0; r < nR; r++) {
         const ne = qNorm(er[r]);
         const sgnE = qSignSm(er[r], cfg.eps_smc);
         const ne_pow = Math.pow(Math.max(1e-9, ne), cfg.mu);
@@ -1802,28 +1860,25 @@ def delta_b(t):
         }
 
         // Fractional integral of integrand
-        let int_val = [0, 0, 0, 0];
         for (let c = 0; c < 4; c++) {
           let s = 0;
           for (let j = 0; j <= m; j++) s += wp[m + 1 - j] * integHist[r][c][j];
-          int_val[c] = s;
-          sigma[r][c][m] = er[r][c] + cfg.gam * int_val[c];
+          sigma[r][c][m] = er[r][c] + gam_vec[r] * s;
         }
       }
 
       // Compute Drive and Response derivatives & Control protocol
-      for (let r = 0; r < 2; r++) {
-        // Drive f_r
+      for (let r = 0; r < nR; r++) {
         let sumX = [0, 0, 0, 0];
         let sumY = [0, 0, 0, 0];
-        for (let s = 0; s < 2; s++) {
+        for (let s = 0; s < nR; s++) {
           const actX = qTanh(xr[s]);
           const actY = qTanh(yr[s]);
           const b_eff = [
-            b_mat_a[r][s][0] + db[r][s][0],
-            b_mat_a[r][s][1] + db[r][s][1],
-            b_mat_a[r][s][2] + db[r][s][2],
-            b_mat_a[r][s][3] + db[r][s][3]
+            b_curr[r][s][0] + db[r][s][0],
+            b_curr[r][s][1] + db[r][s][1],
+            b_curr[r][s][2] + db[r][s][2],
+            b_curr[r][s][3] + db[r][s][3]
           ];
           const mx = qmul(b_eff, actX);
           const my = qmul(b_eff, actY);
@@ -1842,21 +1897,21 @@ def delta_b(t):
         const nSig_pow = Math.pow(Math.max(1e-9, nSig), cfg.nu);
 
         for (let c = 0; c < 4; c++) {
-          FX[r][c][m] = -a_a[r] * xr[r][c] + sumX[c];
+          FX[r][c][m] = -a_curr[r] * xr[r][c] + sumX[c];
           let u_rc = 0;
           if (isControlled) {
-            u_rc = -cfg.k * er[r][c] - cfg.gam * sgnEr[c] * ne_pow - cfg.l * sgnSig[c] * nSig_pow;
+            u_rc = -k_vec[r] * er[r][c] - gam_vec[r] * sgnEr[c] * ne_pow - l_vec[r] * sgnSig[c] * nSig_pow;
           }
-          FY[r][c][m] = -a_a[r] * yr[r][c] + sumY[c] + u_rc;
+          FY[r][c][m] = -a_curr[r] * yr[r][c] + sumY[c] + u_rc;
         }
       }
 
       // Predict step
-      const xp = Array.from({length: 2}, () => [0, 0, 0, 0]);
-      const yp = Array.from({length: 2}, () => [0, 0, 0, 0]);
-      const ep = Array.from({length: 2}, () => [0, 0, 0, 0]);
+      const xp = Array.from({length: nR}, () => [0, 0, 0, 0]);
+      const yp = Array.from({length: nR}, () => [0, 0, 0, 0]);
+      const ep = Array.from({length: nR}, () => [0, 0, 0, 0]);
 
-      for (let r = 0; r < 2; r++) {
+      for (let r = 0; r < nR; r++) {
         for (let c = 0; c < 4; c++) {
           let sx = 0, sy = 0;
           for (let j = 0; j <= m; j++) {
@@ -1864,27 +1919,27 @@ def delta_b(t):
             sx += w * FX[r][c][j];
             sy += w * FY[r][c][j];
           }
-          xp[r][c] = x0_a[r][c] + sx;
-          yp[r][c] = y0_a[r][c] + sy;
+          xp[r][c] = x0_curr[r][c] + sx;
+          yp[r][c] = y0_curr[r][c] + sy;
           ep[r][c] = yp[r][c] - xp[r][c];
         }
       }
 
-      const db_next = delta_b_a(t_m + h);
-      const fxp = Array.from({length: 2}, () => [0, 0, 0, 0]);
-      const fyp = Array.from({length: 2}, () => [0, 0, 0, 0]);
+      const db_next = db_fn(t_m + h);
+      const fxp = Array.from({length: nR}, () => [0, 0, 0, 0]);
+      const fyp = Array.from({length: nR}, () => [0, 0, 0, 0]);
 
-      for (let r = 0; r < 2; r++) {
+      for (let r = 0; r < nR; r++) {
         let sumXp = [0, 0, 0, 0];
         let sumYp = [0, 0, 0, 0];
-        for (let s = 0; s < 2; s++) {
+        for (let s = 0; s < nR; s++) {
           const actXp = qTanh(xp[s]);
           const actYp = qTanh(yp[s]);
           const b_eff = [
-            b_mat_a[r][s][0] + db_next[r][s][0],
-            b_mat_a[r][s][1] + db_next[r][s][1],
-            b_mat_a[r][s][2] + db_next[r][s][2],
-            b_mat_a[r][s][3] + db_next[r][s][3]
+            b_curr[r][s][0] + db_next[r][s][0],
+            b_curr[r][s][1] + db_next[r][s][1],
+            b_curr[r][s][2] + db_next[r][s][2],
+            b_curr[r][s][3] + db_next[r][s][3]
           ];
           const mx = qmul(b_eff, actXp);
           const my = qmul(b_eff, actYp);
@@ -1899,22 +1954,21 @@ def delta_b(t):
         const nep_pow = Math.pow(Math.max(1e-9, nep), cfg.mu);
 
         for (let c = 0; c < 4; c++) {
-          fxp[r][c] = -a_a[r] * xp[r][c] + sumXp[c];
+          fxp[r][c] = -a_curr[r] * xp[r][c] + sumXp[c];
           let up_rc = 0;
           if (isControlled) {
-            // Predict sliding surface
             let int_p = 0;
             for (let j = 0; j <= m; j++) int_p += wp[m + 1 - j] * integHist[r][c][j];
-            const sig_p = ep[r][c] + cfg.gam * int_p;
-            up_rc = -cfg.k * ep[r][c] - cfg.gam * sgnEp[c] * nep_pow - cfg.l * Math.tanh(sig_p / cfg.eps_smc);
+            const sig_p = ep[r][c] + gam_vec[r] * int_p;
+            up_rc = -k_vec[r] * ep[r][c] - gam_vec[r] * sgnEp[c] * nep_pow - l_vec[r] * Math.tanh(sig_p / cfg.eps_smc);
           }
-          fyp[r][c] = -a_a[r] * yp[r][c] + sumYp[c] + up_rc;
+          fyp[r][c] = -a_curr[r] * yp[r][c] + sumYp[c] + up_rc;
         }
       }
 
       // Corrector step
       let diff2 = 0;
-      for (let r = 0; r < 2; r++) {
+      for (let r = 0; r < nR; r++) {
         for (let c = 0; c < 4; c++) {
           let sx = 0, sy = 0;
           for (let j = 1; j <= m; j++) {
@@ -1922,8 +1976,8 @@ def delta_b(t):
             sx += w * FX[r][c][j];
             sy += w * FY[r][c][j];
           }
-          X[r][c][m + 1] = x0_a[r][c] + invG2 * (fxp[r][c] + w0[m] * FX[r][c][0] + sx);
-          Y[r][c][m + 1] = y0_a[r][c] + invG2 * (fyp[r][c] + w0[m] * FY[r][c][0] + sy);
+          X[r][c][m + 1] = x0_curr[r][c] + invG2 * (fxp[r][c] + w0[m] * FX[r][c][0] + sx);
+          Y[r][c][m + 1] = y0_curr[r][c] + invG2 * (fyp[r][c] + w0[m] * FY[r][c][0] + sy);
           const d = Y[r][c][m + 1] - X[r][c][m + 1];
           diff2 += d * d;
         }
@@ -1931,7 +1985,7 @@ def delta_b(t):
       err[m + 1] = Math.sqrt(diff2);
     }
 
-    return { N, h, T, X, Y, sigma, err };
+    return { N, h, T, X, Y, sigma, err, nR };
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -2562,6 +2616,21 @@ def delta_b(t):
     ctx.fillText(respLbl, padL + 120, padT - 6);
   }
 
+  const MATLAB_COLORS = [
+    '#2563EB', // blue (R1)
+    '#D97706', // amber/orange (I1)
+    '#CA8A04', // gold (J1)
+    '#9333EA', // purple (K1)
+    '#16A34A', // green (R2)
+    '#0891B2', // cyan (I2)
+    '#DC2626', // red (J2)
+    '#334155', // slate (K2)
+    '#4F46E5', // indigo (R3)
+    '#EA580C', // orange (I3)
+    '#059669', // emerald (J3)
+    '#E11D48'  // rose (K3)
+  ];
+
   function drawMultiSeriesPlot(cv, seriesList) {
     if (!cv) return;
     const ctx = cv.getContext('2d');
@@ -2576,7 +2645,7 @@ def delta_b(t):
     ctx.fillStyle = c.bg;
     ctx.fillRect(0, 0, W, H);
 
-    const padL = 38, padR = 15, padT = 20, padB = 25;
+    const padL = 40, padR = 15, padT = 20, padB = 22;
     const pW = W - padL - padR, pH = H - padT - padB;
 
     let minV = Infinity, maxV = -Infinity;
@@ -2587,14 +2656,32 @@ def delta_b(t):
         if (arr[i] > maxV) maxV = arr[i];
       }
     });
+    if (!isFinite(minV) || !isFinite(maxV) || minV === maxV) { minV = -1; maxV = 1; }
     const span = Math.max(0.1, maxV - minV);
     minV -= 0.1 * span; maxV += 0.1 * span;
 
+    // Y ticks and grid
+    ctx.fillStyle = c.text;
+    ctx.font = '9px "IBM Plex Mono"';
+    ctx.textAlign = 'right';
+    for (let i = 0; i <= 4; i++) {
+      const frac = i / 4;
+      const val = minV + frac * (maxV - minV);
+      const y = padT + (1 - frac) * pH;
+      ctx.fillText(val.toFixed(1), padL - 5, y + 3);
+      ctx.strokeStyle = c.line;
+      ctx.beginPath();
+      ctx.moveTo(padL, y);
+      ctx.lineTo(padL + pW, y);
+      ctx.stroke();
+    }
+
+    // Zero horizontal line
     if (minV <= 0 && maxV >= 0) {
       const y0 = padT + (1 - (0 - minV) / (maxV - minV)) * pH;
-      ctx.strokeStyle = c.line;
+      ctx.strokeStyle = c.text;
       ctx.lineWidth = 1;
-      ctx.setLineDash([2, 3]);
+      ctx.setLineDash([2, 2]);
       ctx.beginPath();
       ctx.moveTo(padL, y0);
       ctx.lineTo(padL + pW, y0);
@@ -2602,15 +2689,13 @@ def delta_b(t):
       ctx.setLineDash([]);
     }
 
-    let legX = padL + 6;
-    ctx.font = '10px "IBM Plex Mono"';
-
+    // Draw lines
     seriesList.forEach(s => {
       const arr = s.data;
       const N = arr.length - 1;
       const step = Math.max(1, Math.floor(N / 1200));
       ctx.strokeStyle = s.color;
-      ctx.lineWidth = 1.5;
+      ctx.lineWidth = 1.6;
       if (s.dashed) ctx.setLineDash([4, 3]); else ctx.setLineDash([]);
       ctx.beginPath();
       for (let k = 0; k <= N; k += step) {
@@ -2620,11 +2705,40 @@ def delta_b(t):
       }
       ctx.stroke();
       ctx.setLineDash([]);
-
-      ctx.fillStyle = s.color;
-      ctx.fillText(s.name, legX, padT - 6);
-      legX += 58;
     });
+
+    // Legend
+    if (seriesList.length <= 4) {
+      let legX = padL + 6;
+      ctx.font = '10px "IBM Plex Mono"';
+      ctx.textAlign = 'left';
+      seriesList.forEach(s => {
+        ctx.fillStyle = s.color;
+        ctx.fillText(s.name, legX, padT - 6);
+        legX += 58;
+      });
+    } else {
+      const cols = 2;
+      const rows = Math.ceil(seriesList.length / cols);
+      const legW = 120, legH = rows * 12 + 6;
+      const boxX = W - padR - legW - 4, boxY = padT + 4;
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.90)';
+      ctx.fillRect(boxX, boxY, legW, legH);
+      ctx.strokeStyle = c.line;
+      ctx.strokeRect(boxX, boxY, legW, legH);
+
+      ctx.font = '9px "IBM Plex Mono"';
+      ctx.textAlign = 'left';
+      seriesList.forEach((s, idx) => {
+        const cIdx = Math.floor(idx / rows);
+        const rIdx = idx % rows;
+        const lx = boxX + 6 + cIdx * 56;
+        const ly = boxY + 10 + rIdx * 12;
+        ctx.fillStyle = s.color;
+        ctx.fillRect(lx, ly - 6, 8, 3);
+        ctx.fillText(s.name, lx + 12, ly - 3);
+      });
+    }
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -2633,15 +2747,93 @@ def delta_b(t):
 
   // ── Article A Handlers
   function drawPlotsA(res) {
-    drawErrorPlot(document.getElementById('cv-a-err'), res.err, res.h);
-    // Real state: Drive x_1^R vs Response y_1^R
-    drawComparisonPlot(document.getElementById('cv-a-state'), res.X[0][0], res.Y[0][0], 'Drive x₁ᴿ', 'Response y₁ᴿ');
-    // Sliding surface: sigma_1^R and sigma_2^R
+    const isSMC = (A_STATE.mode === 'SMC');
+    const isEX52 = (A_STATE.mode === 'EX52');
+    const nR = res.nR || 2;
+    const errSeries = [];
+    const allLabels = [
+      'e₁ᴿ', 'e₁ᴵ', 'e₁ᴶ', 'e₁ᴷ',
+      'e₂ᴿ', 'e₂ᴵ', 'e₂ᴶ', 'e₂ᴷ',
+      'e₃ᴿ', 'e₃ᴵ', 'e₃ᴶ', 'e₃ᴷ'
+    ];
+    let idx = 0;
+    for (let r = 0; r < nR; r++) {
+      for (let c = 0; c < 4; c++) {
+        const diff = new Float64Array(res.N + 1);
+        for (let m = 0; m <= res.N; m++) diff[m] = res.Y[r][c][m] - res.X[r][c][m];
+        errSeries.push({ name: allLabels[idx], data: diff, color: MATLAB_COLORS[idx] });
+        idx++;
+      }
+    }
+    const capErr = document.getElementById('cap-a-err');
+    if (capErr) {
+      if (isEX52) capErr.textContent = 'Figure 8: Errors between drive & response under SMC (Ex. 5.2, 12 channels)';
+      else if (isSMC) capErr.textContent = 'Figure 2: Errors under slide mode control (Ex. 5.1, 8 channels)';
+      else capErr.textContent = 'Figure 1: Errors without control (divergent trajectories)';
+    }
+    drawMultiSeriesPlot(document.getElementById('cv-a-err'), errSeries);
+
+    const sigSeries = [];
+    const allSigLabels = [
+      's₁ᴿ', 's₁ᴵ', 's₁ᴶ', 's₁ᴷ',
+      's₂ᴿ', 's₂ᴵ', 's₂ᴶ', 's₂ᴷ',
+      's₃ᴿ', 's₃ᴵ', 's₃ᴶ', 's₃ᴷ'
+    ];
+    let sIdx = 0;
+    for (let r = 0; r < nR; r++) {
+      for (let c = 0; c < 4; c++) {
+        sigSeries.push({ name: allSigLabels[sIdx], data: res.sigma[r][c], color: MATLAB_COLORS[sIdx] });
+        sIdx++;
+      }
+    }
+    const capPhase = document.getElementById('cap-a-phase');
+    if (capPhase) {
+      capPhase.textContent = isEX52 ?
+        'Sliding surface trajectories (Ex. 5.2, 12 channels s_q^θ(t))' :
+        'Figure 3: Sliding surface trajectories (Ex. 5.1, 8 channels s_q^θ(t))';
+    }
+    drawMultiSeriesPlot(document.getElementById('cv-a-phase'), sigSeries);
+
     const colors = getCanvasColors();
-    drawMultiSeriesPlot(document.getElementById('cv-a-phase'), [
-      { name: 'σ₁ᴿ(t)', data: res.sigma[0][0], color: colors.drive },
-      { name: 'σ₂ᴿ(t)', data: res.sigma[1][0], color: colors.resp, dashed: true }
-    ]);
+    const capState = document.getElementById('cap-a-state');
+    if (isEX52) {
+      if (capState) capState.textContent = 'Norm of errors ||e₁||₂, ||e₂||₂, ||e₃||₂ (Example 5.2)';
+      const norms = [new Float64Array(res.N + 1), new Float64Array(res.N + 1), new Float64Array(res.N + 1)];
+      for (let m = 0; m <= res.N; m++) {
+        for (let r = 0; r < 3; r++) {
+          let s = 0;
+          for (let c = 0; c < 4; c++) {
+            const d = res.Y[r][c][m] - res.X[r][c][m];
+            s += d * d;
+          }
+          norms[r][m] = Math.sqrt(s);
+        }
+      }
+      drawMultiSeriesPlot(document.getElementById('cv-a-state'), [
+        { name: '‖e₁‖₂', data: norms[0], color: colors.drive },
+        { name: '‖e₂‖₂', data: norms[1], color: colors.resp, dashed: true },
+        { name: '‖e₃‖₂', data: norms[2], color: colors.ok }
+      ]);
+    } else {
+      if (capState) capState.textContent = 'Figure 4: Norm of error ||e₁||₂ & ||e₂||₂ (settles at t ≤ 0.78s)';
+      const norm1 = new Float64Array(res.N + 1);
+      const norm2 = new Float64Array(res.N + 1);
+      for (let m = 0; m <= res.N; m++) {
+        let s1 = 0, s2 = 0;
+        for (let c = 0; c < 4; c++) {
+          const d1 = res.Y[0][c][m] - res.X[0][c][m];
+          const d2 = res.Y[1][c][m] - res.X[1][c][m];
+          s1 += d1 * d1;
+          s2 += d2 * d2;
+        }
+        norm1[m] = Math.sqrt(s1);
+        norm2[m] = Math.sqrt(s2);
+      }
+      drawMultiSeriesPlot(document.getElementById('cv-a-state'), [
+        { name: '‖e₁‖₂', data: norm1, color: colors.drive },
+        { name: '‖e₂‖₂', data: norm2, color: colors.resp, dashed: true }
+      ]);
+    }
   }
 
   function runDemoA() {
@@ -2679,16 +2871,29 @@ def delta_b(t):
 
   document.getElementById('tab-a-smc').addEventListener('click', () => {
     document.getElementById('tab-a-smc').className = 'view-tab active';
+    document.getElementById('tab-a-ex52').className = 'view-tab';
     document.getElementById('tab-a-uncontrolled').className = 'view-tab';
     A_STATE.mode = 'SMC';
     document.getElementById('controls-wrap-a').style.opacity = '1';
+    document.getElementById('read-a-bound').textContent = '0.780s';
+    runDemoA();
+  });
+  document.getElementById('tab-a-ex52').addEventListener('click', () => {
+    document.getElementById('tab-a-ex52').className = 'view-tab active';
+    document.getElementById('tab-a-smc').className = 'view-tab';
+    document.getElementById('tab-a-uncontrolled').className = 'view-tab';
+    A_STATE.mode = 'EX52';
+    document.getElementById('controls-wrap-a').style.opacity = '0.7';
+    document.getElementById('read-a-bound').textContent = '< 1.0s (Ex 5.2)';
     runDemoA();
   });
   document.getElementById('tab-a-uncontrolled').addEventListener('click', () => {
     document.getElementById('tab-a-uncontrolled').className = 'view-tab active';
     document.getElementById('tab-a-smc').className = 'view-tab';
+    document.getElementById('tab-a-ex52').className = 'view-tab';
     A_STATE.mode = 'UNCONTROLLED';
     document.getElementById('controls-wrap-a').style.opacity = '0.5';
+    document.getElementById('read-a-bound').textContent = 'No Bound';
     runDemoA();
   });
 
@@ -2733,27 +2938,62 @@ def delta_b(t):
 
   // ── Article B Handlers
   function drawPlotsB(res) {
-    drawErrorPlot(document.getElementById('cv-b-err'), res.err, res.h);
-    // STM tracking: response theta_1^R vs gam_1 * drive r_1^R
-    const gam1 = res.gam[0];
-    const gam_r1 = res.R[0][0].map(v => gam1 * v);
-    drawComparisonPlot(document.getElementById('cv-b-state'), gam_r1, res.TH[0][0], `Drive γ₁·r₁ᴿ (γ₁=${gam1})`, 'Response θ₁ᴿ');
+    const isAAPS = (B_STATE.mode === 'AAPS');
+    const isFTPS = (B_STATE.mode === 'FTPS');
+    const gam = res.gam;
 
-    const colors = getCanvasColors();
-    if (B_STATE.mode === 'AAPS') {
-      document.getElementById('cap-b-phase').textContent = 'Adaptive gains: λ₁(τ), λ₂(τ), δ₁(τ), δ₂(τ) (matching Fig. 7)';
+    // 1. STM Error components (8 channels, matching Fig. 2a / 8a / 1a)
+    const errSeries = [];
+    const labels = ['e₁ᴿ', 'e₁ᴵ', 'e₁ᴶ', 'e₁ᴷ', 'e₂ᴿ', 'e₂ᴵ', 'e₂ᴶ', 'e₂ᴷ'];
+    let idx = 0;
+    for (let q = 0; q < 2; q++) {
+      for (let c = 0; c < 4; c++) {
+        const diff = new Float64Array(res.N + 1);
+        for (let m = 0; m <= res.N; m++) diff[m] = res.TH[q][c][m] - gam[q] * res.R[q][c][m];
+        errSeries.push({ name: labels[idx], data: diff, color: MATLAB_COLORS[idx] });
+        idx++;
+      }
+    }
+    const capErr = document.getElementById('cap-b-err');
+    if (capErr) capErr.textContent = isAAPS ?
+      'Figure 2(a): STM projective error under adaptive control (10)' :
+      (isFTPS ? 'Figure 8(a): STM projective error under finite-time control (18)' :
+       'Figure 1(a): STM error without controller');
+    drawMultiSeriesPlot(document.getElementById('cv-b-err'), errSeries);
+
+    // 2. Adaptive gains or LTM errors
+    const capPhase = document.getElementById('cap-b-phase');
+    if (isAAPS) {
+      if (capPhase) capPhase.textContent = 'Figure 7: Time evolution of adaptive gains λ₁, λ₂, δ₁, δ₂';
       drawMultiSeriesPlot(document.getElementById('cv-b-phase'), [
-        { name: 'λ₁', data: res.gainLam[0], color: colors.drive },
-        { name: 'λ₂', data: res.gainLam[1], color: colors.resp },
-        { name: 'δ₁', data: res.gainDel[0], color: colors.gain1, dashed: true },
-        { name: 'δ₂', data: res.gainDel[1], color: colors.gain2, dashed: true }
+        { name: 'λ₁', data: res.gainLam[0], color: MATLAB_COLORS[0] },
+        { name: 'λ₂', data: res.gainLam[1], color: MATLAB_COLORS[1] },
+        { name: 'δ₁', data: res.gainDel[0], color: MATLAB_COLORS[4], dashed: true },
+        { name: 'δ₂', data: res.gainDel[1], color: MATLAB_COLORS[6], dashed: true }
       ]);
     } else {
-      // FTPS: LTM tracking
-      document.getElementById('cap-b-phase').textContent = 'LTM tracking: W₁ᴿ(τ) vs γ₁ H₁ᴿ(τ) (matching Fig. 10)';
-      const gam_H1 = res.H[0][0].map(v => gam1 * v);
-      drawComparisonPlot(document.getElementById('cv-b-phase'), gam_H1, res.W[0][0], `Drive γ₁·H₁ᴿ`, 'Response W₁ᴿ');
+      if (capPhase) capPhase.textContent = isFTPS ?
+        'Figure 8(b): LTM projective error under finite-time control (18)' :
+        'Figure 1(b): LTM error without controller';
+      const ltmSeries = [];
+      const ltmLabels = ['E₁ᴿ', 'E₁ᴵ', 'E₁ᴶ', 'E₁ᴷ', 'E₂ᴿ', 'E₂ᴵ', 'E₂ᴶ', 'E₂ᴷ'];
+      let lIdx = 0;
+      for (let q = 0; q < 2; q++) {
+        for (let c = 0; c < 4; c++) {
+          const diff = new Float64Array(res.N + 1);
+          for (let m = 0; m <= res.N; m++) diff[m] = res.W[q][c][m] - gam[q] * res.H[q][c][m];
+          ltmSeries.push({ name: ltmLabels[lIdx], data: diff, color: MATLAB_COLORS[lIdx] });
+          lIdx++;
+        }
+      }
+      drawMultiSeriesPlot(document.getElementById('cv-b-phase'), ltmSeries);
     }
+
+    // 3. STM state tracking
+    const capState = document.getElementById('cap-b-state');
+    if (capState) capState.textContent = 'Figure 3/9: STM State Tracking: Response θ₁ᴿ vs Scaled Drive γ₁·r₁ᴿ';
+    const gam_r1 = res.R[0][0].map(v => gam[0] * v);
+    drawComparisonPlot(document.getElementById('cv-b-state'), gam_r1, res.TH[0][0], `Drive γ₁·r₁ᴿ (γ₁=${gam[0]})`, 'Response θ₁ᴿ');
   }
 
   function runDemoB() {
@@ -2867,24 +3107,60 @@ def delta_b(t):
 
   // ── Article C Handlers
   function drawPlotsC(res) {
-    drawErrorPlot(document.getElementById('cv-c-err'), res.err, res.h);
-    // Position tracking: Response y_1^R vs gam_1 * Drive x_1^R
-    const gam1 = res.gam[0];
-    const gam_x1 = res.X[0][0].map(v => gam1 * v);
-    drawComparisonPlot(document.getElementById('cv-c-state'), gam_x1, res.Y[0][0], `Drive γ₁·x₁ᴿ (γ₁=${gam1})`, 'Response y₁ᴿ');
+    const isMLPS = (C_STATE.mode === 'MLPS');
+    const isAAPS = (C_STATE.mode === 'AAPS');
+    const gam = res.gam;
 
-    const colors = getCanvasColors();
-    if (C_STATE.mode === 'AAPS') {
-      document.getElementById('cap-c-phase').textContent = 'Adaptive gains: l₁(ς), l₂(ς) (matching Fig. 12)';
+    // 1. Position errors e_q^M (8 channels, matching Fig. 2a / 11a / 1a)
+    const errSeries = [];
+    const labels = ['e₁ᴿ', 'e₁ᴵ', 'e₁ᴶ', 'e₁ᴷ', 'e₂ᴿ', 'e₂ᴵ', 'e₂ᴶ', 'e₂ᴷ'];
+    let idx = 0;
+    for (let r = 0; r < 2; r++) {
+      for (let c = 0; c < 4; c++) {
+        const diff = new Float64Array(res.N + 1);
+        for (let m = 0; m <= res.N; m++) diff[m] = res.Y[r][c][m] - gam[r] * res.X[r][c][m];
+        errSeries.push({ name: labels[idx], data: diff, color: MATLAB_COLORS[idx] });
+        idx++;
+      }
+    }
+    const capErr = document.getElementById('cap-c-err');
+    if (capErr) capErr.textContent = isMLPS ?
+      'Figure 2(a): Position errors under MLPS controller (13)' :
+      (isAAPS ? 'Figure 11(a): Position errors under AAPS controller (21)' :
+       'Figure 1(a): Position errors without control');
+    drawMultiSeriesPlot(document.getElementById('cv-c-err'), errSeries);
+
+    // 2. Adaptive velocity gains or velocity errors
+    const capPhase = document.getElementById('cap-c-phase');
+    if (isAAPS) {
+      if (capPhase) capPhase.textContent = 'Figure 12: Time evolution of adaptive gains l₁(ς) & l₂(ς)';
       drawMultiSeriesPlot(document.getElementById('cv-c-phase'), [
-        { name: 'l₁(ς)', data: res.gainL[0], color: colors.drive },
-        { name: 'l₂(ς)', data: res.gainL[1], color: colors.resp, dashed: true }
+        { name: 'l₁(ς)', data: res.gainL[0], color: MATLAB_COLORS[0] },
+        { name: 'l₂(ς)', data: res.gainL[1], color: MATLAB_COLORS[6], dashed: true }
       ]);
     } else {
-      document.getElementById('cap-c-phase').textContent = 'Velocity tracking: ω₁ᴿ(ς) vs γ₁ σ₁ᴿ(ς) (matching Fig. 3b)';
-      const gam_sig1 = res.SIG[0][0].map(v => gam1 * v);
-      drawComparisonPlot(document.getElementById('cv-c-phase'), gam_sig1, res.OMG[0][0], 'Drive γ₁·σ₁ᴿ', 'Response ω₁ᴿ');
+      if (capPhase) capPhase.textContent = isMLPS ?
+        'Figure 2(b): Velocity errors z_q^M(ς) under MLPS' :
+        'Figure 1(b): Velocity errors z_q^M(ς) without control';
+      const velSeries = [];
+      const velLabels = ['z₁ᴿ', 'z₁ᴵ', 'z₁ᴶ', 'z₁ᴷ', 'z₂ᴿ', 'z₂ᴵ', 'z₂ᴶ', 'z₂ᴷ'];
+      let vIdx = 0;
+      for (let r = 0; r < 2; r++) {
+        for (let c = 0; c < 4; c++) {
+          const diff = new Float64Array(res.N + 1);
+          for (let m = 0; m <= res.N; m++) diff[m] = res.OMG[r][c][m] - gam[r] * res.SIG[r][c][m];
+          velSeries.push({ name: velLabels[vIdx], data: diff, color: MATLAB_COLORS[vIdx] });
+          vIdx++;
+        }
+      }
+      drawMultiSeriesPlot(document.getElementById('cv-c-phase'), velSeries);
     }
+
+    // 3. Position tracking
+    const capState = document.getElementById('cap-c-state');
+    if (capState) capState.textContent = 'Figure 3(a): Position tracking: Response y₁ᴿ vs Scaled Drive γ₁·x₁ᴿ';
+    const gam_x1 = res.X[0][0].map(v => gam[0] * v);
+    drawComparisonPlot(document.getElementById('cv-c-state'), gam_x1, res.Y[0][0], `Drive γ₁·x₁ᴿ (γ₁=${gam[0]})`, 'Response y₁ᴿ');
   }
 
   function runDemoC() {
@@ -2989,23 +3265,6 @@ def delta_b(t):
       runDemoC();
     });
   });
-
-  // ── Copy python snippet helpers
-  function bindCopy(btnId, codeId) {
-    const btn = document.getElementById(btnId);
-    if (!btn) return;
-    btn.addEventListener('click', () => {
-      const code = document.getElementById(codeId).textContent;
-      navigator.clipboard.writeText(code).then(() => {
-        const orig = btn.textContent;
-        btn.textContent = 'Copied!';
-        setTimeout(() => btn.textContent = orig, 1800);
-      });
-    });
-  }
-  bindCopy('btn-copy-py-a', 'code-a');
-  bindCopy('btn-copy-py-b', 'code-b');
-  bindCopy('btn-copy-py-c', 'code-c');
 
   // Trigger initial runs on load
   runDemoA();

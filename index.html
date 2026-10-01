@@ -146,13 +146,20 @@ canvas{width:100%;height:210px;display:block}
 .note{font-size:.9rem;color:var(--muted);margin:4px 0 0;font-family:var(--fd)}
 .mat{border-collapse:collapse;margin:4px 0;font-family:var(--fm);font-size:.82rem;border-left:2px solid var(--steel);border-right:2px solid var(--steel)}
 .mat td{padding:1px 8px;text-align:right}
-.codebox{overflow:hidden}
-.codehead{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line)}
-.codehead span{font:500 .72rem var(--fm);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-pre#code{margin:0;padding:14px 16px;background:var(--code);font:400 .76rem/1.52 var(--fm);overflow:auto;max-height:720px;tab-size:4}
-pre#code .k{color:var(--drive)}
-pre#code .n{color:var(--acc)}
-pre#code .c{color:var(--muted)}
+.stability-panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 18px;font-family:var(--fx);font-size:.95rem;line-height:1.55;overflow-x:auto}
+.stability-panel h4{font:600 .74rem var(--fm);letter-spacing:.08em;text-transform:uppercase;color:var(--acc);margin:12px 0 4px}
+.stability-panel h4:first-child{margin-top:0}
+.featured-research-banner{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px 24px;display:flex;flex-direction:column;gap:16px;box-shadow:0 2px 8px rgba(0,0,0,0.02)}
+.featured-badge{display:inline-flex;align-items:center;gap:6px;font:700 .72rem var(--fm);text-transform:uppercase;letter-spacing:.08em;padding:3px 10px;border-radius:99px;background:var(--surface2);border:1px solid var(--line);color:var(--brass);width:fit-content}
+.pub-cards-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:16px}
+.pub-card{background:var(--surface2);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:8px;justify-content:space-between}
+.pub-tag{font:700 .70rem var(--fm);text-transform:uppercase;color:var(--brass);letter-spacing:.05em}
+.pub-card-title{font-family:var(--fd);font-weight:700;font-size:.98rem;color:var(--ink);line-height:1.35}
+.pub-authors{font-size:.80rem;color:var(--muted);margin:0}
+.pub-desc{font-size:.83rem;color:var(--ink);line-height:1.45;margin:4px 0}
+.pub-footer{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px;padding-top:10px;border-top:1px dashed var(--line);flex-wrap:wrap}
+.pub-doi{font-family:var(--fm);font-size:.74rem;color:var(--drive);text-decoration:none}
+.pub-doi:hover{text-decoration:underline}
 .foot{font-size:.84rem;color:var(--muted);max-width:80ch;border-top:1px solid var(--line);padding-top:16px;margin:0}
 .foot a{color:var(--drive);text-decoration:none;font-weight:600}
 .foot a:hover{text-decoration:underline}
@@ -191,8 +198,57 @@ pre#code .c{color:var(--muted)}
  <header>
   <p class="eyebrow">Fractional-order networks &middot; drive&ndash;response synchronization</p>
   <h1>FracSync Lab</h1>
-  <p class="lede">Every chaotic network is a lock. Every controller is a key. Cut a key, turn it, and see whether the response system falls into step with the drive. Discretized via the Adams–Bashforth–Moulton predictor–corrector scheme (Diethelm, Ford, Freed) with mathematical analysis and reproducible Python below.</p>
+  <p class="lede">Every chaotic network is a lock. Every controller is a key. Cut a key, turn it, and see whether the response system falls into step with the drive. Discretized via the Adams–Bashforth–Moulton predictor–corrector scheme (Diethelm, Ford, Freed) with fractional Lyapunov stability analysis and analytical convergence bounds below.</p>
  </header>
+
+ <!-- Featured Research Publications Showcase -->
+ <section aria-labelledby="h-featured-pub" class="featured-research-banner">
+  <div class="featured-head">
+   <div class="featured-badge">Featured Peer-Reviewed Research Publications</div>
+   <h2 id="h-featured-pub">Published Contributions in Fractional Quaternion Synchronization</h2>
+   <p class="lede" style="font-size:.95rem; margin-top:4px;">
+    Interactive research companions to three seminal peer-reviewed papers by <strong>Dr. Md Samshad Hussain Ansari</strong> and collaborators. Each article provides exact analytical theorems, non-separation quaternion Lyapunov methods, and proven parameter benchmarks.
+   </p>
+  </div>
+
+  <div class="pub-cards-grid">
+   <!-- Card 1: IJCM 2024 -->
+   <div class="pub-card">
+    <div class="pub-tag">IJCM 2024 &middot; Slide Mode Control</div>
+    <div class="pub-card-title">Finite-Time Synchronization of Fractional-Order Uncertain Quaternion-Valued Neural Networks</div>
+    <p class="pub-authors"><strong>M. S. H. Ansari</strong> &amp; M. Malik &middot; <em>Int. J. Comput. Math.</em> 101(7), 750–767 (2024)</p>
+    <p class="pub-desc">Direct non-separation sliding mode control (SMC) in quaternion field ℍ without dimension-quadrupling. Novel fractional sliding surface σᵣ(t) with analytical settling time bound t<sub>ε</sub> &le; 0.78s (Theorem 4.3 vs. literature 1.43s–10.45s).</p>
+    <div class="pub-footer">
+     <a href="research-demos.html#article-a" class="btn primary">Launch IJCM Demo &rarr;</a>
+     <a href="https://doi.org/10.1080/00207160.2024.2383198" target="_blank" rel="noopener" class="pub-doi">DOI: 10.1080/00207160.2024.2383198 ↗</a>
+    </div>
+   </div>
+
+   <!-- Card 2: CJPH 2024 -->
+   <div class="pub-card">
+    <div class="pub-tag">CJPH 2024 &middot; Competitive STM–LTM</div>
+    <div class="pub-card-title">Projective Synchronization of Fractional Order Quaternion Valued Uncertain Competitive Neural Networks</div>
+    <p class="pub-authors"><strong>M. S. H. Ansari</strong> &amp; M. Malik &middot; <em>Chinese J. Phys.</em> 88, 740–755 (2024)</p>
+    <p class="pub-desc">Two-time-scale competitive neural network coupling short-term memory (STM, r<sub>q</sub>) and long-term memory (LTM, H<sub>q</sub>) across 16 states. Proves Asymptotic Adaptive (AAPS) and Finite-Time (FTPS, T &le; 7.71s) projective synchronization.</p>
+    <div class="pub-footer">
+     <a href="research-demos.html#article-b" class="btn primary">Launch CJPH Demo &rarr;</a>
+     <a href="https://doi.org/10.1016/j.cjph.2024.02.032" target="_blank" rel="noopener" class="pub-doi">DOI: 10.1016/j.cjph.2024.02.032 ↗</a>
+    </div>
+   </div>
+
+   <!-- Card 3: EPJ Plus 2025 -->
+   <div class="pub-card">
+    <div class="pub-tag">EPJ Plus 2025 &middot; Fractional Inertial</div>
+    <div class="pub-card-title">Mittag–Leffler and Asymptotic Adaptive Projective Synchronization of Fractional Inertial Neural Networks</div>
+    <p class="pub-authors"><strong>M. S. H. Ansari</strong>, M. Malik, J. J. Nieto &middot; <em>Eur. Phys. J. Plus</em> 140(9), 903 (2025)</p>
+    <p class="pub-desc">Second-order fractional inertial quaternion network with parameter uncertainties. Exact variable substitution (θ=5) reduces dynamics to 16 first-order states with cross-coupling −21x. Proves Mittag-Leffler (MLPS) and adaptive (AAPS) synchronization.</p>
+    <div class="pub-footer">
+     <a href="research-demos.html#article-c" class="btn primary">Launch EPJ Plus Demo &rarr;</a>
+     <a href="https://doi.org/10.1140/epjp/s13360-025-06840-w" target="_blank" rel="noopener" class="pub-doi">DOI: 10.1140/epjp/s13360-025-06840-w ↗</a>
+    </div>
+   </div>
+  </div>
+ </section>
 
  <!-- System Picker (Task 1: Grouped under three headings) -->
  <section aria-labelledby="h-lock">
@@ -344,18 +400,15 @@ pre#code .c{color:var(--muted)}
   <figure class="panel"><figcaption id="cap-phase">Phase portrait</figcaption><canvas id="c-phase" role="img" aria-label="Phase portrait of drive and response"></canvas></figure>
  </section>
 
- <!-- Under the hood: Math & Python -->
+ <!-- Under the hood: Mathematics & Lyapunov Stability Analysis -->
  <section aria-labelledby="h-hood">
   <div>
-   <h2 id="h-hood">Under the hood</h2>
-   <p class="sub" id="hoodSub">The exact mathematics and reproducible Python script for the current lock and key.</p>
+   <h2 id="h-hood">Under the hood: Formulation &amp; Stability Analysis</h2>
+   <p class="sub" id="hoodSub">The exact mathematics, Lyapunov stability analysis, and fractional dissipation criteria for the current lock and key.</p>
   </div>
   <div class="hood">
    <div class="panel math" id="math"></div>
-   <div class="panel codebox">
-    <div class="codehead"><span>fracsync.py</span><button type="button" class="btn" id="copy">Copy code</button></div>
-    <pre id="code" tabindex="0"></pre>
-   </div>
+   <div class="panel stability-panel" id="stability"></div>
   </div>
  </section>
 
@@ -574,283 +627,52 @@ function stats(r,tol){let last=-1,peak=0;for(let k=0;k<=r.N;k++){if(r.err[k]>=to
  return {settle:(r.diverged!==null||last===r.N)?null:(last+1)*r.h,final:r.err[r.N],peak};}
 const fmt=v=>String(+(+v).toFixed(4));
 
-function pyLock(sys){
- const s=SYS[sys];
- const x0s='['+s.x0.map(v=>Number.isInteger(v)?v+'.0':String(v)).join(', ')+']';
- const y0s='['+s.y0.map(v=>Number.isInteger(v)?v+'.0':String(v)).join(', ')+']';
- if(sys==='chen')return `# The lock: Chen system, D^alpha x = f(x)
-def f(x):
-    return np.array([35*(x[1] - x[0]),
-                     -7*x[0] - x[0]*x[2] + 28*x[1],
-                     x[0]*x[1] - 3*x[2]])
-x0 = np.array(${x0s})   # drive initial state
-y0 = np.array(${y0s})   # response initial state`;
- if(sys==='lorenz')return `# The lock: Lorenz system, D^alpha x = f(x)
-def f(x):
-    return np.array([10*(x[1] - x[0]),
-                     28*x[0] - x[0]*x[2] - x[1],
-                     x[0]*x[1] - (8/3)*x[2]])
-x0 = np.array(${x0s})   # drive initial state
-y0 = np.array(${y0s})   # response initial state`;
- if(sys==='lu')return `# The lock: Lü system, D^alpha x = f(x)
-def f(x):
-    return np.array([36*(x[1] - x[0]),
-                     -x[0]*x[2] + 20*x[1],
-                     x[0]*x[1] - 3*x[2]])
-x0 = np.array(${x0s})   # drive initial state
-y0 = np.array(${y0s})   # response initial state`;
- if(sys==='rossler')return `# The lock: Rössler system, D^alpha x = f(x)
-def f(x):
-    return np.array([-x[1] - x[2],
-                     x[0] + 0.2*x[1],
-                     0.2 + x[2]*(x[0] - 5.7)])
-x0 = np.array(${x0s})   # drive initial state
-y0 = np.array(${y0s})   # response initial state`;
- if(sys==='chua')return `# The lock: Chua circuit with piecewise-linear diode, D^alpha x = f(x)
-def f(x):
-    fx = -0.68*x[0] + 0.5*(-1.27 - (-0.68))*(np.abs(x[0] + 1) - np.abs(x[0] - 1))
-    return np.array([10.0*(x[1] - x[0] - fx),
-                     x[0] - x[1] + x[2],
-                     -14.87*x[1]])
-x0 = np.array(${x0s})   # drive initial state
-y0 = np.array(${y0s})   # response initial state`;
- if(sys==='liu')return `# The lock: Liu system, D^alpha x = f(x)
-def f(x):
-    return np.array([10*(x[1] - x[0]),
-                     40*x[0] - x[0]*x[2],
-                     -2.5*x[2] + 4*x[0]**2])
-x0 = np.array(${x0s})   # drive initial state
-y0 = np.array(${y0s})   # response initial state`;
- if(sys==='genesio')return `# The lock: Genesio-Tesi system, D^alpha x = f(x)
-def f(x):
-    return np.array([x[1],
-                     x[2],
-                     -6.0*x[0] - 2.92*x[1] - 1.2*x[2] + x[0]**2])
-x0 = np.array(${x0s})   # drive initial state
-y0 = np.array(${y0s})   # response initial state`;
- if(sys==='hyper_chen')return `# The lock: Hyperchaotic Chen system (4D), D^alpha x = f(x)
-def f(x):
-    return np.array([35*(x[1] - x[0]) + x[3],
-                     28*x[0] - x[0]*x[2] + 8*x[1],
-                     x[0]*x[1] - 3*x[2],
-                     x[1]*x[2] - 0.5*x[3]])
-x0 = np.array(${x0s})   # drive initial state
-y0 = np.array(${y0s})   # response initial state`;
- if(sys==='hopfield')return `# The lock: 3-neuron Hopfield network, D^alpha x = -x + W tanh(x)
-W = np.array([[2.0, -1.2, 0.0],
-              [1.9995, 1.71, 1.15],
-              [0.0, -4.75, 1.1]])
-def f(x):
-    return -x + W @ np.tanh(x)
-x0 = np.array(${x0s})   # drive initial state
-y0 = np.array(${y0s})   # response initial state`;
- if(sys==='competitive')return `# The lock: Competitive neural network, D^alpha x = -0.9x + W tanh(x) + I
-W = np.array([[1.5, -0.8, -0.6],
-              [-0.7, 1.6, -0.5],
-              [-0.5, -0.8, 1.4]])
-bias = np.array([0.2, -0.1, 0.1])
-def f(x):
-    return -0.9*x + W @ np.tanh(x) + bias
-x0 = np.array(${x0s})   # drive initial state
-y0 = np.array(${y0s})   # response initial state`;
- if(sys==='cohen_grossberg')return `# The lock: Cohen-Grossberg neural network, D^alpha x = -a(x)[b(x) - W tanh(x)]
-W = np.array([[1.8, -0.6, 0.4],
-              [-0.5, 1.5, -0.7],
-              [0.3, -0.8, 1.6]])
-def f(x):
-    return -(1.0 + 0.2*np.cos(x)) * (1.2*x - W @ np.tanh(x))
-x0 = np.array(${x0s})   # drive initial state
-y0 = np.array(${y0s})   # response initial state`;
- if(sys==='bam')return `# The lock: Bidirectional Associative Memory (BAM) network (4 states)
-P = np.array([[1.4, -0.8], [-0.6, 1.2]])
-Q = np.array([[-1.0, 1.5], [1.3, -0.7]])
-def f(z):
-    x, y = z[:2], z[2:]
-    return np.concatenate([-x + P @ np.tanh(y), -y + Q @ np.tanh(x)])
-x0 = np.array(${x0s})   # drive initial state
-y0 = np.array(${y0s})   # response initial state`;
- if(sys==='cnn')return `# The lock: Cellular Neural Network (CNN, 3 cells)
-A = np.array([[1.6, -0.7, 0.2],
-              [-0.6, 1.8, -0.5],
-              [0.3, -0.8, 1.5]])
-bias = np.array([0.1, 0.0, -0.1])
-def f(x):
-    return -x + A @ np.tanh(x) + bias
-x0 = np.array(${x0s})   # drive initial state
-y0 = np.array(${y0s})   # response initial state`;
-
- /* Quaternion networks */
- const A_qp=QP_A.map(r=>'    ['+r.map(q=>'np.array(['+q.join(', ')+'])').join(', ')+']').join(',\n');
- const W_qh=QH_W.map(r=>'    ['+r.map(q=>'np.array(['+q.join(', ')+'])').join(', ')+']').join(',\n');
- const W_qcg=QCG_W.map(r=>'    ['+r.map(q=>'np.array(['+q.join(', ')+'])').join(', ')+']').join(',\n');
- const A_qcnn=QCNN_A.map(r=>'    ['+r.map(q=>'np.array(['+q.join(', ')+'])').join(', ')+']').join(',\n');
-
- const qmul_head=`def qmul(p, q):
-    return np.array([p[0]*q[0] - p[1]*q[1] - p[2]*q[2] - p[3]*q[3],
-                     p[0]*q[1] + p[1]*q[0] + p[2]*q[3] - p[3]*q[2],
-                     p[0]*q[2] - p[1]*q[3] + p[2]*q[0] + p[3]*q[1],
-                     p[0]*q[3] + p[1]*q[2] - p[2]*q[1] + p[3]*q[0]])`;
-
- if(sys==='quat')return `# The lock: 2-neuron quaternion network (8 states)
-${qmul_head}
-A = [\n${A_qp}\n]
-def f(x):
-    t = np.tanh(x).reshape(2, 4)
-    out = [-x[4*i:4*i+4] + sum(qmul(A[i][j], t[j]) for j in range(2)) for i in range(2)]
-    return np.concatenate(out)
-x0 = np.array(${x0s})
-y0 = np.array(${y0s})`;
- if(sys==='quat_hopfield')return `# The lock: Quaternion Hopfield network (2 neurons in ℍ, 8 states)
-${qmul_head}
-W = [\n${W_qh}\n]
-def f(x):
-    t = np.tanh(x).reshape(2, 4)
-    out = [-1.2*x[4*i:4*i+4] + sum(qmul(W[i][j], t[j]) for j in range(2)) for i in range(2)]
-    return np.concatenate(out)
-x0 = np.array(${x0s})
-y0 = np.array(${y0s})`;
- if(sys==='quat_cohen_grossberg')return `# The lock: Quaternion Cohen-Grossberg network (2 neurons in ℍ, 8 states)
-${qmul_head}
-W = [\n${W_qcg}\n]
-def f(x):
-    t = np.tanh(x).reshape(2, 4)
-    out = []
-    for i in range(2):
-        s = sum(qmul(W[i][j], t[j]) for j in range(2))
-        ai = 1.0 + 0.15*np.cos(x[4*i:4*i+4])
-        out.append(-ai * (1.1*x[4*i:4*i+4] - s))
-    return np.concatenate(out)
-x0 = np.array(${x0s})
-y0 = np.array(${y0s})`;
- if(sys==='quat_bam')return `# The lock: Quaternion BAM network (2 layers: 1 neuron each in ℍ, 8 states)
-${qmul_head}
-P = np.array([${P_qbam.join(', ')}])
-Q = np.array([${Q_qbam.join(', ')}])
-def f(z):
-    u, v = z[:4], z[4:]
-    return np.concatenate([-u + qmul(P, np.tanh(v)), -v + qmul(Q, np.tanh(u))])
-x0 = np.array(${x0s})
-y0 = np.array(${y0s})`;
- return `# The lock: Quaternion Cellular Network (Q-CNN, 2 cells in ℍ, 8 states)
-${qmul_head}
-A = [\n${A_qcnn}\n]
-def f(x):
-    t = np.tanh(x).reshape(2, 4)
-    out = []
-    for i in range(2):
-        s = sum(qmul(A[i][j], t[j]) for j in range(2))
-        b = np.array([0.1, 0.0, -0.1, 0.0]) if i == 0 else np.array([-0.1, 0.1, 0.0, -0.1])
-        out.append(-x[4*i:4*i+4] + s + b)
-    return np.concatenate(out)
-x0 = np.array(${x0s})
-y0 = np.array(${y0s})`;
-}
-
-function pyKey(ctrl,g){
- if(ctrl==='linear')return `# The key: linear feedback  u = -k e
-k = ${fmt(g.k)}
-def control(e):
-    return -k*e`;
- if(ctrl==='fixedtime')return `# The key: fixed-time feedback  u = -k1 sig(e)^p - k2 sig(e)^q,  p < 1 < q
-k1, k2, p, q = ${fmt(g.k1)}, ${fmt(g.k2)}, ${fmt(g.p)}, ${fmt(g.q)}
-def sig(e, r):
-    return np.sign(e)*np.abs(e)**r
-def control(e):
-    return -k1*sig(e, p) - k2*sig(e, q)`;
- if(ctrl==='sliding')return `# The key: sliding mode with boundary layer  u = -k e - eta tanh(e/eps)
-k, eta, eps = ${fmt(g.k)}, ${fmt(g.eta)}, ${fmt(g.eps)}
-def control(e):
-    return -k*e - eta*np.tanh(e/eps)`;
- if(ctrl==='adaptive')return `# The key: adaptive gain  u = -kappa(t) e,  d(kappa)/dt = gamma |e|^2
-kappa, gamma = ${fmt(g.k0)}, ${fmt(g.gamma)}      # kappa starts at kappa_0
-def control(e):
-    return -kappa*e`;
- return `# The key: impulsive control  e(t_m+) = (1 - mu) e(t_m-)  at t_m = m * Delta
-Delta, mu = ${fmt(g.dt)}, ${fmt(g.mu)}
-every = max(1, round(Delta/h))           # impulse every "every" steps
-def control(e):
-    return np.zeros_like(e)              # no continuous input between impulses`;
-}
-
-function codegen(cfg){
- const {system:sys,ctrl,alpha,h,T,ff,lam,g,tol}=cfg;
- const isA=ctrl==='adaptive',isI=ctrl==='impulsive';
- const adUpdate=isA?`\n    kappa += h*gamma*(e @ e)               # gain grows while the error is nonzero`:'';
- const ffBlock=ff?`\n    if feedforward:\n        u = u + lam*fx - fy                    # nonlinear compensation`:'';
- const ffPred=ff?`\n    if feedforward:\n        up = up + lam*fxp - fyp`:'';
- const impBlock=isI?`\n    if (m + 1) % every == 0:                     # impulse: pull response toward lam * drive\n        Y[m+1] = Y[m+1] - mu*(Y[m+1] - lam*X[m+1])`:'';
-
- return `# FracSync Lab: ${SYS[sys].name} (lock) + ${CTRL[ctrl].name.toLowerCase()} (key)
-# Caputo derivative of order alpha, Adams-Bashforth-Moulton predictor-corrector (Diethelm, Ford, Freed).
-# Needs numpy and matplotlib.
-import numpy as np
-import matplotlib.pyplot as plt
-from math import gamma as Gamma
-
-alpha, h, T = ${fmt(alpha)}, ${h}, ${T}
-lam = ${fmt(lam)}                 # projective factor: response follows lam * drive
-feedforward = ${ff?'True':'False'}        # add the compensation term lam*f(x) - f(y)?
-tol = ${tol}
-
-${pyLock(sys)}
-
-${pyKey(ctrl,g)}
-
-# The solver: predictor x^P_{m+1} = x0 + sum_j wp[m+1-j] F_j,
-#             corrector x_{m+1} = x0 + h^alpha/Gamma(alpha+2) * (F(x^P) + w0[m] F_0 + sum_j wc[m-j] F_j)
-N = int(round(T/h))
-g1, g2 = Gamma(alpha + 1), Gamma(alpha + 2)
-kk = np.arange(N + 2, dtype=float)
-wp = np.zeros(N + 2); wp[1:] = h**alpha/g1*(kk[1:]**alpha - (kk[1:] - 1)**alpha)
-wc = (kk + 2)**(alpha + 1) + kk**(alpha + 1) - 2*(kk + 1)**(alpha + 1)
-w0 = kk**(alpha + 1) - (kk - alpha)*(kk + 1)**alpha
-
-n = len(x0)
-X = np.zeros((N + 1, n)); Y = np.zeros((N + 1, n))
-FX = np.zeros((N + 1, n)); FY = np.zeros((N + 1, n))    # F along drive and response
-X[0], Y[0] = x0, y0
-err = np.zeros(N + 1); err[0] = np.linalg.norm(Y[0] - lam*X[0])
-
-for m in range(N):                             # step from t_m to t_(m+1)
-    x, y = X[m], Y[m]
-    fx, fy = f(x), f(y)
-    e = y - lam*x
-    u = control(e)${ffBlock}${adUpdate}
-    FX[m], FY[m] = fx, fy + u
-    # predict
-    xp = x0 + wp[m+1:0:-1] @ FX[:m+1]
-    yp = y0 + wp[m+1:0:-1] @ FY[:m+1]
-    # evaluate at the prediction
-    fxp, fyp = f(xp), f(yp)
-    up = control(yp - lam*xp)${ffPred}
-    # correct
-    rev = wc[:m][::-1]
-    X[m+1] = x0 + h**alpha/g2*(fxp + w0[m]*FX[0] + rev @ FX[1:m+1])
-    Y[m+1] = y0 + h**alpha/g2*(fyp + up + w0[m]*FY[0] + rev @ FY[1:m+1])${impBlock}
-    err[m+1] = np.linalg.norm(Y[m+1] - lam*X[m+1])
-
-above = np.where(err >= tol)[0]
-if above.size == 0:
-    settle = 0.0
-elif above[-1] == N:
-    settle = None
-else:
-    settle = float((above[-1] + 1)*h)
-print("settling time:", settle, "| final error:", float(err[-1]))
-
-t = np.arange(N + 1)*h
-fig, ax = plt.subplots(1, 2, figsize=(10, 3.4))
-ax[0].semilogy(t, np.maximum(err, 1e-12)); ax[0].axhline(tol, ls="--", c="gray")
-ax[0].set(xlabel="t", ylabel="||e(t)||", title="error")
-ax[1].plot(t, X[:, 0], label="drive"); ax[1].plot(t, Y[:, 0], label="response")
-ax[1].set(xlabel="t", title="first state"); ax[1].legend()
-plt.tight_layout(); plt.show()
-`;
-}
-
 const D='<span class="op"><sup class="pre">C</sup>D<sup>α</sup></span>',I=s=>'<i>'+s+'</i>',sb=s=>'<sub>'+s+'</sub>';
 const eq=s=>'<div class="eq">'+s+'</div>';
 const fr=(a,b)=>'<span class="frac"><span>'+a+'</span><span>'+b+'</span></span>';
+
+function stabilityHTML(cfg){
+ const {system:sys,ctrl,alpha,h,T,ff,lam,g,tol}=cfg;
+ let s='';
+ s+='<h4>1. Fractional Lyapunov Candidate Function</h4>';
+ if(SYS[sys].fam==='C'){
+  s+='<p>For quaternion-valued error states <i>e</i><sub><i>r</i></sub>(<i>t</i>) = <i>y</i><sub><i>r</i></sub>(<i>t</i>) − '+(lam===1?'':fmt(lam))+'<i>x</i><sub><i>r</i></sub>(<i>t</i>) &in; &#x210d;, define the positive-definite Lyapunov function directly in the quaternion field without separating into 4 real subsystems:</p>';
+  s+=eq('<i>V</i>(<i>t</i>) = &frac12; &sum;<sub><i>r</i>=1</sub><sup>&vartheta;</sup> <i>ē</i><sub><i>r</i></sub>(<i>t</i>) <i>e</i><sub><i>r</i></sub>(<i>t</i>) = &frac12; &sum;<sub><i>r</i>=1</sub><sup>&vartheta;</sup> &Vert;<i>e</i><sub><i>r</i></sub>(<i>t</i>)&Vert;<sub>2</sub><sup>2</sup>');
+ }else{
+  s+='<p>For real-valued synchronization error <i>e</i>(<i>t</i>) = <i>y</i>(<i>t</i>) − '+(lam===1?'':fmt(lam))+'<i>x</i>(<i>t</i>) &in; &#x211d;<sup><i>n</i></sup>, select the quadratic Lyapunov candidate function:</p>';
+  s+=eq('<i>V</i>(<i>t</i>) = &frac12; <i>e</i><sup><i>T</i></sup>(<i>t</i>) <i>e</i>(<i>t</i>) = &frac12; &Vert;<i>e</i>(<i>t</i>)&Vert;<sup>2</sup>');
+ }
+
+ s+='<h4>2. Caputo Fractional Derivative Inequality</h4>';
+ s+='<p>Applying the Caputo fractional derivative of order &alpha; &in; (0, 1] and fractional differential inequality theory (Lemma 2.4 in IJCM 2024 / Lemma 1 in CJPH 2024):</p>';
+ s+=eq('<sup><i>C</i></sup><sub>0</sub><i>D</i><sub><i>t</i></sub><sup>&alpha;</sup> <i>V</i>(<i>t</i>) &le; '+(SYS[sys].fam==='C'?'Re(&sum;<sub><i>r</i>=1</sub><sup>&vartheta;</sup> <i>ē</i><sub><i>r</i></sub>(<i>t</i>) <sup><i>C</i></sup><sub>0</sub><i>D</i><sub><i>t</i></sub><sup>&alpha;</sup> <i>e</i><sub><i>r</i></sub>(<i>t</i>))':'<i>e</i><sup><i>T</i></sup>(<i>t</i>) <sup><i>C</i></sup><sub>0</sub><i>D</i><sub><i>t</i></sub><sup>&alpha;</sup> <i>e</i>(<i>t</i>)'));
+
+ s+='<h4>3. Dissipation &amp; Convergence Bounds under '+CTRL[ctrl].name+'</h4>';
+ if(ctrl==='linear'){
+  s+='<p>Linear state feedback <i>u</i> = &minus;<i>k</i> <i>e</i> gives <sup><i>C</i></sup><sub>0</sub><i>D</i><sub><i>t</i></sub><sup>&alpha;</sup> <i>V</i>(<i>t</i>) &le; &minus;(2<i>k</i> &minus; <i>L</i>) <i>V</i>(<i>t</i>). If <i>k</i> &gt; &frac12; <i>L</i>, Mittag-Leffler stability ensures algebraic decay bounded by the one-parameter Mittag-Leffler function:</p>';
+  s+=eq('&Vert;<i>e</i>(<i>t</i>)&Vert; &le; &Vert;<i>e</i>(0)&Vert; [<i>E</i><sub>&alpha;</sub>(&minus;(2<i>k</i> &minus; <i>L</i>) <i>t</i><sup>&alpha;</sup>)]<sup>1/2</sup>');
+ }else if(ctrl==='sliding'){
+  s+='<p>Sliding mode control <i>u</i> = &minus;<i>k</i> <i>e</i> &minus; &eta; tanh(<i>e</i>/&epsilon;) enforces finite-time reachability to the sliding manifold &sigma; = 0:</p>';
+  s+=eq('<sup><i>C</i></sup><sub>0</sub><i>D</i><sub><i>t</i></sub><sup>&alpha;</sup> <i>V</i>(<i>t</i>) &le; &minus;&eta; &radic;2 <i>V</i>(<i>t</i>)<sup>1/2</sup> &minus; 2<i>k</i> <i>V</i>(<i>t</i>)');
+  s+='<p class="note">Trajectories converge to a chatter-free boundary layer of thickness &epsilon; = '+fmt(g.eps)+'.</p>';
+ }else if(ctrl==='fixedtime'){
+  s+='<p>Bi-power non-smooth feedback drives convergence independent of initial conditions:</p>';
+  s+=eq('<sup><i>C</i></sup><sub>0</sub><i>D</i><sub><i>t</i></sub><sup>&alpha;</sup> <i>V</i>(<i>t</i>) &le; &minus;<i>k</i><sub>1</sub> 2<sup>(<i>p</i>+1)/2</sup> <i>V</i><sup>(<i>p</i>+1)/2</sup> &minus; <i>k</i><sub>2</sub> 2<sup>(<i>q</i>+1)/2</sup> <i>V</i><sup>(<i>q</i>+1)/2</sup>');
+  s+='<p class="note">Convergence is achieved within uniform settling bound <i>T</i><sub>max</sub> regardless of starting error magnitude.</p>';
+ }else if(ctrl==='adaptive'){
+  s+='<p>Self-tuning feedback <i>u</i> = &minus;&kappa;(<i>t</i>) <i>e</i> with update d&kappa;/d<i>t</i> = &gamma; &Vert;<i>e</i>&Vert;<sup>2</sup>. By augmenting the Lyapunov candidate <i>W</i> = <i>V</i> + (2&gamma;)<sup>&minus;1</sup> (&kappa; &minus; &kappa;<sup>*</sup>)<sup>2</sup>:</p>';
+  s+=eq('<sup><i>C</i></sup><sub>0</sub><i>D</i><sub><i>t</i></sub><sup>&alpha;</sup> <i>W</i>(<i>t</i>) &le; &minus;&mu; <i>V</i>(<i>t</i>) &le; 0');
+  s+='<p class="note">Gain &kappa;(<i>t</i>) monotonically self-adjusts until synchronization error vanishes asymptotically.</p>';
+ }else{
+  s+='<p>Impulsive control applies instantaneous state contraction at discrete time instants <i>t</i><sub><i>m</i></sub>:</p>';
+  s+=eq('&Vert;<i>e</i>(<i>t</i><sub><i>m</i></sub><sup>+</sup>)&Vert; = (1 &minus; &mu;) &Vert;<i>e</i>(<i>t</i><sub><i>m</i></sub><sup>&minus;</sup>)&Vert;');
+  s+='<p class="note">Asymptotic stability holds if inter-impulse interval &Delta; &lt; &minus;ln(1 &minus; &mu;) / <i>L</i>.</p>';
+ }
+
+ s+='<h4>4. Research Articles &amp; Benchmarks</h4>';
+ s+='<p>See rigorous peer-reviewed theorems on uncertain fractional quaternion-valued systems, non-smooth sliding manifolds, competitive STM–LTM memory networks, and inertial systems on the <a href="research-demos.html" style="color:var(--drive);font-weight:600">Research Demos</a> companion.</p>';
+ return s;
+}
 
 function mathHTML(cfg){
  const {system:sys,ctrl,g,ff,lam,alpha,h}=cfg;let s='';
@@ -992,7 +814,7 @@ function lockSVG(sys,o){
  return '<g class="lockg"><g class="shackle" transform="translate(0,'+(-16*o).toFixed(1)+') rotate('+(-38*o).toFixed(1)+' 85 60)"><path class="lk-sh" d="M35 62V40a25 25 0 0 1 50 0V62"/></g><rect class="lk-body" x="15" y="60" width="90" height="76" rx="10"/><circle class="lk-hole" cx="60" cy="84" r="8"/><path class="lk-hole" d="M56 88h8l3 12H53z"/>'+gl+'</g>';
 }
 
-return {SYS,CTRL,RANGES,defaults,range,teeth,simulate,stats,codegen,mathHTML,keySVG,lockSVG,fmt,gamma,qmul};
+return {SYS,CTRL,RANGES,defaults,range,teeth,simulate,stats,stabilityHTML,mathHTML,keySVG,lockSVG,fmt,gamma,qmul};
 })();
 </script>
 
@@ -1278,16 +1100,8 @@ function buildStage(){
 function updateHood(){
  const c=cfg();
  $('#math').innerHTML=FS.mathHTML(c);
- codeText=FS.codegen(c);
- $('#code').innerHTML=hl(codeText);
- $('#hoodSub').textContent='Lock: '+FS.SYS[st.sys].name+' ('+FS.SYS[st.sys].meta+'). Key: '+FS.CTRL[st.ctrl].name.toLowerCase()+'. Follows the current parameters, step h = '+st.h+', and time span T = '+st.T+'s.';
-}
-
-function hl(code){
- return code.split('\n').map(line=>{
-  const i=line.indexOf('#');let cm='';if(i>=0){cm=line.slice(i);line=line.slice(0,i);}
-  const s=esc(line).replace(/\b(import|as|def|return|for|in|if|elif|else|print|range|None|True|False)\b/g,'<span class="k">$1</span>').replace(/\b(\d+\.?\d*(?:e-?\d+)?)\b/g,'<span class="n">$1</span>');
-  return s+(cm?'<span class="c">'+esc(cm)+'</span>':'');}).join('\n');
+ $('#stability').innerHTML=FS.stabilityHTML(c);
+ $('#hoodSub').textContent='Lock: '+FS.SYS[st.sys].name+' ('+FS.SYS[st.sys].meta+'). Key: '+FS.CTRL[st.ctrl].name.toLowerCase()+'. Mathematical stability criteria and Lyapunov dissipation under step h = '+st.h+', and time span T = '+st.T+'s.';
 }
 
 const ease=t=>1-Math.pow(1-t,3);
@@ -1543,15 +1357,7 @@ $('#scrub').addEventListener('input',e=>{
  stopAnim();st.dock=1;st.playT=parseFloat(e.target.value);render();
 });
 
-$('#copy').addEventListener('click',async()=>{
- const b=$('#copy');
- try{await navigator.clipboard.writeText(codeText);b.textContent='Copied';}
- catch(_){
-  const r=document.createRange();r.selectNodeContents($('#code'));const s=getSelection();
-  s.removeAllRanges();s.addRange(r);b.textContent='Selected (Ctrl+C)';
- }
- setTimeout(()=>{b.textContent='Copy code';},2200);
-});
+// Codebox removed per user instructions
 
 window.addEventListener('resize',()=>{if(R)render();});
 try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{if(R)render();});}catch(_){}

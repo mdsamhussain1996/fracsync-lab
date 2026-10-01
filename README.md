@@ -157,6 +157,30 @@ fracsync-lab/
 
 ---
 
+## 📚 Peer-Reviewed Publications & Research Demos
+
+This laboratory serves as an interactive companion and verification suite for three peer-reviewed research articles:
+
+1. **Finite-time synchronization of fractional-order uncertain quaternion-valued neural networks via slide mode control**  
+   *Md Samshad Hussain Ansari & Muslim Malik*  
+   *International Journal of Computer Mathematics* **101**(7), 750–767 (2024).  
+   DOI: [10.1080/00207160.2024.2383198](https://doi.org/10.1080/00207160.2024.2383198)  
+   *Key contributions:* Direct non-separation fractional sliding mode control (SMC) in quaternion field $\mathbb{H}$; fractional sliding surface $\sigma_r(t)$; Theorem 4.1 reaching condition; Theorem 4.3 settling time bound $t_\varepsilon \le 0.78$ s (substantially faster than literature methods in Shang et al. 2023, Xiao et al. 2020, Yan et al. 2022); Examples 5.1 (8D) and 5.2 (24D).
+
+2. **Projective synchronization of fractional order quaternion valued uncertain competitive neural networks**  
+   *Md Samshad Hussain Ansari & Muslim Malik*  
+   *Chinese Journal of Physics* **88**, 740–755 (2024).  
+   DOI: [10.1016/j.cjph.2024.02.032](https://doi.org/10.1016/j.cjph.2024.02.032)  
+   *Key contributions:* 16-dimensional coupled short-term memory (STM, $r_q$) and long-term memory (LTM, $H_q$) quaternion competitive networks; Theorem 5 Asymptotic Adaptive Projective Synchronization (AAPS); Theorem 6 Finite-Time Projective Synchronization (FTPS) with settling bound $T \le 7.71$ s; Example 4.1.
+
+3. **Mittag–Leffler and asymptotic adaptive projective synchronization of fractional inertial neural networks in quaternion field**  
+   *Md Samshad Hussain Ansari, Muslim Malik, Juan J. Nieto*  
+   *The European Physical Journal Plus* **140**(9), 903 (2025).  
+   DOI: [10.1140/epjp/s13360-025-06840-w](https://doi.org/10.1140/epjp/s13360-025-06840-w)  
+   *Key contributions:* Second-order fractional inertial quaternion-valued neural networks (FQVINNs); variable transformation $\sigma_\rho = {}^C_0 D^\alpha x_\rho + \theta_\rho x_\rho$ reducing inertial dynamics to 16 first-order states with cross-coupling term $-21x$; Theorem 1 Mittag-Leffler Projective Synchronization (MLPS); Theorem 2 Asymptotic Adaptive Projective Synchronization (AAPS); Example 4.1.
+
+---
+
 ## 👨‍🏫 Author & Citation
 
 **Dr. Md Samshad Hussain Ansari**  
@@ -167,13 +191,36 @@ Research Focus: Synchronization of fractional-order quaternion-valued dynamical 
 Website: [https://mdsamhussain1996.github.io/](https://mdsamhussain1996.github.io/)
 
 ```bibtex
-@misc{ansari2026fracsync,
-  author = {Ansari, Md Samshad Hussain},
-  title = {FracSync Lab: Interactive Laboratory for Drive-Response Synchronization of Fractional-Order Networks},
-  year = {2026},
-  publisher = {GitHub},
-  journal = {GitHub repository},
-  howpublished = {\url{https://github.com/mdsamhussain1996/fracsync-lab}}
+@article{ansari2024finite,
+  title={Finite-time synchronization of fractional-order uncertain quaternion-valued neural networks via slide mode control},
+  author={Ansari, Md Samshad Hussain and Malik, Muslim},
+  journal={International Journal of Computer Mathematics},
+  volume={101},
+  number={7},
+  pages={750--767},
+  year={2024},
+  doi={10.1080/00207160.2024.2383198}
+}
+
+@article{ansari2024projective,
+  title={Projective synchronization of fractional order quaternion valued uncertain competitive neural networks},
+  author={Ansari, Md Samshad Hussain and Malik, Muslim},
+  journal={Chinese Journal of Physics},
+  volume={88},
+  pages={740--755},
+  year={2024},
+  doi={10.1016/j.cjph.2024.02.032}
+}
+
+@article{ansari2025mittag,
+  title={Mittag--Leffler and asymptotic adaptive projective synchronization of fractional inertial neural networks in quaternion field},
+  author={Ansari, Md Samshad Hussain and Malik, Muslim and Nieto, Juan J},
+  journal={The European Physical Journal Plus},
+  volume={140},
+  number={9},
+  pages={903},
+  year={2025},
+  doi={10.1140/epjp/s13360-025-06840-w}
 }
 ```
 
