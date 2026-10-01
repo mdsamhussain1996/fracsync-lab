@@ -162,11 +162,32 @@ pre#code .c{color:var(--muted)}
  .time-bar{flex-direction:column;align-items:stretch}
  .tb-group{justify-content:space-between}
 }
+/* Top Navigation Bar */
+.top-nav{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--surface);border:1px solid var(--line);border-radius:12px;margin-bottom:8px;flex-wrap:wrap;gap:12px}
+.nav-brand{display:flex;align-items:center;gap:10px;font-family:var(--fd);font-weight:800;font-size:1.05rem;color:var(--ink);text-transform:uppercase;letter-spacing:.02em}
+.nav-links{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.nav-link{font-family:var(--fm);font-size:.8rem;font-weight:500;color:var(--muted);text-decoration:none;padding:5px 12px;border-radius:6px;border:1px solid transparent;transition:all .15s ease}
+.nav-link:hover{color:var(--ink);background:var(--surface2);border-color:var(--line)}
+.nav-link.active{color:var(--brass);background:var(--surface2);border-color:var(--brass);font-weight:600}
+.nav-theme-btn{background:var(--surface2);border:1px solid var(--line);border-radius:6px;cursor:pointer;padding:5px 10px;font-size:.9rem;line-height:1;color:var(--ink);transition:all .15s}
+.nav-theme-btn:hover{background:var(--surface);border-color:var(--brass)}
 @media (prefers-reduced-motion:reduce){.jam{animation:none}.card{transition:none}}
 </style>
 </head>
 <body>
 <div class="wrap">
+ <nav class="top-nav" aria-label="Main Navigation">
+  <div class="nav-brand">
+   <span>🔐 FracSync Lab</span>
+  </div>
+  <div class="nav-links">
+   <a href="index.html" class="nav-link active">Lab Bench</a>
+   <a href="research-demos.html" class="nav-link">Research Demos</a>
+   <a href="https://mdsamhussain1996.github.io/" class="nav-link" target="_blank" rel="noopener">Dr. Ansari's Portfolio ↗</a>
+   <button id="nav-theme-toggle" class="nav-theme-btn" aria-label="Toggle theme">🌓 Theme</button>
+  </div>
+ </nav>
+
  <header>
   <p class="eyebrow">Fractional-order networks &middot; drive&ndash;response synchronization</p>
   <h1>FracSync Lab</h1>
@@ -1535,6 +1556,15 @@ $('#copy').addEventListener('click',async()=>{
 window.addEventListener('resize',()=>{if(R)render();});
 try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{if(R)render();});}catch(_){}
 new MutationObserver(()=>{if(R)render();}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+const navThemeBtn = document.getElementById('nav-theme-toggle');
+if (navThemeBtn) {
+  navThemeBtn.addEventListener('click', () => {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark' ||
+      (!document.documentElement.getAttribute('data-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  });
+}
 
 refreshAll(true);
 })();

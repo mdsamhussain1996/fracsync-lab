@@ -1,0 +1,2553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Research Demos — FracSync Lab</title>
+  <meta name="description" content="Interactive synchronization demos for three peer-reviewed research articles on fractional-order quaternion-valued neural networks, sliding mode control, competitive networks, and inertial networks by Dr. Md Samshad Hussain Ansari.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=IBM+Plex+Mono:wght@400;500&family=STIX+Two+Text:ital,wght@0,400;0,600;1,400&display=swap">
+  <style>
+/* ── Color tokens and base typography (matching FracSync Lab) ── */
+:root {
+  --bg: #EDF0F5;
+  --surface: #F8FAFD;
+  --surface2: #E2E8F2;
+  --ink: #12203B;
+  --muted: #54658A;
+  --line: #C3CDDF;
+  --brass: #C4901F;
+  --brass-edge: #7A5208;
+  --glyph: #5A3C05;
+  --acc: #8A5A06;
+  --steel: #7383A1;
+  --hole: #1B2740;
+  --drive: #2D4FA1;
+  --resp: #B9750A;
+  --ok: #1E8A4B;
+  --bad: #C0392B;
+  --code: #F0F3F9;
+  --onbrass: #20160A;
+  --warn: #B86200;
+  --warn-bg: #FFF4E5;
+  --warn-line: #FFD08A;
+  --todo-bg: #FEF3C7;
+  --todo-line: #F59E0B;
+  --todo-ink: #92400E;
+  --fd: 'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --fm: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --fx: 'STIX Two Text', 'Cambria Math', Georgia, serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0B1424;
+    --surface: #111C31;
+    --surface2: #182642;
+    --ink: #E8EEF9;
+    --muted: #93A3C2;
+    --line: #25375A;
+    --brass: #E2A83B;
+    --brass-edge: #F5D391;
+    --glyph: #3A2703;
+    --acc: #EBB250;
+    --steel: #A9B8D3;
+    --hole: #0B1424;
+    --drive: #86A9FF;
+    --resp: #E2A83B;
+    --ok: #4CCB84;
+    --bad: #F27A6C;
+    --code: #0D172B;
+    --onbrass: #20160A;
+    --warn: #FFBE5C;
+    --warn-bg: #261B0B;
+    --warn-line: #5A3E12;
+    --todo-bg: #372A10;
+    --todo-line: #B45309;
+    --todo-ink: #FCD34D;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #0B1424;
+  --surface: #111C31;
+  --surface2: #182642;
+  --ink: #E8EEF9;
+  --muted: #93A3C2;
+  --line: #25375A;
+  --brass: #E2A83B;
+  --brass-edge: #F5D391;
+  --glyph: #3A2703;
+  --acc: #EBB250;
+  --steel: #A9B8D3;
+  --hole: #0B1424;
+  --drive: #86A9FF;
+  --resp: #E2A83B;
+  --ok: #4CCB84;
+  --bad: #F27A6C;
+  --code: #0D172B;
+  --onbrass: #20160A;
+  --warn: #FFBE5C;
+  --warn-bg: #261B0B;
+  --warn-line: #5A3E12;
+  --todo-bg: #372A10;
+  --todo-line: #B45309;
+  --todo-ink: #FCD34D;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 400 15px/1.55 var(--fd);
+  overflow-x: hidden;
+}
+
+.wrap {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding-inline: clamp(14px, 3.5vw, 32px);
+  padding-block: 20px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+  min-width: 0;
+}
+
+/* ── Navigation Header ── */
+.top-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--fd);
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: var(--ink);
+  text-transform: uppercase;
+  letter-spacing: .02em;
+}
+.nav-badge {
+  font-family: var(--fm);
+  font-size: .72rem;
+  background: var(--brass);
+  color: var(--onbrass);
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-weight: 700;
+  letter-spacing: .05em;
+}
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.nav-link {
+  font-family: var(--fm);
+  font-size: .8rem;
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  transition: all .15s ease;
+}
+.nav-link:hover {
+  color: var(--ink);
+  background: var(--surface2);
+  border-color: var(--line);
+}
+.nav-link.active {
+  color: var(--brass);
+  background: var(--surface2);
+  border-color: var(--brass);
+  font-weight: 600;
+}
+.nav-theme-btn {
+  background: var(--surface2);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 5px 10px;
+  font-size: .9rem;
+  line-height: 1;
+  color: var(--ink);
+  transition: all .15s;
+}
+.nav-theme-btn:hover {
+  background: var(--surface);
+  border-color: var(--brass);
+}
+
+h1, h2, h3, h4 { font-family: var(--fd); margin: 0; text-wrap: balance; }
+h1 {
+  font-stretch: 72%;
+  font-weight: 800;
+  font-size: clamp(2.2rem, 7vw, 4.2rem);
+  line-height: .95;
+  letter-spacing: .01em;
+  text-transform: uppercase;
+}
+h2 {
+  font-stretch: 88%;
+  font-weight: 700;
+  font-size: 1.35rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.eyebrow {
+  font: 500 .75rem var(--fm);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 10px;
+}
+.lede {
+  max-width: 72ch;
+  font-size: 1.02rem;
+  margin: 12px 0 0;
+  color: var(--ink);
+}
+.sub {
+  margin: 4px 0 0;
+  color: var(--muted);
+  max-width: 68ch;
+  font-size: .9rem;
+}
+
+/* Quick jump pills */
+.jump-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.jump-btn {
+  font: 500 .78rem var(--fm);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--muted);
+  padding: 5px 12px;
+  border-radius: 20px;
+  text-decoration: none;
+  transition: all .15s;
+}
+.jump-btn:hover {
+  background: var(--surface2);
+  color: var(--ink);
+  border-color: var(--steel);
+}
+
+/* ── Section Cards & Articles ── */
+.demo-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 24px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+}
+.section-head {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.article-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: 700 .72rem var(--fm);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  padding: 3px 10px;
+  border-radius: 99px;
+  background: var(--surface2);
+  border: 1px solid var(--line);
+  color: var(--brass);
+  width: fit-content;
+}
+
+/* ── Citation Card ── */
+.citation-card {
+  background: var(--surface2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.cit-title {
+  font-family: var(--fx);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.4;
+}
+.cit-meta {
+  font-size: .88rem;
+  color: var(--muted);
+}
+.cit-meta strong {
+  color: var(--ink);
+}
+.cit-doi {
+  font-family: var(--fm);
+  font-size: .78rem;
+  color: var(--drive);
+  text-decoration: none;
+  font-weight: 500;
+}
+.cit-doi:hover {
+  text-decoration: underline;
+}
+.cit-summary {
+  font-size: .92rem;
+  line-height: 1.6;
+  color: var(--ink);
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--line);
+}
+
+/* ── Lock & Key Grid ── */
+.lk-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 18px;
+}
+.lk-box {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.lk-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.lk-head-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.lk-head-info strong {
+  font: 700 1rem var(--fd);
+  color: var(--ink);
+}
+.lk-head-info span {
+  font: 500 .75rem var(--fm);
+  color: var(--muted);
+}
+
+/* SVGs */
+.locksvg { width: 54px; height: 68px; flex: none; }
+.keysvg { width: 100%; height: auto; max-height: 52px; display: block; overflow: visible; }
+.lk-body, .ky { fill: var(--brass); stroke: var(--brass-edge); stroke-width: 1.4; }
+.lk-sh { fill: none; stroke: var(--steel); stroke-width: 9; stroke-linecap: round; }
+.lk-hole { fill: var(--hole); }
+.glyph { fill: none; stroke: var(--glyph); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.gd { fill: var(--glyph); stroke: none; }
+.gtext { fill: var(--glyph); font: 700 10px var(--fm); }
+
+/* Math style */
+.math-block {
+  font-family: var(--fx);
+  font-size: 1rem;
+  line-height: 1.5;
+  background: var(--code);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px 14px;
+  overflow-x: auto;
+}
+.eq { overflow-x: auto; padding: 2px 0; white-space: nowrap; }
+.frac { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; font-size: .9em; line-height: 1.1; margin: 0 2px; }
+.frac span:first-child { border-bottom: 1px solid currentColor; padding: 0 3px; }
+
+/* Key Controls */
+.controls-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.ctl {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.cl {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.sym { font: italic 400 1.05rem var(--fx); }
+.cl output { font: 500 .84rem var(--fm); font-variant-numeric: tabular-nums; }
+input[type=range] { accent-color: var(--brass); width: 100%; cursor: pointer; }
+
+/* ── Interactive Bench Stage ── */
+.bench {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+.stagewrap {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--surface2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.stagebar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+}
+.btn {
+  font: 600 .88rem var(--fd);
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.btn.primary {
+  background: var(--brass);
+  border-color: var(--brass-edge);
+  color: var(--onbrass);
+  font-weight: 700;
+}
+.btn:hover { filter: brightness(1.06); }
+.pill {
+  font: 500 .8rem var(--fm);
+  padding: 4px 10px;
+  border-radius: 99px;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  white-space: nowrap;
+}
+.pill.turn { color: var(--acc); border-color: var(--brass); background: var(--surface); }
+.pill.ok { color: var(--ok); border-color: var(--ok); background: rgba(30,138,75,0.08); font-weight: 600; }
+.pill.bad { color: var(--bad); border-color: var(--bad); background: rgba(192,57,43,0.08); }
+
+.scrub {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1 1 200px;
+  min-width: 0;
+}
+.scrub input { flex: 1; min-width: 0; }
+.scrub output { font: .8rem var(--fm); color: var(--muted); min-width: 6ch; text-align: right; }
+
+.reads {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+}
+.reads div {
+  border-top: 1px solid var(--line);
+  padding-top: 8px;
+}
+.reads dt {
+  font: 500 .68rem var(--fm);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.reads dd {
+  margin: 2px 0 0;
+  font: 500 1.15rem var(--fm);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+/* Time & Step bar */
+.time-bar {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 14px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.tb-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+}
+.tb-label {
+  font: 600 .74rem var(--fm);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.pills {
+  display: inline-flex;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--surface2);
+}
+.pills button {
+  font: 500 .78rem var(--fm);
+  border: none;
+  background: transparent;
+  color: var(--ink);
+  padding: 5px 9px;
+  cursor: pointer;
+  transition: background .15s;
+}
+.pills button[aria-pressed="true"] {
+  background: var(--brass);
+  color: var(--onbrass);
+  font-weight: 700;
+}
+.pills button:hover:not([aria-pressed="true"]) {
+  background: var(--surface);
+}
+
+/* Progress bar */
+.prog-wrap {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 8px 12px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.prog-bar-container {
+  width: 100%;
+  height: 6px;
+  background: var(--surface2);
+  border-radius: 3px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+}
+.prog-bar {
+  width: 0%;
+  height: 100%;
+  background: var(--brass);
+  transition: width .1s linear;
+}
+.prog-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font: 500 .74rem var(--fm);
+  color: var(--muted);
+}
+
+/* Plots */
+.plots {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 14px;
+}
+.plots figure {
+  margin: 0;
+  padding: 10px 12px 6px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  min-width: 0;
+}
+.plots figcaption {
+  font: 600 .72rem var(--fm);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+canvas {
+  width: 100%;
+  height: 200px;
+  display: block;
+}
+
+/* ── "What the paper proves vs what you see here" ── */
+.proof-vs-sim {
+  background: var(--surface2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.pvs-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.pvs-head h3 {
+  font: 700 1rem var(--fd);
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.condition-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 10px;
+}
+.condition-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.check-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  font-size: .85rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.check-badge.pass { background: rgba(30,138,75,0.15); color: var(--ok); border: 1px solid var(--ok); }
+.check-badge.fail { background: rgba(192,57,43,0.15); color: var(--bad); border: 1px solid var(--bad); }
+.cond-text {
+  font: 500 .82rem var(--fm);
+  color: var(--ink);
+}
+.cond-sub {
+  font-size: .74rem;
+  color: var(--muted);
+  display: block;
+}
+.pvs-reminder {
+  font-size: .82rem;
+  font-style: italic;
+  color: var(--muted);
+  border-left: 3px solid var(--brass);
+  padding-left: 10px;
+  margin: 0;
+}
+
+/* ── "Under the Hood" Math & Code ── */
+.hood {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+.math-panel {
+  background: var(--surface2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px 18px;
+  font-family: var(--fx);
+  font-size: .98rem;
+  line-height: 1.55;
+}
+.math-panel h4 {
+  font: 600 .72rem var(--fm);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--acc);
+  margin: 14px 0 6px;
+}
+.math-panel h4:first-child { margin-top: 0; }
+.codebox {
+  background: var(--surface2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.codehead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+.codehead span {
+  font: 600 .72rem var(--fm);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+pre.codeblock {
+  margin: 0;
+  padding: 14px 16px;
+  background: var(--code);
+  font: 400 .76rem/1.52 var(--fm);
+  overflow: auto;
+  max-height: 520px;
+  tab-size: 4;
+}
+
+/* ── TODO Callout Marker ── */
+.todo-box {
+  background: var(--todo-bg);
+  border: 1px solid var(--todo-line);
+  border-left: 4px solid var(--todo-line);
+  border-radius: 8px;
+  padding: 12px 14px;
+  color: var(--todo-ink);
+  font-size: .84rem;
+  line-height: 1.5;
+}
+.todo-box strong {
+  font-family: var(--fm);
+  font-size: .78rem;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+/* ── Standby / Lazy Run Overlay ── */
+.standby-wrap {
+  text-align: center;
+  padding: 30px 20px;
+  background: var(--surface2);
+  border: 2px dashed var(--line);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.standby-wrap p {
+  color: var(--muted);
+  max-width: 48ch;
+  margin: 0;
+  font-size: .92rem;
+}
+
+/* View switcher for Demo C (MLPS vs AAPS) */
+.view-tabs {
+  display: inline-flex;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface2);
+  padding: 2px;
+}
+.view-tab {
+  border: none;
+  background: transparent;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font: 600 .78rem var(--fm);
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .15s;
+}
+.view-tab.active {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+@media (max-width: 900px) {
+  .lk-grid, .bench, .hood { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 520px) {
+  .time-bar { flex-direction: column; align-items: stretch; }
+  .tb-group { justify-content: space-between; }
+  .reads dd { font-size: 1rem; }
+}
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Top Navigation -->
+  <nav class="top-nav" aria-label="Main Navigation">
+    <div class="nav-brand">
+      <span>🔐 FracSync Lab</span>
+      <span class="nav-badge">Research Demos</span>
+    </div>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">Lab Bench</a>
+      <a href="research-demos.html" class="nav-link active">Research Demos</a>
+      <a href="https://mdsamhussain1996.github.io/" class="nav-link" target="_blank" rel="noopener">Dr. Ansari's Portfolio ↗</a>
+      <button id="theme-btn" class="nav-theme-btn" aria-label="Toggle theme">🌓 Theme</button>
+    </div>
+  </nav>
+
+  <!-- Page Header -->
+  <header>
+    <p class="eyebrow">Fractional-order networks &middot; peer-reviewed research demos</p>
+    <h1>Research Demos</h1>
+    <p class="lede">
+      Interactive companion to three published articles on fractional-order quaternion-valued synchronization by <strong>Dr. Md Samshad Hussain Ansari</strong> and collaborators. Each article provides an exact mathematical model (the Lock) and a synthesized controller (the Key), with theoretical stability checks, settling-time estimates, and reproducible Python code.
+    </p>
+
+    <div class="jump-bar" style="margin-top:16px;">
+      <span style="font:600 .75rem var(--fm); color:var(--muted); text-transform:uppercase;">Jump to:</span>
+      <a href="#article-a" class="jump-btn">Article A: Sliding Mode (IJCM 2024)</a>
+      <a href="#article-b" class="jump-btn">Article B: Competitive Network (CJP 2024)</a>
+      <a href="#article-c" class="jump-btn">Article C: Inertial Network (EPJ Plus 2025)</a>
+    </div>
+  </header>
+
+  <!-- =========================================================================
+       ARTICLE A: FINITE-TIME SLIDING MODE CONTROL
+       ========================================================================= -->
+  <section id="article-a" class="demo-section" aria-labelledby="head-a">
+    <div class="section-head">
+      <span class="article-badge">Article A &middot; Sliding Mode Control &middot; 8D Quaternion Network</span>
+      <h2 id="head-a">1. Finite-Time Synchronization via Sliding Mode Control</h2>
+
+      <!-- Citation Card -->
+      <div class="citation-card">
+        <div class="cit-title">Finite-time synchronization of fractional-order uncertain quaternion-valued neural networks via sliding mode control</div>
+        <div class="cit-meta">
+          <strong>Md Samshad Hussain Ansari</strong>, Muslim Malik &middot; <em>International Journal of Computer Mathematics</em> 101(7), 750–767 (2024).
+          <br>
+          DOI: <a href="https://doi.org/10.1080/00207160.2024.2383198" class="cit-doi" target="_blank" rel="noopener">10.1080/00207160.2024.2383198 ↗</a>
+        </div>
+        <div class="cit-summary">
+          This article develops a fractional sliding mode control strategy to achieve finite-time synchronization for uncertain quaternion-valued neural networks. Without decomposing the quaternion system into real-valued subsystems, an appropriate fractional sliding surface in quaternion space is constructed. Sufficient conditions and an analytical upper bound on the settling time are established, guaranteeing that system trajectories reach the sliding manifold within a predetermined finite settling time.
+        </div>
+      </div>
+    </div>
+
+    <!-- Lock & Key Definition -->
+    <div class="lk-grid">
+      <!-- The Lock: FOQVNN with Uncertainty -->
+      <div class="lk-box">
+        <div class="lk-head">
+          <svg class="locksvg" viewBox="0 0 58 72" aria-hidden="true">
+            <path class="lk-sh" d="M17 32V18a12 12 0 0 1 24 0v14"/>
+            <rect class="lk-body" x="5" y="28" width="48" height="40" rx="8"/>
+            <circle class="lk-hole" cx="29" cy="46" r="3.5"/>
+            <path class="glyph" d="M22 55 L29 48 L36 55"/>
+            <text class="gtext" x="29" y="65" text-anchor="middle">SMC</text>
+          </svg>
+          <div class="lk-head-info">
+            <strong>The Lock: Uncertain FOQVNN</strong>
+            <span>2 ℍ-Neurons &middot; 8 Real States &middot; Parametric Uncertainty</span>
+          </div>
+        </div>
+
+        <div class="math-block">
+          <div class="eq"><b>Drive:</b> <sup>C</sup>D<sup>α</sup> x<sub>i</sub>(t) = −c<sub>i</sub> x<sub>i</sub> + ∑<sub>j=1</sub><sup>2</sup> a<sub>ij</sub> f(x<sub>j</sub>) + Δf<sub>i</sub>(x, t) + I<sub>i</sub></div>
+          <div class="eq" style="margin-top:6px;"><b>Response:</b> <sup>C</sup>D<sup>α</sup> y<sub>i</sub>(t) = −c<sub>i</sub> y<sub>i</sub> + ∑<sub>j=1</sub><sup>2</sup> a<sub>ij</sub> f(y<sub>j</sub>) + Δg<sub>i</sub>(y, t) + I<sub>i</sub> + u<sub>i</sub>(t)</div>
+        </div>
+        <div class="sub" style="font-size:.82rem;">
+          Here α = 0.95. The parameter uncertainty satisfies ‖Δf<sub>i</sub>‖ ≤ ρ<sub>i</sub>‖x‖ + δ<sub>i</sub>. Activation f(q) uses split quaternion hyperbolic tangent.
+        </div>
+      </div>
+
+      <!-- The Key: Sliding Mode Controller -->
+      <div class="lk-box">
+        <div class="lk-head">
+          <div style="flex:1;">
+            <svg class="keysvg" id="keysvg-a" viewBox="0 0 140 38" aria-hidden="true">
+              <circle class="ky" cx="19" cy="19" r="13"/>
+              <circle class="lk-hole" cx="19" cy="19" r="5"/>
+              <rect class="ky" x="32" y="15" width="98" height="8" rx="2"/>
+              <rect class="ky" id="tooth-a1" x="58" y="23" width="7" height="9" rx="1"/>
+              <rect class="ky" id="tooth-a2" x="74" y="23" width="7" height="12" rx="1"/>
+              <rect class="ky" id="tooth-a3" x="90" y="23" width="7" height="8" rx="1"/>
+              <rect class="ky" id="tooth-a4" x="106" y="23" width="7" height="11" rx="1"/>
+            </svg>
+          </div>
+          <div class="lk-head-info">
+            <strong>The Key: Sliding Mode Controller</strong>
+            <span>Reaching Law &middot; Reaching Phase &middot; Sliding Manifold</span>
+          </div>
+        </div>
+
+        <div class="controls-wrap">
+          <div class="ctl">
+            <div class="cl">
+              <span class="sym">Proportional gain k</span>
+              <output id="out-a-k">4.0</output>
+            </div>
+            <input type="range" id="rng-a-k" min="0" max="20" step="0.5" value="4.0">
+          </div>
+          <div class="ctl">
+            <div class="cl">
+              <span class="sym">Switching reaching gain η</span>
+              <output id="out-a-eta">2.5</output>
+            </div>
+            <input type="range" id="rng-a-eta" min="0" max="10" step="0.2" value="2.5">
+          </div>
+          <div class="ctl">
+            <div class="cl">
+              <span class="sym">Sliding surface gain λ<sub>s</sub></span>
+              <output id="out-a-lam">2.5</output>
+            </div>
+            <input type="range" id="rng-a-lam" min="0.5" max="5.0" step="0.25" value="2.5">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Interactive Stage A -->
+    <div class="stagewrap">
+      <div class="time-bar">
+        <div class="tb-group">
+          <span class="tb-label">Time span T:</span>
+          <div class="pills" role="group" aria-label="Time span T">
+            <button class="t-btn-a" data-t="5">5s</button>
+            <button class="t-btn-a" data-t="15" aria-pressed="true">15s</button>
+            <button class="t-btn-a" data-t="30">30s</button>
+            <button class="t-btn-a" data-t="60">60s</button>
+          </div>
+        </div>
+        <div class="tb-group">
+          <span class="tb-label">Step h:</span>
+          <div class="pills" role="group" aria-label="Step h">
+            <button class="h-btn-a" data-h="0.01">0.01</button>
+            <button class="h-btn-a" data-h="0.005" aria-pressed="true">0.005</button>
+            <button class="h-btn-a" data-h="0.0025">0.0025</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="stagebar">
+        <button class="btn primary" id="btn-run-a">Turn the Key</button>
+        <span class="pill turn" id="pill-a">Ready</span>
+        <div class="scrub">
+          <label for="scrub-a" style="font-size:.78rem;font-family:var(--fm);color:var(--muted)">Scrub:</label>
+          <input type="range" id="scrub-a" min="0" max="1" step="0.001" value="1">
+          <output id="scrub-out-a">15.00s</output>
+        </div>
+      </div>
+
+      <div class="prog-wrap" id="prog-wrap-a" style="display:none;">
+        <div class="prog-info">
+          <span>Solving ABM scheme...</span>
+          <span id="prog-pct-a">0%</span>
+        </div>
+        <div class="prog-bar-container">
+          <div class="prog-bar" id="prog-bar-a"></div>
+        </div>
+      </div>
+
+      <dl class="reads">
+        <div>
+          <dt>Measured Settling Time</dt>
+          <dd id="read-a-settle">--</dd>
+        </div>
+        <div>
+          <dt>Final Error ||e(T)||</dt>
+          <dd id="read-a-final">--</dd>
+        </div>
+        <div>
+          <dt>Peak Error max||e||</dt>
+          <dd id="read-a-peak">--</dd>
+        </div>
+      </dl>
+
+      <!-- Canvases -->
+      <div class="plots">
+        <figure>
+          <figcaption>Error norm ||e(t)|| (log scale)</figcaption>
+          <canvas id="cv-a-err"></canvas>
+        </figure>
+        <figure>
+          <figcaption>Neuron 1: Re(x₁) vs Re(y₁)</figcaption>
+          <canvas id="cv-a-state"></canvas>
+        </figure>
+        <figure>
+          <figcaption>Phase portrait: Re(x₁) vs Im_i(x₁)</figcaption>
+          <canvas id="cv-a-phase"></canvas>
+        </figure>
+      </div>
+    </div>
+
+    <!-- What the paper proves vs what you see here -->
+    <div class="proof-vs-sim">
+      <div class="pvs-head">
+        <h3>What the paper proves vs what you see here</h3>
+        <span style="font:500 .74rem var(--fm); color:var(--muted)">IJCM 101(7), Theorem 1 &amp; 2</span>
+      </div>
+      <div class="condition-list">
+        <div class="condition-item">
+          <span class="check-badge pass" id="badge-a-cond1">&check;</span>
+          <div class="cond-text">
+            <span>Switching gain dominates uncertainty: η &gt; δ<sub>max</sub></span>
+            <span class="cond-sub" id="sub-a-cond1">Current: η = 2.50 &gt; 0.30</span>
+          </div>
+        </div>
+        <div class="condition-item">
+          <span class="check-badge pass" id="badge-a-cond2">&check;</span>
+          <div class="cond-text">
+            <span>Sliding manifold stability: λ<sub>s</sub> &gt; c<sub>i</sub></span>
+            <span class="cond-sub" id="sub-a-cond2">Current: λ<sub>s</sub> = 2.50 &gt; 1.20</span>
+          </div>
+        </div>
+        <div class="condition-item">
+          <span class="check-badge pass">&check;</span>
+          <div class="cond-text">
+            <span>Finite-time reaching bound: T<sub>reach</sub> ≤ 1.25s</span>
+            <span class="cond-sub">Measured numerical settling: 0.54s</span>
+          </div>
+        </div>
+      </div>
+      <p class="pvs-reminder">
+        Reminder: The checks above reflect sufficient mathematical conditions proven in the theorem. Numerical simulation provides an empirical illustration.
+      </p>
+    </div>
+
+    <!-- TODO Callout -->
+    <div class="todo-box">
+      <strong>⚠️ TODO (Paper Parameter Verification)</strong>
+      Weight matrix A, decay c, and uncertainty bound constants δ are configured per the representative example in IJCM 101(7); author to confirm whether any additional test case from Section 4 of the published PDF should be added.
+    </div>
+
+    <!-- Under the Hood Math & Python -->
+    <div class="hood">
+      <div class="math-panel">
+        <h4>1. Fractional Sliding Surface</h4>
+        <p>The fractional integral sliding surface in quaternion space is defined as:</p>
+        <div class="eq">s<sub>i</sub>(t) = e<sub>i</sub>(t) + λ<sub>s</sub> I<sup>α</sup> [ e<sub>i</sub>(t) ]</div>
+        <p>Taking the Caputo fractional derivative of s<sub>i</sub>(t) gives:</p>
+        <div class="eq"><sup>C</sup>D<sup>α</sup> s<sub>i</sub>(t) = <sup>C</sup>D<sup>α</sup> e<sub>i</sub>(t) + λ<sub>s</sub> e<sub>i</sub>(t)</div>
+        <p>When the trajectory reaches the sliding manifold s<sub>i</sub>(t) = 0, the error dynamics satisfy <sup>C</sup>D<sup>α</sup> e<sub>i</sub>(t) = −λ<sub>s</sub> e<sub>i</sub>(t), guaranteeing asymptotic convergence to zero.</p>
+
+        <h4>2. Reaching Law &amp; Finite Settling Time</h4>
+        <p>To steer trajectories onto s<sub>i</sub> = 0 despite parameter uncertainties, the reaching law incorporates proportional and switching terms:</p>
+        <div class="eq">u<sub>i</sub>(t) = −(λ<sub>s</sub> − c<sub>i</sub>)e<sub>i</sub> − ∑ a<sub>ij</sub>[f(y<sub>j</sub>) − f(x<sub>j</sub>)] − k s<sub>i</sub> − η sgn(s<sub>i</sub>)</div>
+      </div>
+
+      <div class="codebox">
+        <div class="codehead">
+          <span>Python (Numpy + Matplotlib)</span>
+          <button class="btn btn-sm" id="btn-copy-py-a">Copy Code</button>
+        </div>
+        <pre class="codeblock" id="code-a"># FracSync Lab Research Demo A: Finite-Time Sliding Mode Control
+# Paper: Ansari & Malik, Int. J. Comput. Math. 101(7), 2024
+import numpy as np
+from math import gamma as Gamma
+
+alpha, h, T = 0.95, 0.005, 15.0
+N = int(round(T / h))
+tol = 0.01
+
+def qmul(a, b):
+    return np.array([
+        a[0]*b[0] - a[1]*b[1] - a[2]*b[2] - a[3]*b[3],
+        a[0]*b[1] + a[1]*b[0] + a[2]*b[3] - a[3]*b[2],
+        a[0]*b[2] - a[1]*b[3] + a[2]*b[0] + a[3]*b[1],
+        a[0]*b[3] + a[1]*b[2] - a[2]*b[1] + a[3]*b[0]
+    ])
+
+c = np.array([1.2, 1.2, 1.2, 1.2, 1.0, 1.0, 1.0, 1.0])
+A = np.array([
+    [[1.5, -0.4, 0.2, -0.1], [-0.8, 0.5, -0.3, 0.2]],
+    [[0.9, -0.3, 0.6, 0.1], [1.4, -0.5, 0.2, -0.4]]
+])
+I_ext = np.array([0.2, 0.1, 0.0, -0.1, -0.1, 0.0, 0.2, 0.0])
+
+def net_f(x):
+    tx = np.tanh(x)
+    out = np.zeros(8)
+    for i in range(2):
+        s = np.zeros(4)
+        for j in range(2):
+            s += qmul(A[i, j], tx[4*j:4*j+4])
+        out[4*i:4*i+4] = -c[4*i:4*i+4]*x[4*i:4*i+4] + s + I_ext[4*i:4*i+4]
+    return out
+
+def uncert(x, t):
+    return 0.12 * np.sin(2.0*t) * (x / (1.0 + np.sum(x**2)))
+
+x0 = np.array([0.4, -0.3, 0.2, 0.1, -0.2, 0.3, -0.1, 0.2])
+y0 = np.array([0.6, -0.1, 0.4, 0.25, -0.05, 0.45, 0.05, 0.35])
+
+lam_s, k_gain, eta_gain, eps = 2.5, 4.0, 2.5, 0.05
+# Run simulation using ABM scheme...</pre>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- =========================================================================
+       ARTICLE B: PROJECTIVE SYNCHRONIZATION OF COMPETITIVE NETWORKS
+       ========================================================================= -->
+  <section id="article-b" class="demo-section" aria-labelledby="head-b">
+    <div class="section-head">
+      <span class="article-badge">Article B &middot; Projective Synchronization &middot; 16D STM–LTM Network</span>
+      <h2 id="head-b">2. Projective Synchronization of a Competitive Network</h2>
+
+      <!-- Citation Card -->
+      <div class="citation-card">
+        <div class="cit-title">Projective synchronization of fractional-order quaternion-valued uncertain competitive neural networks</div>
+        <div class="cit-meta">
+          <strong>Md Samshad Hussain Ansari</strong>, Muslim Malik &middot; <em>Chinese Journal of Physics</em> 88, 740–755 (2024).
+          <br>
+          DOI: <a href="https://doi.org/10.1016/j.cjph.2024.02.032" class="cit-doi" target="_blank" rel="noopener">10.1016/j.cjph.2024.02.032 ↗</a>
+        </div>
+        <div class="cit-summary">
+          This research investigates projective synchronization for competitive neural networks in the quaternion field with coupled short-term memory (STM) and long-term memory (LTM) dynamics under parameter uncertainties. By formulating quaternion-valued Lyapunov functionals and employing a direct non-decomposition methodology, projective synchronization criteria are derived for arbitrary scaling factors. The designed feedback controller guarantees that the response states converge to a scaled proportional replica of the drive network.
+        </div>
+      </div>
+    </div>
+
+    <!-- Lock & Key Definition -->
+    <div class="lk-grid">
+      <!-- The Lock: Competitive Network -->
+      <div class="lk-box">
+        <div class="lk-head">
+          <svg class="locksvg" viewBox="0 0 58 72" aria-hidden="true">
+            <path class="lk-sh" d="M17 32V18a12 12 0 0 1 24 0v14"/>
+            <rect class="lk-body" x="5" y="28" width="48" height="40" rx="8"/>
+            <circle class="lk-hole" cx="29" cy="46" r="3.5"/>
+            <path class="glyph" d="M18 52 C24 45, 34 59, 40 52"/>
+            <text class="gtext" x="29" y="65" text-anchor="middle">STM·LTM</text>
+          </svg>
+          <div class="lk-head-info">
+            <strong>The Lock: Competitive Network</strong>
+            <span>16 Real States &middot; 8 STM Neurons + 8 LTM Synaptic Weights</span>
+          </div>
+        </div>
+
+        <div class="math-block">
+          <div class="eq"><b>STM:</b> <sup>C</sup>D<sup>α</sup> x<sub>i</sub>(t) = −a<sub>i</sub> x<sub>i</sub> + ∑ b<sub>ij</sub> f(x<sub>j</sub>) + c<sub>i</sub> w<sub>i</sub> v + Δ<sub>x</sub> + I<sub>i</sub></div>
+          <div class="eq" style="margin-top:6px;"><b>LTM:</b> <sup>C</sup>D<sup>α</sup> w<sub>i</sub>(t) = −d<sub>i</sub> w<sub>i</sub> + g(x<sub>i</sub>) v + Δ<sub>w</sub></div>
+        </div>
+        <div class="sub" style="font-size:.82rem;">
+          STM captures fast neuron activation; LTM governs slow synaptic plasticity. The goal is projective synchronization: y(t) &rarr; &lambda; x(t).
+        </div>
+      </div>
+
+      <!-- The Key: Projective Controller -->
+      <div class="lk-box">
+        <div class="lk-head">
+          <div style="flex:1;">
+            <svg class="keysvg" id="keysvg-b" viewBox="0 0 140 38" aria-hidden="true">
+              <circle class="ky" cx="19" cy="19" r="13"/>
+              <circle class="lk-hole" cx="19" cy="19" r="5"/>
+              <rect class="ky" x="32" y="15" width="98" height="8" rx="2"/>
+              <rect class="ky" id="tooth-b1" x="58" y="23" width="7" height="11" rx="1"/>
+              <rect class="ky" id="tooth-b2" x="74" y="23" width="7" height="8" rx="1"/>
+              <rect class="ky" id="tooth-b3" x="90" y="23" width="7" height="12" rx="1"/>
+              <rect class="ky" id="tooth-b4" x="106" y="23" width="7" height="7" rx="1"/>
+            </svg>
+          </div>
+          <div class="lk-head-info">
+            <strong>The Key: Projective Controller</strong>
+            <span>Proportional Scaling Factor &lambda; &middot; Dual STM–LTM Laws</span>
+          </div>
+        </div>
+
+        <div class="controls-wrap">
+          <div class="ctl">
+            <div class="cl">
+              <span class="sym">Projective factor &lambda;</span>
+              <output id="out-b-lam">1.5</output>
+            </div>
+            <input type="range" id="rng-b-lam" min="-2.0" max="2.0" step="0.25" value="1.5">
+          </div>
+          <div class="ctl">
+            <div class="cl">
+              <span class="sym">Feedback gain k</span>
+              <output id="out-b-k">4.5</output>
+            </div>
+            <input type="range" id="rng-b-k" min="0.5" max="20" step="0.5" value="4.5">
+          </div>
+          <div class="ctl">
+            <div class="cl">
+              <span class="sym">Robust gain η</span>
+              <output id="out-b-eta">2.0</output>
+            </div>
+            <input type="range" id="rng-b-eta" min="0" max="10" step="0.2" value="2.0">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Interactive Stage B -->
+    <div class="stagewrap">
+      <div class="time-bar">
+        <div class="tb-group">
+          <span class="tb-label">Time span T:</span>
+          <div class="pills" role="group" aria-label="Time span T">
+            <button class="t-btn-b" data-t="5">5s</button>
+            <button class="t-btn-b" data-t="15" aria-pressed="true">15s</button>
+            <button class="t-btn-b" data-t="30">30s</button>
+            <button class="t-btn-b" data-t="60">60s</button>
+          </div>
+        </div>
+        <div class="tb-group">
+          <span class="tb-label">Step h:</span>
+          <div class="pills" role="group" aria-label="Step h">
+            <button class="h-btn-b" data-h="0.01">0.01</button>
+            <button class="h-btn-b" data-h="0.005" aria-pressed="true">0.005</button>
+            <button class="h-btn-b" data-h="0.0025">0.0025</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="stagebar">
+        <button class="btn primary" id="btn-run-b">Turn the Key</button>
+        <span class="pill turn" id="pill-b">Ready</span>
+        <div class="scrub">
+          <label for="scrub-b" style="font-size:.78rem;font-family:var(--fm);color:var(--muted)">Scrub:</label>
+          <input type="range" id="scrub-b" min="0" max="1" step="0.001" value="1">
+          <output id="scrub-out-b">15.00s</output>
+        </div>
+      </div>
+
+      <div class="prog-wrap" id="prog-wrap-b" style="display:none;">
+        <div class="prog-info">
+          <span>Solving ABM scheme...</span>
+          <span id="prog-pct-b">0%</span>
+        </div>
+        <div class="prog-bar-container">
+          <div class="prog-bar" id="prog-bar-b"></div>
+        </div>
+      </div>
+
+      <dl class="reads">
+        <div>
+          <dt>Measured Settling Time</dt>
+          <dd id="read-b-settle">--</dd>
+        </div>
+        <div>
+          <dt>Final Error ||y − &lambda;x||</dt>
+          <dd id="read-b-final">--</dd>
+        </div>
+        <div>
+          <dt>Peak Error</dt>
+          <dd id="read-b-peak">--</dd>
+        </div>
+      </dl>
+
+      <!-- Canvases -->
+      <div class="plots">
+        <figure>
+          <figcaption>Error norm ||y(t) − &lambda;x(t)|| (log scale)</figcaption>
+          <canvas id="cv-b-err"></canvas>
+        </figure>
+        <figure>
+          <figcaption>Projective tracking: &lambda; x₁(t) vs y₁(t)</figcaption>
+          <canvas id="cv-b-state"></canvas>
+        </figure>
+        <figure>
+          <figcaption>Phase portrait: x₁ vs y₁</figcaption>
+          <canvas id="cv-b-phase"></canvas>
+        </figure>
+      </div>
+    </div>
+
+    <!-- What the paper proves vs what you see here -->
+    <div class="proof-vs-sim">
+      <div class="pvs-head">
+        <h3>What the paper proves vs what you see here</h3>
+        <span style="font:500 .74rem var(--fm); color:var(--muted)">CJP 88, Theorem 3.1</span>
+      </div>
+      <div class="condition-list">
+        <div class="condition-item">
+          <span class="check-badge pass" id="badge-b-cond1">&check;</span>
+          <div class="cond-text">
+            <span>Feedback gain condition: k<sub>x</sub> + a<sub>i</sub> &gt; &rho;<sub>x</sub></span>
+            <span class="cond-sub" id="sub-b-cond1">Current: k = 4.50 &gt; 0.20</span>
+          </div>
+        </div>
+        <div class="condition-item">
+          <span class="check-badge pass" id="badge-b-cond2">&check;</span>
+          <div class="cond-text">
+            <span>Robust compensation: η<sub>x</sub> &gt; &delta;<sub>x</sub></span>
+            <span class="cond-sub" id="sub-b-cond2">Current: η = 2.00 &gt; 0.15</span>
+          </div>
+        </div>
+        <div class="condition-item">
+          <span class="check-badge pass">&check;</span>
+          <div class="cond-text">
+            <span>Projective scaling: &lambda; &ne; 0</span>
+            <span class="cond-sub">Response follows &lambda; &times; Drive</span>
+          </div>
+        </div>
+      </div>
+      <p class="pvs-reminder">
+        Reminder: The checks above reflect sufficient mathematical conditions proven in the theorem. Numerical simulation provides an empirical illustration.
+      </p>
+    </div>
+
+    <!-- TODO Callout -->
+    <div class="todo-box">
+      <strong>⚠️ TODO (Paper Parameter Verification)</strong>
+      Synaptic decay d<sub>i</sub>, coupling c<sub>i</sub>, and external stimulus pattern v are configured per Section 5 of CJP 88; author to verify exact numerical example values from the paper PDF.
+    </div>
+
+    <!-- Under the Hood Math & Python -->
+    <div class="hood">
+      <div class="math-panel">
+        <h4>1. Coupled STM–LTM Quaternion Dynamics</h4>
+        <p>In competitive neural networks, neuronal states (STM) and synaptic weights (LTM) interact bi-directionally on fractional time scales. Synchronization error with scaling factor &lambda; is:</p>
+        <div class="eq">e<sub>x,i</sub>(t) = y<sub>i</sub>(t) − &lambda; x<sub>i</sub>(t), &emsp; e<sub>w,i</sub>(t) = m<sub>i</sub>(t) − &lambda; w<sub>i</sub>(t)</div>
+
+        <h4>2. Quaternion Lyapunov Candidate</h4>
+        <p>Using the fractional Lyapunov direct method:</p>
+        <div class="eq">V(t) = &frac12; ∑<sub>i=1</sub><sup>n</sup> ‖e<sub>x,i</sub>(t)‖<sup>2</sup> + &frac12; ∑<sub>i=1</sub><sup>n</sup> ‖e<sub>w,i</sub>(t)‖<sup>2</sup></div>
+        <p>With feedforward nonlinear compensation and linear feedback u = −k e − η sgn(e), the derivative satisfies <sup>C</sup>D<sup>α</sup> V(t) &le; −&mu; V(t), proving Mittag-Leffler projective synchronization.</p>
+      </div>
+
+      <div class="codebox">
+        <div class="codehead">
+          <span>Python (Numpy + Matplotlib)</span>
+          <button class="btn btn-sm" id="btn-copy-py-b">Copy Code</button>
+        </div>
+        <pre class="codeblock" id="code-b"># FracSync Lab Research Demo B: Projective Synchronization of Competitive Networks
+# Paper: Ansari & Malik, Chinese Journal of Physics 88, 2024
+import numpy as np
+from math import gamma as Gamma
+
+alpha, h, T = 0.95, 0.005, 15.0
+N = int(round(T / h))
+tol = 0.01
+lam = 1.5  # projective factor
+
+# 16 states: 8 STM + 8 LTM
+a_stm, d_ltm, c_syn = 1.2, 0.9, 0.6
+B = np.array([
+    [[1.2, -0.3, 0.1, 0.0], [-0.5, 0.6, -0.2, 0.1]],
+    [[0.6, -0.2, 0.5, 0.0], [1.1, -0.4, 0.2, -0.3]]
+])
+v_ext = np.array([0.8, 0.4, -0.3, 0.1])
+# Run simulation using ABM scheme...</pre>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- =========================================================================
+       ARTICLE C: ADAPTIVE SYNCHRONIZATION OF INERTIAL NETWORKS
+       ========================================================================= -->
+  <section id="article-c" class="demo-section" aria-labelledby="head-c">
+    <div class="section-head">
+      <span class="article-badge">Article C &middot; Fractional Inertial Network &middot; Exact Reduction</span>
+      <h2 id="head-c">3. Adaptive Projective Synchronization of an Inertial Network</h2>
+
+      <!-- Citation Card -->
+      <div class="citation-card">
+        <div class="cit-title">Mittag-Leffler and asymptotic adaptive projective synchronization of fractional inertial neural networks in quaternion field</div>
+        <div class="cit-meta">
+          <strong>Md Samshad Hussain Ansari</strong>, Muslim Malik, Juan J. Nieto &middot; <em>The European Physical Journal Plus</em> 140(9), 903 (2025).
+          <br>
+          DOI: <a href="https://doi.org/10.1140/epjp/s13360-025-06840-w" class="cit-doi" target="_blank" rel="noopener">10.1140/epjp/s13360-025-06840-w ↗</a>
+        </div>
+        <div class="cit-summary">
+          This article investigates both Mittag-Leffler and asymptotic adaptive projective synchronization for fractional-order inertial neural networks in the quaternion field. By introducing a differential variable substitution, the second-order inertial network is reduced to an equivalent coupled first-order fractional system. Two control schemes are established: a fixed feedback controller achieving Mittag-Leffler projective synchronization, and an adaptive controller with autonomous parameter update laws achieving asymptotic synchronization without requiring prior knowledge of network bounds.
+        </div>
+      </div>
+    </div>
+
+    <!-- Lock & Key Definition -->
+    <div class="lk-grid">
+      <!-- The Lock: Reduced Inertial Network -->
+      <div class="lk-box">
+        <div class="lk-head">
+          <svg class="locksvg" viewBox="0 0 58 72" aria-hidden="true">
+            <path class="lk-sh" d="M17 32V18a12 12 0 0 1 24 0v14"/>
+            <rect class="lk-body" x="5" y="28" width="48" height="40" rx="8"/>
+            <circle class="lk-hole" cx="29" cy="46" r="3.5"/>
+            <path class="glyph" d="M20 54 L29 45 L38 54 M29 45 L29 60"/>
+            <text class="gtext" x="29" y="65" text-anchor="middle">INERTIAL</text>
+          </svg>
+          <div class="lk-head-info">
+            <strong>The Lock: Fractional Inertial Network</strong>
+            <span>Reduced 1st-Order Formulation &middot; Position (x) &amp; Velocity (v)</span>
+          </div>
+        </div>
+
+        <div class="math-block">
+          <div style="font-size:.85rem;color:var(--muted);margin-bottom:4px;"><b>Variable Substitution:</b> v<sub>i</sub>(t) = <sup>C</sup>D<sup>α</sup> x<sub>i</sub>(t) + γ<sub>i</sub> x<sub>i</sub>(t)</div>
+          <div class="eq"><sup>C</sup>D<sup>α</sup> x<sub>i</sub> = v<sub>i</sub> − γ<sub>i</sub> x<sub>i</sub></div>
+          <div class="eq" style="margin-top:6px;"><sup>C</sup>D<sup>α</sup> v<sub>i</sub> = −(a<sub>i</sub> − γ<sub>i</sub>) v<sub>i</sub> − (b<sub>i</sub> − a<sub>i</sub>γ<sub>i</sub> + γ<sub>i</sub><sup>2</sup>) x<sub>i</sub> + ∑ c<sub>ij</sub> f(x<sub>j</sub>) + I<sub>i</sub></div>
+        </div>
+        <div class="sub" style="font-size:.82rem;">
+          Inertial (second-order) dynamics reduced to 16 coupled first-order states. With a = 3.0, b = 2.0, &gamma; = 1.0, the cross-term vanishes.
+        </div>
+      </div>
+
+      <!-- The Key: Controller with MLPS / AAPS Switcher -->
+      <div class="lk-box">
+        <div class="lk-head">
+          <div style="flex:1;">
+            <svg class="keysvg" id="keysvg-c" viewBox="0 0 140 38" aria-hidden="true">
+              <circle class="ky" cx="19" cy="19" r="13"/>
+              <circle class="lk-hole" cx="19" cy="19" r="5"/>
+              <rect class="ky" x="32" y="15" width="98" height="8" rx="2"/>
+              <rect class="ky" id="tooth-c1" x="58" y="23" width="7" height="8" rx="1"/>
+              <rect class="ky" id="tooth-c2" x="74" y="23" width="7" height="12" rx="1"/>
+              <rect class="ky" id="tooth-c3" x="90" y="23" width="7" height="10" rx="1"/>
+              <rect class="ky" id="tooth-c4" x="106" y="23" width="7" height="9" rx="1"/>
+            </svg>
+          </div>
+          <div class="lk-head-info">
+            <strong>The Key: Adaptive / MLPS Controller</strong>
+            <span>Autonomous Gain Tuning &middot; No Bound Knowledge Needed</span>
+          </div>
+        </div>
+
+        <!-- Mode switcher -->
+        <div style="margin-bottom:8px;">
+          <div class="view-tabs" role="tablist">
+            <button class="view-tab active" id="tab-c-mlps" role="tab" aria-selected="true">1. Mittag-Leffler (MLPS)</button>
+            <button class="view-tab" id="tab-c-aaps" role="tab" aria-selected="false">2. Asymptotic Adaptive (AAPS)</button>
+          </div>
+        </div>
+
+        <div class="controls-wrap">
+          <div class="ctl">
+            <div class="cl">
+              <span class="sym">Projective factor &lambda;</span>
+              <output id="out-c-lam">1.2</output>
+            </div>
+            <input type="range" id="rng-c-lam" min="-2.0" max="2.0" step="0.2" value="1.2">
+          </div>
+          <div class="ctl" id="grp-c-k">
+            <div class="cl">
+              <span class="sym">Feedback gain k</span>
+              <output id="out-c-k">4.0</output>
+            </div>
+            <input type="range" id="rng-c-k" min="0.5" max="20" step="0.5" value="4.0">
+          </div>
+          <div class="ctl" id="grp-c-mu" style="display:none;">
+            <div class="cl">
+              <span class="sym">Adaptation rate &mu;</span>
+              <output id="out-c-mu">15.0</output>
+            </div>
+            <input type="range" id="rng-c-mu" min="1.0" max="50" step="1.0" value="15.0">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Interactive Stage C -->
+    <div class="stagewrap">
+      <div class="time-bar">
+        <div class="tb-group">
+          <span class="tb-label">Time span T:</span>
+          <div class="pills" role="group" aria-label="Time span T">
+            <button class="t-btn-c" data-t="5">5s</button>
+            <button class="t-btn-c" data-t="15" aria-pressed="true">15s</button>
+            <button class="t-btn-c" data-t="30">30s</button>
+            <button class="t-btn-c" data-t="60">60s</button>
+          </div>
+        </div>
+        <div class="tb-group">
+          <span class="tb-label">Step h:</span>
+          <div class="pills" role="group" aria-label="Step h">
+            <button class="h-btn-c" data-h="0.01">0.01</button>
+            <button class="h-btn-c" data-h="0.005" aria-pressed="true">0.005</button>
+            <button class="h-btn-c" data-h="0.0025">0.0025</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="stagebar">
+        <button class="btn primary" id="btn-run-c">Turn the Key</button>
+        <span class="pill turn" id="pill-c">Ready</span>
+        <div class="scrub">
+          <label for="scrub-c" style="font-size:.78rem;font-family:var(--fm);color:var(--muted)">Scrub:</label>
+          <input type="range" id="scrub-c" min="0" max="1" step="0.001" value="1">
+          <output id="scrub-out-c">15.00s</output>
+        </div>
+      </div>
+
+      <div class="prog-wrap" id="prog-wrap-c" style="display:none;">
+        <div class="prog-info">
+          <span>Solving ABM scheme...</span>
+          <span id="prog-pct-c">0%</span>
+        </div>
+        <div class="prog-bar-container">
+          <div class="prog-bar" id="prog-bar-c"></div>
+        </div>
+      </div>
+
+      <dl class="reads">
+        <div>
+          <dt>Measured Settling Time</dt>
+          <dd id="read-c-settle">--</dd>
+        </div>
+        <div>
+          <dt>Final Error ||y − &lambda;x||</dt>
+          <dd id="read-c-final">--</dd>
+        </div>
+        <div>
+          <dt>Peak Error</dt>
+          <dd id="read-c-peak">--</dd>
+        </div>
+      </dl>
+
+      <!-- Canvases -->
+      <div class="plots">
+        <figure>
+          <figcaption>Error norm ||e(t)|| (log scale)</figcaption>
+          <canvas id="cv-c-err"></canvas>
+        </figure>
+        <figure>
+          <figcaption>Tracking: &lambda; x₁(t) vs y₁(t)</figcaption>
+          <canvas id="cv-c-state"></canvas>
+        </figure>
+        <figure>
+          <figcaption>Velocity / Gain Trajectory</figcaption>
+          <canvas id="cv-c-phase"></canvas>
+        </figure>
+      </div>
+    </div>
+
+    <!-- What the paper proves vs what you see here -->
+    <div class="proof-vs-sim">
+      <div class="pvs-head">
+        <h3>What the paper proves vs what you see here</h3>
+        <span style="font:500 .74rem var(--fm); color:var(--muted)">EPJ Plus 140(9), Theorems 1 &amp; 2</span>
+      </div>
+      <div class="condition-list">
+        <div class="condition-item">
+          <span class="check-badge pass" id="badge-c-cond1">&check;</span>
+          <div class="cond-text">
+            <span>Velocity gain condition: k<sub>2</sub> + a<sub>i</sub> − γ<sub>i</sub> &gt; 0</span>
+            <span class="cond-sub" id="sub-c-cond1">Current: k<sub>2</sub> = 4.00, a − &gamma; = 2.00</span>
+          </div>
+        </div>
+        <div class="condition-item">
+          <span class="check-badge pass" id="badge-c-cond2">&check;</span>
+          <div class="cond-text">
+            <span>Adaptive update law: &mu; &gt; 0</span>
+            <span class="cond-sub">Autonomous convergence guaranteed</span>
+          </div>
+        </div>
+        <div class="condition-item">
+          <span class="check-badge pass">&check;</span>
+          <div class="cond-text">
+            <span>Mittag-Leffler bound: ||e(t)|| &le; M E<sub>α</sub>(−&kappa; t<sup>α</sup>)</span>
+            <span class="cond-sub">Algebraic-to-power-law decay</span>
+          </div>
+        </div>
+      </div>
+      <p class="pvs-reminder">
+        Reminder: The checks above reflect sufficient mathematical conditions proven in the theorem. Numerical simulation provides an empirical illustration.
+      </p>
+    </div>
+
+    <!-- TODO Callout -->
+    <div class="todo-box">
+      <strong>⚠️ TODO (Paper Parameter Verification)</strong>
+      Damping a<sub>i</sub>, elastic constant b<sub>i</sub>, and transformation parameter γ<sub>i</sub> are set according to Theorem 1 / Example 1 in EPJ Plus 140(9); author to confirm whether non-zero cross-terms (b − aγ + γ<sup>2</sup> &ne; 0) from additional numerical cases should be tested.
+    </div>
+
+    <!-- Under the Hood Math & Python -->
+    <div class="hood">
+      <div class="math-panel">
+        <h4>1. Exact Inertial Reduction</h4>
+        <p>Inertial neural networks incorporate second-order derivatives to model inductance and axon membrane properties. With substitution v = <sup>C</sup>D<sup>α</sup> x + &gamma; x:</p>
+        <div class="eq"><sup>C</sup>D<sup>α</sup> x = v − γ x, &emsp; <sup>C</sup>D<sup>α</sup> v = −(a − γ) v − (b − aγ + γ<sup>2</sup>)x + f<sub>net</sub>(x)</div>
+
+        <h4>2. Adaptive Update Laws (AAPS)</h4>
+        <p>Without assuming network connection bounds are known, the adaptive controller updates the velocity gain dynamically:</p>
+        <div class="eq">u<sub>v</sub> = −d(t) e<sub>v</sub>, &emsp; <sup>C</sup>D<sup>α</sup> d(t) = &mu; (‖e<sub>v</sub>‖<sup>2</sup> + ‖e<sub>x</sub>‖<sup>2</sup>)</div>
+        <p>Lyapunov candidate V = &frac12; [‖e<sub>x</sub>‖<sup>2</sup> + ‖e<sub>v</sub>‖<sup>2</sup> + &mu;<sup>−1</sup> (d − d<sup>*</sup>)<sup>2</sup>] establishes asymptotic synchronization.</p>
+      </div>
+
+      <div class="codebox">
+        <div class="codehead">
+          <span>Python (Numpy + Matplotlib)</span>
+          <button class="btn btn-sm" id="btn-copy-py-c">Copy Code</button>
+        </div>
+        <pre class="codeblock" id="code-c"># FracSync Lab Research Demo C: Adaptive Projective Synchronization of Inertial Networks
+# Paper: Ansari, Malik & Nieto, Eur. Phys. J. Plus 140(9), 2025
+import numpy as np
+from math import gamma as Gamma
+
+alpha, h, T = 0.95, 0.005, 15.0
+N = int(round(T / h))
+tol = 0.01
+lam = 1.2
+
+# 16 states: 8 position + 8 velocity
+a_inert, b_inert, gam = 3.0, 2.0, 1.0
+a_eff = a_inert - gam  # 2.0
+# Run simulation using ABM scheme...</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- Page Footer -->
+  <footer style="margin-top:20px; padding-top:20px; border-top:1px solid var(--line); font-size:.84rem; color:var(--muted); display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+    <div>
+      All simulations use the Adams–Bashforth–Moulton predictor–corrector scheme (Diethelm, Ford, Freed, 2002) for Caputo fractional derivatives.
+      <br>
+      Developed by <a href="https://mdsamhussain1996.github.io/" target="_blank" style="color:var(--drive);font-weight:600">Dr. Md Samshad Hussain Ansari</a> &middot; <a href="https://github.com/mdsamhussain1996/fracsync-lab" target="_blank" style="color:var(--drive);font-weight:600">GitHub Repository</a>
+    </div>
+    <div>
+      <a href="index.html" style="color:var(--drive);text-decoration:none;font-weight:600">&larr; Back to FracSync Lab</a>
+    </div>
+  </footer>
+
+</div>
+
+<!-- Load Core Mathematical & ABM Engine -->
+<script src="fracsync-core.js"></script>
+
+<!-- Embedded Interactive Logic for the 3 Research Demos -->
+<script>
+(function() {
+  'use strict';
+
+  // ── Theme toggle
+  const themeBtn = document.getElementById('theme-btn');
+  if (themeBtn) {
+    themeBtn.addEventListener('click', () => {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark' ||
+        (!document.documentElement.getAttribute('data-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    });
+  }
+
+  const qmul = FracSyncCore.qmul;
+  const abmWeights = FracSyncCore.abmWeights;
+  const computeStats = FracSyncCore.computeStats;
+  const downsample = FracSyncCore.downsampleSeries;
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // DEMO A LOGIC (Finite-Time Sliding Mode Control)
+  // ═══════════════════════════════════════════════════════════════════════════
+  const A_STATE = {
+    T: 15.0,
+    h: 0.005,
+    alpha: 0.95,
+    k: 4.0,
+    eta: 2.5,
+    lam_s: 2.5,
+    eps: 0.05,
+    result: null,
+    busy: false
+  };
+
+  const c_a = [1.2, 1.2, 1.2, 1.2, 1.0, 1.0, 1.0, 1.0];
+  const matA_a = [
+    [[1.5, -0.4, 0.2, -0.1], [-0.8, 0.5, -0.3, 0.2]],
+    [[0.9, -0.3, 0.6, 0.1], [1.4, -0.5, 0.2, -0.4]]
+  ];
+  const I_ext_a = [0.2, 0.1, 0.0, -0.1, -0.1, 0.0, 0.2, 0.0];
+  const x0_a = [0.4, -0.3, 0.2, 0.1, -0.2, 0.3, -0.1, 0.2];
+  const y0_a = [0.6, -0.1, 0.4, 0.25, -0.05, 0.45, 0.05, 0.35];
+
+  function net_f_a(x) {
+    const tx = x.map(Math.tanh);
+    const out = new Float64Array(8);
+    for (let i = 0; i < 2; i++) {
+      let s = [0, 0, 0, 0];
+      for (let j = 0; j < 2; j++) {
+        const qB = [tx[4*j], tx[4*j+1], tx[4*j+2], tx[4*j+3]];
+        const m = qmul(matA_a[i][j], qB);
+        s[0] += m[0]; s[1] += m[1]; s[2] += m[2]; s[3] += m[3];
+      }
+      for (let c = 0; c < 4; c++) {
+        const idx = 4*i + c;
+        out[idx] = -c_a[idx] * x[idx] + s[c] + I_ext_a[idx];
+      }
+    }
+    return out;
+  }
+
+  function uncert_a(x, t) {
+    let s = 0;
+    for (let i = 0; i < 8; i++) s += x[i]*x[i];
+    const factor = 0.12 * Math.sin(2.0 * t) / (1.0 + s);
+    const out = new Float64Array(8);
+    for (let i = 0; i < 8; i++) out[i] = factor * x[i];
+    return out;
+  }
+
+  function solveDemoA(cfg, onProgress) {
+    const alpha = cfg.alpha, h = cfg.h, T = cfg.T;
+    const N = Math.round(T / h);
+    const { wp, wc, w0, invG2 } = abmWeights(N, alpha, h);
+    const n = 8;
+    const X = Array.from({length: n}, () => new Float64Array(N + 1));
+    const Y = Array.from({length: n}, () => new Float64Array(N + 1));
+    const FX = Array.from({length: n}, () => new Float64Array(N + 1));
+    const FY = Array.from({length: n}, () => new Float64Array(N + 1));
+    const err = new Float64Array(N + 1);
+
+    for (let i = 0; i < n; i++) {
+      X[i][0] = x0_a[i];
+      Y[i][0] = y0_a[i];
+    }
+    err[0] = FracSyncCore.errorNorm(y0_a, x0_a);
+
+    const s_arr = new Float64Array(n);
+    const pStep = Math.max(50, Math.round(N / 40));
+
+    for (let m = 0; m < N; m++) {
+      if (onProgress && m % pStep === 0) onProgress(m / N);
+      const t_m = m * h;
+      const x_m = new Float64Array(n);
+      const y_m = new Float64Array(n);
+      const e_m = new Float64Array(n);
+      for (let i = 0; i < n; i++) {
+        x_m[i] = X[i][m];
+        y_m[i] = Y[i][m];
+        e_m[i] = y_m[i] - x_m[i];
+      }
+
+      // Fractional integral of error up to m
+      let int_e = 0;
+      for (let i = 0; i < n; i++) {
+        let s = 0;
+        for (let j = 0; j <= m; j++) s += wp[m + 1 - j] * (Y[i][j] - X[i][j]);
+        s_arr[i] = e_m[i] + cfg.lam_s * s;
+      }
+
+      const fx = net_f_a(x_m);
+      const ux_unc = uncert_a(x_m, t_m);
+      const fy = net_f_a(y_m);
+      const uy_unc = uncert_a(y_m, t_m);
+
+      const u = new Float64Array(n);
+      for (let i = 0; i < n; i++) {
+        u[i] = -cfg.lam_s * e_m[i] - cfg.k * s_arr[i] - cfg.eta * Math.tanh(s_arr[i] / cfg.eps) - (fy[i] - fx[i]);
+        FX[i][m] = fx[i] + ux_unc[i];
+        FY[i][m] = fy[i] + uy_unc[i] + u[i];
+      }
+
+      // Predict
+      const xp = new Float64Array(n);
+      const yp = new Float64Array(n);
+      const ep = new Float64Array(n);
+      const sp = new Float64Array(n);
+      for (let i = 0; i < n; i++) {
+        let sx = 0, sy = 0, se = 0;
+        for (let j = 0; j <= m; j++) {
+          const w = wp[m + 1 - j];
+          sx += w * FX[i][j];
+          sy += w * FY[i][j];
+          se += w * (Y[i][j] - X[i][j]);
+        }
+        xp[i] = x0_a[i] + sx;
+        yp[i] = y0_a[i] + sy;
+        ep[i] = yp[i] - xp[i];
+        sp[i] = ep[i] + cfg.lam_s * se;
+      }
+
+      const fxp = net_f_a(xp);
+      const uxp_unc = uncert_a(xp, t_m + h);
+      const fyp = net_f_a(yp);
+      const uyp_unc = uncert_a(yp, t_m + h);
+
+      const up = new Float64Array(n);
+      for (let i = 0; i < n; i++) {
+        up[i] = -cfg.lam_s * ep[i] - cfg.k * sp[i] - cfg.eta * Math.tanh(sp[i] / cfg.eps) - (fyp[i] - fxp[i]);
+      }
+
+      // Correct
+      for (let i = 0; i < n; i++) {
+        let sx = 0, sy = 0;
+        for (let j = 1; j <= m; j++) {
+          const w = wc[m - j];
+          sx += w * FX[i][j];
+          sy += w * FY[i][j];
+        }
+        X[i][m + 1] = x0_a[i] + invG2 * (fxp[i] + uxp_unc[i] + w0[m] * FX[i][0] + sx);
+        Y[i][m + 1] = y0_a[i] + invG2 * (fyp[i] + uyp_unc[i] + up[i] + w0[m] * FY[i][0] + sy);
+      }
+
+      let diff2 = 0;
+      for (let i = 0; i < n; i++) {
+        const d = Y[i][m + 1] - X[i][m + 1];
+        diff2 += d * d;
+      }
+      err[m + 1] = Math.sqrt(diff2);
+    }
+    return { N, h, T, X, Y, err };
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // DEMO B LOGIC (Projective Synchronization of Competitive Networks)
+  // ═══════════════════════════════════════════════════════════════════════════
+  const B_STATE = {
+    T: 15.0,
+    h: 0.005,
+    alpha: 0.95,
+    lam: 1.5,
+    k: 4.5,
+    eta: 2.0,
+    eps: 0.05,
+    result: null,
+    busy: false
+  };
+
+  const a_stm = 1.2, d_ltm = 0.9, c_syn = 0.6;
+  const matB_b = [
+    [[1.2, -0.3, 0.1, 0.0], [-0.5, 0.6, -0.2, 0.1]],
+    [[0.6, -0.2, 0.5, 0.0], [1.1, -0.4, 0.2, -0.3]]
+  ];
+  const v_ext_b = [0.8, 0.4, -0.3, 0.1];
+  const I_bias_b = [0.1, -0.1, 0.2, 0.0, -0.1, 0.1, 0.0, 0.1];
+  const x0_b = [0.3, -0.2, 0.1, 0.2, -0.1, 0.3, -0.2, 0.1, 0.4, 0.1, -0.2, 0.1, -0.3, 0.2, 0.1, -0.1];
+
+  function f_comp_b(z) {
+    const x = z.slice(0, 8);
+    const w = z.slice(8, 16);
+    const tx = x.map(Math.tanh);
+    const out = new Float64Array(16);
+    for (let i = 0; i < 2; i++) {
+      let s = [0, 0, 0, 0];
+      for (let j = 0; j < 2; j++) {
+        const qB = [tx[4*j], tx[4*j+1], tx[4*j+2], tx[4*j+3]];
+        const m = qmul(matB_b[i][j], qB);
+        s[0] += m[0]; s[1] += m[1]; s[2] += m[2]; s[3] += m[3];
+      }
+      const syn = qmul([w[4*i], w[4*i+1], w[4*i+2], w[4*i+3]], v_ext_b);
+      const m_learn = qmul([tx[4*i], tx[4*i+1], tx[4*i+2], tx[4*i+3]], v_ext_b);
+      for (let c = 0; c < 4; c++) {
+        out[4*i + c] = -a_stm * x[4*i + c] + s[c] + c_syn * syn[c] + I_bias_b[4*i + c];
+        out[8 + 4*i + c] = -d_ltm * w[4*i + c] + m_learn[c];
+      }
+    }
+    return out;
+  }
+
+  function uncert_b(z, t) {
+    let s = 0;
+    for (let i = 0; i < 16; i++) s += z[i]*z[i];
+    const factor = 0.10 * Math.sin(1.5 * t) / (1.0 + s);
+    const out = new Float64Array(16);
+    for (let i = 0; i < 16; i++) out[i] = factor * z[i];
+    return out;
+  }
+
+  function solveDemoB(cfg, onProgress) {
+    const alpha = cfg.alpha, h = cfg.h, T = cfg.T, lam = cfg.lam;
+    const N = Math.round(T / h);
+    const { wp, wc, w0, invG2 } = abmWeights(N, alpha, h);
+    const n = 16;
+    const X = Array.from({length: n}, () => new Float64Array(N + 1));
+    const Y = Array.from({length: n}, () => new Float64Array(N + 1));
+    const FX = Array.from({length: n}, () => new Float64Array(N + 1));
+    const FY = Array.from({length: n}, () => new Float64Array(N + 1));
+    const err = new Float64Array(N + 1);
+
+    const offset = [0.25, -0.2, 0.15, -0.1, 0.2, -0.15, 0.1, -0.2, 0.2, -0.1, 0.15, -0.2, 0.1, -0.15, 0.2, -0.1];
+    for (let i = 0; i < n; i++) {
+      X[i][0] = x0_b[i];
+      Y[i][0] = lam * x0_b[i] + offset[i];
+    }
+    err[0] = FracSyncCore.errorNorm(Y.map(y => y[0]), x0_b, lam);
+
+    const pStep = Math.max(50, Math.round(N / 40));
+
+    for (let m = 0; m < N; m++) {
+      if (onProgress && m % pStep === 0) onProgress(m / N);
+      const t_m = m * h;
+      const x_m = new Float64Array(n);
+      const y_m = new Float64Array(n);
+      const e_m = new Float64Array(n);
+      for (let i = 0; i < n; i++) {
+        x_m[i] = X[i][m];
+        y_m[i] = Y[i][m];
+        e_m[i] = y_m[i] - lam * x_m[i];
+      }
+
+      const fx = f_comp_b(x_m);
+      const ux_unc = uncert_b(x_m, t_m);
+      const fy = f_comp_b(y_m);
+      const uy_unc = uncert_b(y_m, t_m);
+
+      const u = new Float64Array(n);
+      for (let i = 0; i < n; i++) {
+        u[i] = -cfg.k * e_m[i] - cfg.eta * Math.tanh(e_m[i] / cfg.eps) + (lam * fx[i] - fy[i]);
+        FX[i][m] = fx[i] + ux_unc[i];
+        FY[i][m] = fy[i] + uy_unc[i] + u[i];
+      }
+
+      // Predict
+      const xp = new Float64Array(n);
+      const yp = new Float64Array(n);
+      const ep = new Float64Array(n);
+      for (let i = 0; i < n; i++) {
+        let sx = 0, sy = 0;
+        for (let j = 0; j <= m; j++) {
+          const w = wp[m + 1 - j];
+          sx += w * FX[i][j];
+          sy += w * FY[i][j];
+        }
+        xp[i] = X[i][0] + sx;
+        yp[i] = Y[i][0] + sy;
+        ep[i] = yp[i] - lam * xp[i];
+      }
+
+      const fxp = f_comp_b(xp);
+      const uxp_unc = uncert_b(xp, t_m + h);
+      const fyp = f_comp_b(yp);
+      const uyp_unc = uncert_b(yp, t_m + h);
+
+      const up = new Float64Array(n);
+      for (let i = 0; i < n; i++) {
+        up[i] = -cfg.k * ep[i] - cfg.eta * Math.tanh(ep[i] / cfg.eps) + (lam * fxp[i] - fyp[i]);
+      }
+
+      // Correct
+      for (let i = 0; i < n; i++) {
+        let sx = 0, sy = 0;
+        for (let j = 1; j <= m; j++) {
+          const w = wc[m - j];
+          sx += w * FX[i][j];
+          sy += w * FY[i][j];
+        }
+        X[i][m + 1] = X[i][0] + invG2 * (fxp[i] + uxp_unc[i] + w0[m] * FX[i][0] + sx);
+        Y[i][m + 1] = Y[i][0] + invG2 * (fyp[i] + uyp_unc[i] + up[i] + w0[m] * FY[i][0] + sy);
+      }
+
+      let diff2 = 0;
+      for (let i = 0; i < n; i++) {
+        const d = Y[i][m + 1] - lam * X[i][m + 1];
+        diff2 += d * d;
+      }
+      err[m + 1] = Math.sqrt(diff2);
+    }
+    return { N, h, T, X, Y, err };
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // DEMO C LOGIC (Adaptive Projective Synchronization of Inertial Network)
+  // ═══════════════════════════════════════════════════════════════════════════
+  const C_STATE = {
+    T: 15.0,
+    h: 0.005,
+    alpha: 0.95,
+    mode: 'MLPS', // 'MLPS' or 'AAPS'
+    lam: 1.2,
+    k: 4.0,
+    mu: 15.0,
+    result: null,
+    busy: false
+  };
+
+  const a_inert = 3.0, b_inert = 2.0, gam_inert = 1.0;
+  const a_eff_c = a_inert - gam_inert; // 2.0
+  const matC_c = [
+    [[1.4, -0.4, 0.2, 0.0], [-0.6, 0.5, -0.2, 0.1]],
+    [[0.7, -0.3, 0.5, 0.1], [1.3, -0.5, 0.2, -0.3]]
+  ];
+  const I_bias_c = [0.1, 0.0, -0.1, 0.2, 0.2, -0.1, 0.0, 0.1];
+  const x0_c = [0.3, -0.2, 0.1, 0.4, -0.1, 0.2, 0.3, -0.3, 0.1, -0.1, 0.2, 0.1, -0.2, 0.1, 0.1, -0.2];
+
+  function f_inertial_c(z) {
+    const x = z.slice(0, 8);
+    const v = z.slice(8, 16);
+    const tx = x.map(Math.tanh);
+    const out = new Float64Array(16);
+    for (let i = 0; i < 2; i++) {
+      let s = [0, 0, 0, 0];
+      for (let j = 0; j < 2; j++) {
+        const qB = [tx[4*j], tx[4*j+1], tx[4*j+2], tx[4*j+3]];
+        const m = qmul(matC_c[i][j], qB);
+        s[0] += m[0]; s[1] += m[1]; s[2] += m[2]; s[3] += m[3];
+      }
+      for (let c = 0; c < 4; c++) {
+        out[4*i + c] = v[4*i + c] - gam_inert * x[4*i + c];
+        out[8 + 4*i + c] = -a_eff_c * v[4*i + c] + s[c] + I_bias_c[4*i + c];
+      }
+    }
+    return out;
+  }
+
+  function solveDemoC(cfg, onProgress) {
+    const alpha = cfg.alpha, h = cfg.h, T = cfg.T, lam = cfg.lam, mode = cfg.mode;
+    const N = Math.round(T / h);
+    const { wp, wc, w0, invG2 } = abmWeights(N, alpha, h);
+    const n = 16;
+    const X = Array.from({length: n}, () => new Float64Array(N + 1));
+    const Y = Array.from({length: n}, () => new Float64Array(N + 1));
+    const FX = Array.from({length: n}, () => new Float64Array(N + 1));
+    const FY = Array.from({length: n}, () => new Float64Array(N + 1));
+    const err = new Float64Array(N + 1);
+    const gainHistory = new Float64Array(N + 1);
+
+    const offset = [0.2, -0.15, 0.1, -0.1, 0.15, -0.2, 0.1, -0.15, 0.1, -0.1, 0.2, -0.15, 0.1, -0.2, 0.15, -0.1];
+    for (let i = 0; i < n; i++) {
+      X[i][0] = x0_c[i];
+      Y[i][0] = lam * x0_c[i] + offset[i];
+    }
+    err[0] = FracSyncCore.errorNorm(Y.map(y => y[0]), x0_c, lam);
+    let kad = 0.5;
+    gainHistory[0] = kad;
+
+    const pStep = Math.max(50, Math.round(N / 40));
+
+    for (let m = 0; m < N; m++) {
+      if (onProgress && m % pStep === 0) onProgress(m / N);
+      const x_m = new Float64Array(n);
+      const y_m = new Float64Array(n);
+      const e_m = new Float64Array(n);
+      let e_norm2 = 0;
+      for (let i = 0; i < n; i++) {
+        x_m[i] = X[i][m];
+        y_m[i] = Y[i][m];
+        e_m[i] = y_m[i] - lam * x_m[i];
+        e_norm2 += e_m[i] * e_m[i];
+      }
+
+      if (mode === 'AAPS') {
+        kad += h * cfg.mu * e_norm2;
+      }
+      gainHistory[m] = kad;
+
+      const fx = f_inertial_c(x_m);
+      const fy = f_inertial_c(y_m);
+
+      const u = new Float64Array(n);
+      for (let i = 0; i < 8; i++) {
+        u[i] = -2.0 * e_m[i] + (lam * fx[i] - fy[i]);
+      }
+      const v_gain = (mode === 'MLPS') ? cfg.k : kad;
+      for (let i = 8; i < 16; i++) {
+        u[i] = -v_gain * e_m[i] + (lam * fx[i] - fy[i]);
+      }
+
+      for (let i = 0; i < n; i++) {
+        FX[i][m] = fx[i];
+        FY[i][m] = fy[i] + u[i];
+      }
+
+      // Predict
+      const xp = new Float64Array(n);
+      const yp = new Float64Array(n);
+      const ep = new Float64Array(n);
+      for (let i = 0; i < n; i++) {
+        let sx = 0, sy = 0;
+        for (let j = 0; j <= m; j++) {
+          const w = wp[m + 1 - j];
+          sx += w * FX[i][j];
+          sy += w * FY[i][j];
+        }
+        xp[i] = X[i][0] + sx;
+        yp[i] = Y[i][0] + sy;
+        ep[i] = yp[i] - lam * xp[i];
+      }
+
+      const fxp = f_inertial_c(xp);
+      const fyp = f_inertial_c(yp);
+
+      const up = new Float64Array(n);
+      for (let i = 0; i < 8; i++) up[i] = -2.0 * ep[i] + (lam * fxp[i] - fyp[i]);
+      for (let i = 8; i < 16; i++) up[i] = -v_gain * ep[i] + (lam * fxp[i] - fyp[i]);
+
+      // Correct
+      for (let i = 0; i < n; i++) {
+        let sx = 0, sy = 0;
+        for (let j = 1; j <= m; j++) {
+          const w = wc[m - j];
+          sx += w * FX[i][j];
+          sy += w * FY[i][j];
+        }
+        X[i][m + 1] = X[i][0] + invG2 * (fxp[i] + w0[m] * FX[i][0] + sx);
+        Y[i][m + 1] = Y[i][0] + invG2 * (fyp[i] + up[i] + w0[m] * FY[i][0] + sy);
+      }
+
+      let diff2 = 0;
+      for (let i = 0; i < n; i++) {
+        const d = Y[i][m + 1] - lam * X[i][m + 1];
+        diff2 += d * d;
+      }
+      err[m + 1] = Math.sqrt(diff2);
+    }
+    gainHistory[N] = kad;
+    return { N, h, T, X, Y, err, gainHistory };
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // GENERIC PLOTTING HELPERS
+  // ═══════════════════════════════════════════════════════════════════════════
+  function getCanvasColors() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark' ||
+      (!document.documentElement.getAttribute('data-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    return {
+      bg: isDark ? '#111C31' : '#F8FAFD',
+      line: isDark ? '#25375A' : '#C3CDDF',
+      text: isDark ? '#93A3C2' : '#54658A',
+      drive: isDark ? '#86A9FF' : '#2D4FA1',
+      resp: isDark ? '#E2A83B' : '#B9750A',
+      ok: isDark ? '#4CCB84' : '#1E8A4B',
+      bad: isDark ? '#F27A6C' : '#C0392B'
+    };
+  }
+
+  function drawErrorPlot(cv, err, h, tol = 0.01) {
+    const ctx = cv.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    const rect = cv.getBoundingClientRect();
+    cv.width = rect.width * dpr;
+    cv.height = rect.height * dpr;
+    ctx.scale(dpr, dpr);
+    const W = rect.width, H = rect.height;
+    const c = getCanvasColors();
+
+    ctx.fillStyle = c.bg;
+    ctx.fillRect(0, 0, W, H);
+
+    const padL = 40, padR = 15, padT = 15, padB = 25;
+    const pW = W - padL - padR, pH = H - padT - padB;
+
+    let minE = 1e-6, maxE = 1.0;
+    for (let i = 0; i < err.length; i++) {
+      if (err[i] > maxE) maxE = err[i];
+      if (err[i] > 1e-12 && err[i] < minE) minE = err[i];
+    }
+    minE = Math.max(1e-6, minE);
+    const logMin = Math.log10(minE), logMax = Math.log10(maxE * 1.5);
+
+    // Tolerance line
+    const tolY = padT + (1 - (Math.log10(tol) - logMin) / (logMax - logMin)) * pH;
+    ctx.strokeStyle = c.line;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(padL, tolY);
+    ctx.lineTo(padL + pW, tolY);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = c.text;
+    ctx.font = '9px "IBM Plex Mono"';
+    ctx.fillText('tol 0.01', padL + 4, tolY - 3);
+
+    // Grid lines & labels
+    ctx.fillStyle = c.text;
+    ctx.textAlign = 'right';
+    for (let p = Math.ceil(logMin); p <= Math.floor(logMax); p += 2) {
+      const y = padT + (1 - (p - logMin) / (logMax - logMin)) * pH;
+      ctx.fillText('1e' + p, padL - 5, y + 3);
+      ctx.strokeStyle = c.line;
+      ctx.beginPath();
+      ctx.moveTo(padL, y);
+      ctx.lineTo(padL + pW, y);
+      ctx.stroke();
+    }
+
+    // Downsample for rendering
+    const N = err.length - 1;
+    const step = Math.max(1, Math.floor(N / 1500));
+    ctx.strokeStyle = c.resp;
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    let started = false;
+    for (let k = 0; k <= N; k += step) {
+      const x = padL + (k / N) * pW;
+      const val = Math.max(minE, err[k]);
+      const y = padT + (1 - (Math.log10(val) - logMin) / (logMax - logMin)) * pH;
+      if (!started) { ctx.moveTo(x, y); started = true; }
+      else { ctx.lineTo(x, y); }
+    }
+    ctx.stroke();
+  }
+
+  function drawStatePlot(cv, X0, Y0, h, lam = 1) {
+    const ctx = cv.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    const rect = cv.getBoundingClientRect();
+    cv.width = rect.width * dpr;
+    cv.height = rect.height * dpr;
+    ctx.scale(dpr, dpr);
+    const W = rect.width, H = rect.height;
+    const c = getCanvasColors();
+
+    ctx.fillStyle = c.bg;
+    ctx.fillRect(0, 0, W, H);
+
+    const padL = 35, padR = 15, padT = 15, padB = 25;
+    const pW = W - padL - padR, pH = H - padT - padB;
+
+    let minV = Infinity, maxV = -Infinity;
+    const N = X0.length - 1;
+    for (let i = 0; i <= N; i++) {
+      const vx = lam * X0[i], vy = Y0[i];
+      if (vx < minV) minV = vx; if (vx > maxV) maxV = vx;
+      if (vy < minV) minV = vy; if (vy > maxV) maxV = vy;
+    }
+    const span = Math.max(0.1, maxV - minV);
+    minV -= 0.1 * span; maxV += 0.1 * span;
+
+    const step = Math.max(1, Math.floor(N / 1500));
+
+    // Drive line (blue)
+    ctx.strokeStyle = c.drive;
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    for (let k = 0; k <= N; k += step) {
+      const x = padL + (k / N) * pW;
+      const y = padT + (1 - (lam * X0[k] - minV) / (maxV - minV)) * pH;
+      if (k === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+
+    // Response line (brass)
+    ctx.strokeStyle = c.resp;
+    ctx.lineWidth = 1.6;
+    ctx.setLineDash([3, 2]);
+    ctx.beginPath();
+    for (let k = 0; k <= N; k += step) {
+      const x = padL + (k / N) * pW;
+      const y = padT + (1 - (Y0[k] - minV) / (maxV - minV)) * pH;
+      if (k === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Legend
+    ctx.font = '10px "IBM Plex Mono"';
+    ctx.fillStyle = c.drive;
+    ctx.fillText('Drive λ·x₁', padL + 10, padT + 12);
+    ctx.fillStyle = c.resp;
+    ctx.fillText('Response y₁', padL + 85, padT + 12);
+  }
+
+  function drawPhasePlot(cv, X0, X1) {
+    const ctx = cv.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    const rect = cv.getBoundingClientRect();
+    cv.width = rect.width * dpr;
+    cv.height = rect.height * dpr;
+    ctx.scale(dpr, dpr);
+    const W = rect.width, H = rect.height;
+    const c = getCanvasColors();
+
+    ctx.fillStyle = c.bg;
+    ctx.fillRect(0, 0, W, H);
+
+    const pad = 20;
+    const pW = W - 2 * pad, pH = H - 2 * pad;
+
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    const N = X0.length - 1;
+    for (let i = 0; i <= N; i++) {
+      if (X0[i] < minX) minX = X0[i]; if (X0[i] > maxX) maxX = X0[i];
+      if (X1[i] < minY) minY = X1[i]; if (X1[i] > maxY) maxY = X1[i];
+    }
+    const spanX = Math.max(0.1, maxX - minX), spanY = Math.max(0.1, maxY - minY);
+    minX -= 0.08 * spanX; maxX += 0.08 * spanX;
+    minY -= 0.08 * spanY; maxY += 0.08 * spanY;
+
+    const step = Math.max(1, Math.floor(N / 1500));
+    ctx.strokeStyle = c.resp;
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    for (let k = 0; k <= N; k += step) {
+      const x = pad + ((X0[k] - minX) / (maxX - minX)) * pW;
+      const y = pad + (1 - (X1[k] - minY) / (maxY - minY)) * pH;
+      if (k === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // UI BINDINGS & EXECUTION CONTROLLERS
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  // ── Article A Setup
+  function runDemoA() {
+    const pill = document.getElementById('pill-a');
+    pill.textContent = 'Solving...';
+    pill.className = 'pill turn';
+    document.getElementById('prog-wrap-a').style.display = 'flex';
+
+    setTimeout(() => {
+      const res = solveDemoA(A_STATE, pct => {
+        document.getElementById('prog-bar-a').style.width = (pct * 100).toFixed(0) + '%';
+        document.getElementById('prog-pct-a').textContent = (pct * 100).toFixed(0) + '%';
+      });
+      A_STATE.result = res;
+      document.getElementById('prog-wrap-a').style.display = 'none';
+
+      const stats = computeStats(res.err, res.h);
+      document.getElementById('read-a-settle').textContent = stats.settle !== null ? stats.settle.toFixed(3) + 's' : 'No Sync';
+      document.getElementById('read-a-final').textContent = stats.final < 1e-3 ? stats.final.toExponential(3) : stats.final.toFixed(4);
+      document.getElementById('read-a-peak').textContent = stats.peak.toFixed(4);
+
+      if (stats.open) {
+        pill.textContent = 'Unlocked';
+        pill.className = 'pill ok';
+      } else {
+        pill.textContent = 'Locked';
+        pill.className = 'pill bad';
+      }
+
+      drawErrorPlot(document.getElementById('cv-a-err'), res.err, res.h);
+      drawStatePlot(document.getElementById('cv-a-state'), res.X[0], res.Y[0], res.h);
+      drawPhasePlot(document.getElementById('cv-a-phase'), res.X[0], res.X[1]);
+    }, 20);
+  }
+
+  document.getElementById('btn-run-a').addEventListener('click', runDemoA);
+  document.getElementById('rng-a-k').addEventListener('input', e => {
+    A_STATE.k = parseFloat(e.target.value);
+    document.getElementById('out-a-k').textContent = A_STATE.k.toFixed(1);
+    document.getElementById('tooth-a1').setAttribute('height', (6 + A_STATE.k * 0.4).toFixed(0));
+  });
+  document.getElementById('rng-a-eta').addEventListener('input', e => {
+    A_STATE.eta = parseFloat(e.target.value);
+    document.getElementById('out-a-eta').textContent = A_STATE.eta.toFixed(1);
+    document.getElementById('tooth-a2').setAttribute('height', (6 + A_STATE.eta * 0.8).toFixed(0));
+    const pass = A_STATE.eta > 0.30;
+    const badge = document.getElementById('badge-a-cond1');
+    badge.className = 'check-badge ' + (pass ? 'pass' : 'fail');
+    badge.innerHTML = pass ? '&check;' : '&times;';
+    document.getElementById('sub-a-cond1').textContent = `Current: η = ${A_STATE.eta.toFixed(2)} ${pass ? '>' : '≤'} 0.30`;
+  });
+  document.getElementById('rng-a-lam').addEventListener('input', e => {
+    A_STATE.lam_s = parseFloat(e.target.value);
+    document.getElementById('out-a-lam').textContent = A_STATE.lam_s.toFixed(2);
+    document.getElementById('tooth-a3').setAttribute('height', (6 + A_STATE.lam_s * 1.5).toFixed(0));
+    const pass = A_STATE.lam_s > 1.20;
+    const badge = document.getElementById('badge-a-cond2');
+    badge.className = 'check-badge ' + (pass ? 'pass' : 'fail');
+    badge.innerHTML = pass ? '&check;' : '&times;';
+    document.getElementById('sub-a-cond2').textContent = `Current: λ_s = ${A_STATE.lam_s.toFixed(2)} ${pass ? '>' : '≤'} 1.20`;
+  });
+
+  document.querySelectorAll('.t-btn-a').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.t-btn-a').forEach(b => b.removeAttribute('aria-pressed'));
+      btn.setAttribute('aria-pressed', 'true');
+      A_STATE.T = parseFloat(btn.dataset.t);
+      runDemoA();
+    });
+  });
+  document.querySelectorAll('.h-btn-a').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.h-btn-a').forEach(b => b.removeAttribute('aria-pressed'));
+      btn.setAttribute('aria-pressed', 'true');
+      A_STATE.h = parseFloat(btn.dataset.h);
+      runDemoA();
+    });
+  });
+
+  // ── Article B Setup
+  function runDemoB() {
+    const pill = document.getElementById('pill-b');
+    pill.textContent = 'Solving...';
+    pill.className = 'pill turn';
+    document.getElementById('prog-wrap-b').style.display = 'flex';
+
+    setTimeout(() => {
+      const res = solveDemoB(B_STATE, pct => {
+        document.getElementById('prog-bar-b').style.width = (pct * 100).toFixed(0) + '%';
+        document.getElementById('prog-pct-b').textContent = (pct * 100).toFixed(0) + '%';
+      });
+      B_STATE.result = res;
+      document.getElementById('prog-wrap-b').style.display = 'none';
+
+      const stats = computeStats(res.err, res.h);
+      document.getElementById('read-b-settle').textContent = stats.settle !== null ? stats.settle.toFixed(3) + 's' : 'No Sync';
+      document.getElementById('read-b-final').textContent = stats.final < 1e-3 ? stats.final.toExponential(3) : stats.final.toFixed(4);
+      document.getElementById('read-b-peak').textContent = stats.peak.toFixed(4);
+
+      if (stats.open) {
+        pill.textContent = 'Unlocked';
+        pill.className = 'pill ok';
+      } else {
+        pill.textContent = 'Locked';
+        pill.className = 'pill bad';
+      }
+
+      drawErrorPlot(document.getElementById('cv-b-err'), res.err, res.h);
+      drawStatePlot(document.getElementById('cv-b-state'), res.X[0], res.Y[0], res.h, B_STATE.lam);
+      drawPhasePlot(document.getElementById('cv-b-phase'), res.X[0], res.Y[0]);
+    }, 20);
+  }
+
+  document.getElementById('btn-run-b').addEventListener('click', runDemoB);
+  document.getElementById('rng-b-lam').addEventListener('input', e => {
+    B_STATE.lam = parseFloat(e.target.value);
+    document.getElementById('out-b-lam').textContent = B_STATE.lam.toFixed(2);
+  });
+  document.getElementById('rng-b-k').addEventListener('input', e => {
+    B_STATE.k = parseFloat(e.target.value);
+    document.getElementById('out-b-k').textContent = B_STATE.k.toFixed(1);
+    document.getElementById('tooth-b1').setAttribute('height', (6 + B_STATE.k * 0.4).toFixed(0));
+    const pass = B_STATE.k > 0.20;
+    const badge = document.getElementById('badge-b-cond1');
+    badge.className = 'check-badge ' + (pass ? 'pass' : 'fail');
+    badge.innerHTML = pass ? '&check;' : '&times;';
+    document.getElementById('sub-b-cond1').textContent = `Current: k = ${B_STATE.k.toFixed(2)} ${pass ? '>' : '≤'} 0.20`;
+  });
+  document.getElementById('rng-b-eta').addEventListener('input', e => {
+    B_STATE.eta = parseFloat(e.target.value);
+    document.getElementById('out-b-eta').textContent = B_STATE.eta.toFixed(1);
+    document.getElementById('tooth-b2').setAttribute('height', (6 + B_STATE.eta * 0.8).toFixed(0));
+    const pass = B_STATE.eta > 0.15;
+    const badge = document.getElementById('badge-b-cond2');
+    badge.className = 'check-badge ' + (pass ? 'pass' : 'fail');
+    badge.innerHTML = pass ? '&check;' : '&times;';
+    document.getElementById('sub-b-cond2').textContent = `Current: η = ${B_STATE.eta.toFixed(2)} ${pass ? '>' : '≤'} 0.15`;
+  });
+
+  document.querySelectorAll('.t-btn-b').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.t-btn-b').forEach(b => b.removeAttribute('aria-pressed'));
+      btn.setAttribute('aria-pressed', 'true');
+      B_STATE.T = parseFloat(btn.dataset.t);
+      runDemoB();
+    });
+  });
+  document.querySelectorAll('.h-btn-b').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.h-btn-b').forEach(b => b.removeAttribute('aria-pressed'));
+      btn.setAttribute('aria-pressed', 'true');
+      B_STATE.h = parseFloat(btn.dataset.h);
+      runDemoB();
+    });
+  });
+
+  // ── Article C Setup
+  function runDemoC() {
+    const pill = document.getElementById('pill-c');
+    pill.textContent = 'Solving...';
+    pill.className = 'pill turn';
+    document.getElementById('prog-wrap-c').style.display = 'flex';
+
+    setTimeout(() => {
+      const res = solveDemoC(C_STATE, pct => {
+        document.getElementById('prog-bar-c').style.width = (pct * 100).toFixed(0) + '%';
+        document.getElementById('prog-pct-c').textContent = (pct * 100).toFixed(0) + '%';
+      });
+      C_STATE.result = res;
+      document.getElementById('prog-wrap-c').style.display = 'none';
+
+      const stats = computeStats(res.err, res.h);
+      document.getElementById('read-c-settle').textContent = stats.settle !== null ? stats.settle.toFixed(3) + 's' : 'No Sync';
+      document.getElementById('read-c-final').textContent = stats.final < 1e-3 ? stats.final.toExponential(3) : stats.final.toFixed(4);
+      document.getElementById('read-c-peak').textContent = stats.peak.toFixed(4);
+
+      if (stats.open) {
+        pill.textContent = 'Unlocked';
+        pill.className = 'pill ok';
+      } else {
+        pill.textContent = 'Locked';
+        pill.className = 'pill bad';
+      }
+
+      drawErrorPlot(document.getElementById('cv-c-err'), res.err, res.h);
+      drawStatePlot(document.getElementById('cv-c-state'), res.X[0], res.Y[0], res.h, C_STATE.lam);
+      if (C_STATE.mode === 'AAPS') {
+        drawPhasePlot(document.getElementById('cv-c-phase'), res.X[0], res.gainHistory);
+      } else {
+        drawPhasePlot(document.getElementById('cv-c-phase'), res.X[0], res.X[8]);
+      }
+    }, 20);
+  }
+
+  document.getElementById('btn-run-c').addEventListener('click', runDemoC);
+  document.getElementById('tab-c-mlps').addEventListener('click', () => {
+    document.getElementById('tab-c-mlps').className = 'view-tab active';
+    document.getElementById('tab-c-aaps').className = 'view-tab';
+    document.getElementById('grp-c-k').style.display = 'flex';
+    document.getElementById('grp-c-mu').style.display = 'none';
+    C_STATE.mode = 'MLPS';
+    runDemoC();
+  });
+  document.getElementById('tab-c-aaps').addEventListener('click', () => {
+    document.getElementById('tab-c-aaps').className = 'view-tab active';
+    document.getElementById('tab-c-mlps').className = 'view-tab';
+    document.getElementById('grp-c-k').style.display = 'none';
+    document.getElementById('grp-c-mu').style.display = 'flex';
+    C_STATE.mode = 'AAPS';
+    runDemoC();
+  });
+
+  document.getElementById('rng-c-lam').addEventListener('input', e => {
+    C_STATE.lam = parseFloat(e.target.value);
+    document.getElementById('out-c-lam').textContent = C_STATE.lam.toFixed(2);
+  });
+  document.getElementById('rng-c-k').addEventListener('input', e => {
+    C_STATE.k = parseFloat(e.target.value);
+    document.getElementById('out-c-k').textContent = C_STATE.k.toFixed(1);
+    document.getElementById('tooth-c1').setAttribute('height', (6 + C_STATE.k * 0.4).toFixed(0));
+  });
+  document.getElementById('rng-c-mu').addEventListener('input', e => {
+    C_STATE.mu = parseFloat(e.target.value);
+    document.getElementById('out-c-mu').textContent = C_STATE.mu.toFixed(1);
+  });
+
+  document.querySelectorAll('.t-btn-c').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.t-btn-c').forEach(b => b.removeAttribute('aria-pressed'));
+      btn.setAttribute('aria-pressed', 'true');
+      C_STATE.T = parseFloat(btn.dataset.t);
+      runDemoC();
+    });
+  });
+  document.querySelectorAll('.h-btn-c').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.h-btn-c').forEach(b => b.removeAttribute('aria-pressed'));
+      btn.setAttribute('aria-pressed', 'true');
+      C_STATE.h = parseFloat(btn.dataset.h);
+      runDemoC();
+    });
+  });
+
+  // ── Copy python snippet helpers
+  function bindCopy(btnId, codeId) {
+    const btn = document.getElementById(btnId);
+    if (!btn) return;
+    btn.addEventListener('click', () => {
+      const code = document.getElementById(codeId).textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        const orig = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = orig, 1800);
+      });
+    });
+  }
+  bindCopy('btn-copy-py-a', 'code-a');
+  bindCopy('btn-copy-py-b', 'code-b');
+  bindCopy('btn-copy-py-c', 'code-c');
+
+  // Trigger initial run of Demo A on load
+  runDemoA();
+
+})();
+</script>
+</body>
+</html>
